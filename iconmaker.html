@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Pembuat Ikon</title>
+<style>body{font-family:sans-serif;background:#06281f;color:#fff;text-align:center;padding:20px}a{display:inline-block;margin:10px;padding:14px 22px;background:#ffd700;color:#06281f;font-weight:bold;border-radius:12px;text-decoration:none}</style>
+</head><body>
+<h2>Pembuat Ikon Sahabat Hijrah</h2>
+<canvas id="c" width="512" height="512" style="width:200px;border-radius:24px"></canvas>
+<p id="s512"></p><p id="s192"></p>
+<p style="font-size:13px">Tap kedua tombol, file PNG masuk folder Download.</p>
+<script>
+function draw(size){
+  const c=document.createElement('canvas');c.width=size;c.height=size;
+  const x=c.getContext('2d');
+  const r=size*0.18;
+  x.fillStyle='#0e4032';
+  x.beginPath();
+  x.moveTo(r,0);x.arcTo(size,0,size,size,r);x.arcTo(size,size,0,size,r);x.arcTo(0,size,0,0,r);x.arcTo(0,0,size,0,r);x.closePath();x.fill();
+  x.fillStyle='#ffd700';
+  x.beginPath();x.arc(size*0.5,size*0.52,size*0.30,0,7);x.fill();
+  x.fillStyle='#0e4032';
+  x.beginPath();x.arc(size*0.60,size*0.46,size*0.26,0,7);x.fill();
+  x.fillStyle='#ffd700';
+  x.beginPath();
+  const cx=size*0.66,cy=size*0.52,R=size*0.09;
+  for(let i=0;i<10;i++){const a=Math.PI/5*i-Math.PI/2;const rr=i%2===0?R:R*0.45;x.lineTo(cx+rr*Math.cos(a),cy+rr*Math.sin(a));}
+  x.closePath();x.fill();
+  return c;
+}
+const big=draw(512);
+document.getElementById('c').getContext('2d').drawImage(big,0,0);
+const a512=document.createElement('a');a512.href=big.toDataURL('image/png');a512.download='icon-512.png';a512.textContent='Download icon-512.png';
+const small=draw(192);
+const a192=document.createElement('a');a192.href=small.toDataURL('image/png');a192.download='icon-192.png';a192.textContent='Download icon-192.png';
+document.getElementById('s512').appendChild(a512);
+document.getElementById('s192').appendChild(a192);
+</script></body></html>
