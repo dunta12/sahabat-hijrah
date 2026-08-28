@@ -147,14 +147,14 @@ function initAudio(){
   const C=window.AudioContext||window.webkitAudioContext;if(!C)return;
   AC=new C();
   const comp=AC.createDynamicsCompressor();
-  comp.threshold.value=-20;comp.ratio.value=10;
-  const master=AC.createGain();master.gain.value=1.0;
+  comp.threshold.value=-24;comp.ratio.value=12;
+  const master=AC.createGain();master.gain.value=1.2;
   comp.connect(master);master.connect(AC.destination);
   AC._out=comp;
 }
 function tone(f,d,type,vol,delay){
   if(muted||!AC||f<=0)return;
-  type=type||'square';vol=vol||0.5;delay=delay||0;
+  type=type||'square';vol=vol||0.6;delay=delay||0;
   const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime+delay;
   o.type=type;o.frequency.value=f;
   g.gain.setValueAtTime(vol,t);
@@ -162,23 +162,34 @@ function tone(f,d,type,vol,delay){
   o.connect(g);g.connect(AC._out);
   o.start(t);o.stop(t+d);
 }
-function sfxKlik(){tone(1500,0.05,'square',0.5);tone(2200,0.04,'square',0.3,0.02);}
-function sfxWin(){tone(523,0.12,'square',0.6,0);tone(659,0.12,'square',0.6,0.12);tone(784,0.12,'square',0.6,0.24);tone(1047,0.35,'square',0.7,0.36);}
+function sfxKlik(){tone(1500,0.06,'square',0.8);tone(2200,0.05,'square',0.5,0.02);}
+function sfxWin(){tone(523,0.12,'square',0.8,0);tone(659,0.12,'square',0.8,0.12);tone(784,0.12,'square',0.8,0.24);tone(1047,0.35,'square',0.9,0.36);}
 function toggleMute(){muted=!muted;document.getElementById('muteBtn').textContent=muted?'🔇':'';if(muted)stopAdzan();}
 document.addEventListener('touchstart',function(){initAudio();},{once:true});
 document.addEventListener('click',function(){initAudio();},{once:true});
 
-/* adzan: pakai adhan.mp3 kalau ada, kalau tidak chime */
-let adhanOK=true,adzanSedang=false;
+/* adzan: adhan.mp3 dikuatkan 3x, kalau tidak ada chime */
+let adhanOK=true,adzanSedang=false,adhanBoost=false;
 const adhanAudio=new Audio('adhan.mp3');
+adhanAudio.volume=1;
 adhanAudio.addEventListener('error',function(){adhanOK=false;});
-function chimeAdzan(){tone(880,0.4,'sine',0.8,0);tone(660,0.4,'sine',0.8,0.5);tone(880,0.4,'sine',0.8,1);tone(1100,0.8,'sine',0.8,1.5);}
-function tesAdzan(){initAudio();playAdzan('Tes');}
+function boostAdhan(){
+  if(adhanBoost||!AC)return;
+  try{
+    const src=AC.createMediaElementSource(adhanAudio);
+    const g=AC.createGain();g.gain.value=3;
+    src.connect(g);g.connect(AC._out);
+    adhanBoost=true;
+  }catch(e){}
+}
+function chimeAdzan(){tone(880,0.5,'sine',1,0);tone(660,0.5,'sine',1,0.6);tone(880,0.5,'sine',1,1.2);tone(1100,1,'sine',1,1.8);}
+function tesAdzan(){initAudio();boostAdhan();playAdzan('Tes');}
 function playAdzan(nama){
   adzanSedang=true;
   document.getElementById('adzanNama').textContent=nama;
   document.getElementById('adzanBanner').classList.remove('hidden');
   if(!muted){
+    initAudio();boostAdhan();
     if(adhanOK){adhanAudio.currentTime=0;adhanAudio.play().catch(function(){chimeAdzan();});}
     else chimeAdzan();
   }
@@ -200,7 +211,7 @@ function sunPos(d){
 }
 function hitungJadwal(la,lo,tz,met,date){
   const R=Math.PI/180,DG=180/Math.PI;
-  const jd=julian(date.getFullYear(),date.getMonth()+1,date.getDate());
+  const jd=julian(date.getUTCFullYear(),date.getUTCMonth()+1,date.getUTCDate());
   const sp=sunPos(jd-2451545.0+0.5);
   const noon=12-sp.eqt+tz-lo/15;
   function T(h){
@@ -241,10 +252,9 @@ function renderJadwal(times,nextIdx){
 let triggered={};
 function tick(){
   const a=dataAktif();
-  const off=new Date().getTimezoneOffset()*60000;
-  const cityMs=Date.now()+off+a.tz*3600000;
+  const cityMs=Date.now()+a.tz*3600000;
   const cityDate=new Date(cityMs);
-  const hours=(cityMs/3600000)%24;
+  const hours=cityDate.getUTCHours()+cityDate.getUTCMinutes()/60+cityDate.getUTCSeconds()/3600;
   const met=METODE[set.metode];
   const times=hitungJadwal(a.la,a.lo,a.tz,met,cityDate).map(function(x){return x+set.korek/60;});
   let nextIdx=-1;
@@ -259,11 +269,11 @@ function tick(){
   document.getElementById('cdLabel').textContent='Menuju '+label+' — '+a.label;
   document.getElementById('cdTime').textContent=hh+':'+mm+':'+ss;
   renderJadwal(times,nextIdx);
-  const key=cityDate.toDateString();
+  const key=cityDate.toISOString().slice(0,10);
   for(let i=0;i<6;i++){
     if(hours>=times[i]&&!triggered[key+i]){
       triggered[key+i]=true;
-      if(i!==1)playAdzan(NAMA[i]);
+      if(i!==1&&(hours-times[i])*60<2)playAdzan(NAMA[i]);
     }
   }
 }
@@ -350,9 +360,6 @@ function isiTanggal(){
     document.getElementById('tglHijri').textContent='';
   }
 }
-
-/* perbaikan ikon mute */
-function toggleMute(){muted=!muted;document.getElementById('muteBtn').textContent=muted?'🔇':'';if(muted)stopAdzan();}
 
 /* ========== mulai ========== */
 isiSelect();isiTanggal();renderTb();tick();setInterval(tick,1000);
