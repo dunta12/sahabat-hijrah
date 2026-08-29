@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Sahabat Hijrah — Jadwal Sholat, Al-Qur'an & Tasbih</title>
-<meta name="description" content="Jadwal sholat akurat untuk seluruh dunia, Al-Qur'an, tasbih digital, kumpulan doa, arah kiblat, tracker ibadah & catatan hijrah.">
+<meta name="description" content="Jadwal sholat akurat untuk seluruh dunia, Al-Qur'an offline, tasbih digital, kumpulan doa, arah kiblat, tracker ibadah & catatan hijrah.">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1b4d3e">
 <link rel="icon" href="icon-192.png" type="image/png">
@@ -24,8 +24,11 @@ header{background:linear-gradient(135deg,var(--green),var(--green2));padding:14p
 .tanggal{text-align:center}
 .tanggal .hijri{font-size:20px;font-weight:800;color:var(--green)}
 .tanggal .masehi{font-size:13px;color:var(--soft);margin-top:4px}
+.hikmah{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--gold2);border-radius:12px;padding:14px;margin-bottom:12px;font-size:14px;line-height:1.6}
+.hikmah .s{color:var(--soft);font-size:12px;margin-top:6px;font-weight:700}
 .row{display:flex;gap:8px;margin-top:10px}
-select,.txt,textarea.txt{flex:1;padding:12px;border-radius:12px;border:1px solid #cfd8d2;background:#fff;color:var(--text);font-size:14px;font-weight:600}
+select{flex:1;padding:12px;border-radius:12px;border:1px solid #cfd8d2;background:#fff;color:var(--text);font-size:14px;font-weight:600}
+.txt{width:100%;padding:12px;border-radius:12px;border:1px solid #cfd8d2;background:#fff;color:var(--text);font-size:14px;font-weight:600}
 .btn{flex:1;padding:12px;border-radius:12px;border:none;background:var(--green);color:#fff;font-size:14px;font-weight:700;cursor:pointer}
 .btn:active{transform:scale(.96)}
 .btn.small{flex:0 0 auto;padding:10px 14px}
@@ -37,13 +40,8 @@ select,.txt,textarea.txt{flex:1;padding:12px;border-radius:12px;border:1px solid
 .jadwal-list li{display:flex;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--card2);font-size:16px}
 .jadwal-list li:last-child{border-bottom:none}
 .jadwal-list li.next{background:var(--card2);border-radius:10px;color:var(--green);font-weight:800}
-.korek{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:10px;font-size:13px;color:var(--soft)}
-.korek button{width:34px;height:34px;border-radius:50%;border:1px solid var(--green);background:#fff;color:var(--green);font-size:16px;cursor:pointer}
-.qgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.qgrid button{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 4px;font-size:11px;font-weight:700;color:var(--green);cursor:pointer}
-.qgrid .ic{display:block;font-size:20px;margin-bottom:2px}
-.chips{text-align:center;margin-bottom:10px}
-.chip{display:inline-block;padding:8px 14px;border-radius:20px;background:var(--card);border:1px solid var(--line);color:var(--soft);font-size:13px;margin:3px;cursor:pointer;font-weight:700}
+.chips{display:flex;justify-content:center;gap:6px;margin-bottom:10px;flex-wrap:nowrap}
+.chip{padding:8px 10px;border-radius:20px;background:var(--card);border:1px solid var(--line);color:var(--soft);font-size:12px;cursor:pointer;font-weight:700;white-space:nowrap}
 .chip.on{background:var(--green);color:#fff;border-color:var(--green)}
 .tasbih-wrap{text-align:center}
 .dzikir-name{font-size:22px;font-weight:800;color:var(--green);margin:8px 0}
@@ -87,6 +85,14 @@ select,.txt,textarea.txt{flex:1;padding:12px;border-radius:12px;border:1px solid
 .note .x{float:right;border:none;background:none;color:#b33;font-size:14px;cursor:pointer}
 .phead{color:var(--green);font-size:15px;margin-bottom:8px}
 .soft{color:var(--soft);font-size:13px}
+.editor{position:fixed;inset:0;background:rgba(6,40,31,.5);z-index:90;display:none;justify-content:center}
+.editor.open{display:flex}
+.editor .in{width:100%;max-width:480px;background:var(--bg);display:flex;flex-direction:column;padding:14px;height:100%}
+.editor textarea{flex:1;width:100%;border:1px solid #cfd8d2;border-radius:12px;padding:14px;font-size:16px;line-height:1.8;background:#fff;color:var(--text);margin-top:8px;resize:none}
+.welcome{position:fixed;inset:0;background:rgba(6,40,31,.78);z-index:120;display:flex;align-items:center;justify-content:center;padding:20px}
+.welcome .box{background:#fff;border-radius:20px;padding:22px;max-width:400px}
+.welcome h2{color:var(--green);margin-bottom:10px}
+.welcome li{margin:8px 0 8px 18px;font-size:14px}
 nav{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;border-top:1px solid var(--line);z-index:60}
 nav button{flex:1;padding:10px 0;background:none;border:none;color:var(--soft);font-size:11px;font-weight:700;cursor:pointer}
 nav button.on{color:var(--green)}
@@ -112,6 +118,7 @@ nav button .ic{font-size:20px;display:block}
     <div class="hijri" id="tglHijri">...</div>
     <div class="masehi" id="tglMasehi">...</div>
   </div>
+  <div class="hikmah" id="hikmahCard"></div>
   <div class="countdown">
     <div class="label" id="cdLabel">Menuju ...</div>
     <div class="time" id="cdTime">--:--:--</div>
@@ -123,16 +130,14 @@ nav button .ic{font-size:20px;display:block}
       <button class="btn" id="wakeBtn" onclick="toggleWake()">🔆 Layar: OFF</button>
     </div>
   </div>
-  <div class="qgrid">
-    <button onclick="pindahHal('quran')"><span class="ic">📖</span>Al-Qur'an</button>
-    <button onclick="pindahHal('ibadah');pindahIbadah('doa')"><span class="ic">🤲</span>Doa</button>
-    <button onclick="pindahHal('ibadah');pindahIbadah('kiblat')"><span class="ic">🧭</span>Kiblat</button>
-    <button onclick="pindahHal('ibadah');pindahIbadah('tracker')"><span class="ic">✅</span>Tracker</button>
-  </div>
 </div>
 
 <!-- TAB AL-QUR'AN -->
 <div id="hal-quran" class="screen hidden">
+  <div class="card" style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+    <div id="qProg" class="soft">Status: memuat...</div>
+    <button class="btn small" id="qUnduhBtn" onclick="qUnduh()">📥 Unduh Offline</button>
+  </div>
   <div id="qLast" class="card hidden"></div>
   <input class="txt" id="qCari" placeholder="Cari surah / nomor...">
   <div id="qList"><div class="loading">Memuat daftar surah...</div></div>
@@ -201,15 +206,20 @@ nav button .ic{font-size:20px;display:block}
 
 <!-- TAB CATATAN -->
 <div id="hal-catatan" class="screen hidden">
-  <div class="card">
-    <h3 class="phead">📝 Catatan Hijrah</h3>
-    <select id="noteType"><option>Refleksi</option><option>Target</option><option>Pengingat</option></select>
-    <input class="txt" id="noteTitle" placeholder="Judul (cth: Refleksi Diri)" style="margin-top:8px">
-    <textarea class="txt" id="noteText" rows="3" placeholder="Tulis catatan..." style="margin-top:8px"></textarea>
-    <div class="row"><button class="btn" onclick="addNote()">➕ Simpan Catatan</button></div>
-  </div>
+  <div style="margin:0 0 12px"><button class="btn" onclick="bukaEditor()">✍️ Tulis Catatan</button></div>
   <div id="noteWrap"></div>
 </div>
+
+<div class="editor" id="editor"><div class="in">
+  <h3 class="phead">✍️ Tulis Catatan</h3>
+  <select id="edType"><option>Refleksi</option><option>Target</option><option>Pengingat</option></select>
+  <input class="txt" id="edTitle" placeholder="Judul..." style="margin-top:8px">
+  <textarea id="edText" placeholder="Tulis seluas hati, seperti di Word..."></textarea>
+  <div class="row">
+    <button class="btn" onclick="simpanEditor()">💾 Simpan</button>
+    <button class="btn gold" onclick="tutupEditor()">✖ Batal</button>
+  </div>
+</div></div>
 
 <!-- TAB PROFIL -->
 <div id="hal-profil" class="screen hidden">
@@ -220,21 +230,32 @@ nav button .ic{font-size:20px;display:block}
       <button class="btn small" onclick="pakaiGPS()">📍 GPS</button>
     </div>
     <div class="row"><select id="selMetode" onchange="gantiMetode(this.value)"></select></div>
-    <div class="korek">
-      <button onclick="korekMin(-1)">−</button>
+    <div class="korek" style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:10px;font-size:13px;color:var(--soft)">
+      <button onclick="korekMin(-1)" style="width:34px;height:34px;border-radius:50%;border:1px solid var(--green);background:#fff;color:var(--green);font-size:16px;cursor:pointer">−</button>
       <span id="korekLabel">Koreksi: +0 menit</span>
-      <button onclick="korekMin(1)">+</button>
+      <button onclick="korekMin(1)" style="width:34px;height:34px;border-radius:50%;border:1px solid var(--green);background:#fff;color:var(--green);font-size:16px;cursor:pointer">+</button>
     </div>
   </div>
   <div class="card">
     <h3 class="phead">ℹ️ Tentang</h3>
-    <p class="soft">Sahabat Hijrah v2.0 — jadwal sholat dunia, Al-Qur'an (offline setelah dibuka), tasbih, doa, kiblat, tracker & catatan.</p>
+    <p class="soft">Sahabat Hijrah - jadwal sholat dunia + imsak, Al-Qur'an offline, tasbih, doa, kiblat, tracker & catatan. Semua data tersimpan di HP-mu saja.</p>
     <div class="row"><button class="btn" onclick="updateApp()">🔄 Update Aplikasi</button></div>
     <p class="soft" style="margin-top:10px"><a href="privacy.html" style="color:var(--green)">Kebijakan Privasi</a> • © 2026 Sahabat Hijrah</p>
   </div>
 </div>
 
 <div id="adzanBanner" class="hidden">🕌 Waktu <span id="adzanNama"></span> telah masuk <button onclick="stopAdzan()">Stop</button></div>
+
+<div class="welcome hidden" id="welcomeBox"><div class="box">
+  <h2>🌙 Assalamu'alaikum</h2>
+  <p class="soft">Selamat datang di Sahabat Hijrah. Tiga hal penting:</p>
+  <ul>
+    <li>🔔 Ketuk lonceng di atas agar <b>adzan berbunyi otomatis</b> saat masuk waktu (selama app terbuka) + pengingat 10 menit sebelumnya.</li>
+    <li>📖 Al-Qur'an butuh internet <b>sekali</b>: setelah diunduh, offline selamanya. Unduhan semua surah dimulai otomatis setelah sambutan ini.</li>
+    <li>🔒 Semua catatan & tracker tersimpan <b>di HP-mu saja</b>, tanpa akun.</li>
+  </ul>
+  <div class="row"><button class="btn" onclick="tutupWelcome()">Bismillah, mulai 🤍</button></div>
+</div></div>
 
 <nav>
   <button id="navJadwal" class="on" onclick="pindahHal('jadwal')"><span class="ic">🏠</span>Beranda</button>
@@ -326,7 +347,7 @@ function playAdzan(nama){
 }
 function stopAdzan(){adzanSedang=false;adhanAudio.pause();document.getElementById('adzanBanner').classList.add('hidden');}
 
-/* AUTO ADZAN: buka kunci suara + notifikasi */
+/* AUTO ADZAN + pengingat 10 menit */
 let autoOn=localStorage.getItem('sh_auto')!=='0';
 function renderAuto(){const b=document.getElementById('autoBtn');b.classList.toggle('on',autoOn);b.textContent=autoOn?'🔔':'';}
 function notifyAdzan(nama){
@@ -339,7 +360,7 @@ async function toggleAuto(){
   if(autoOn){
     unlockSuara();
     try{if('Notification' in window&&Notification.permission==='default')await Notification.requestPermission();}catch(e){}
-    alert('Auto Adzan AKTIF ✅\nAdzan berbunyi otomatis saat masuk waktu, SELAMA aplikasi terbuka.\n\nTips: pasang di layar utama & matikan penghemat baterai.');
+    alert('Auto Adzan AKTIF ✅\n• Pengingat lembut 10 menit sebelum waktu\n• Adzan berbunyi saat masuk waktu\n(selama aplikasi terbuka)\n\nTips: pasang di layar utama & matikan penghemat baterai.');
   }
   renderAuto();
 }
@@ -385,7 +406,7 @@ function hitungJadwal(la,lo,tz,met,date){
 }
 function fmt(h){h=((h%24)+24)%24;let H=Math.floor(h),M=Math.round((h-H)*60);if(M===60){M=0;H=(H+1)%24;}return String(H).padStart(2,'0')+':'+String(M).padStart(2,'0');}
 
-/* ========== tampilan jadwal ========== */
+/* ========== tampilan jadwal (+ Imsak) ========== */
 function dataAktif(){
   if(set.la!==null)return{la:set.la,lo:set.lo,tz:set.tz,label:set.label};
   const k=KOTA[set.kota];return{la:k.la,lo:k.lo,tz:k.tz,label:k.n};
@@ -393,6 +414,9 @@ function dataAktif(){
 function renderJadwal(times,nextIdx){
   const ul=document.getElementById('jadwalList');
   ul.innerHTML='';
+  const li0=document.createElement('li');
+  li0.innerHTML='<span>Imsak</span><span>'+fmt(times[0]-10/60)+'</span>';
+  ul.appendChild(li0);
   times.forEach(function(t,i){
     const li=document.createElement('li');
     if(i===nextIdx)li.className='next';
@@ -400,7 +424,7 @@ function renderJadwal(times,nextIdx){
     ul.appendChild(li);
   });
 }
-let triggered={};
+let triggered={},reminded={};
 function tick(){
   const a=dataAktif();
   const cityMs=Date.now()+a.tz*3600000;
@@ -427,6 +451,17 @@ function tick(){
       if(i!==1&&(hours-times[i])*60<2){
         if(autoOn){playAdzan(NAMA[i]);notifyAdzan(NAMA[i]);}
         else{document.getElementById('adzanNama').textContent=NAMA[i];document.getElementById('adzanBanner').classList.remove('hidden');}
+      }
+    }
+    if(i!==1){
+      const mins=(times[i]-hours)*60;
+      if(mins>0&&mins<=10&&!reminded[key+'r'+i]){
+        reminded[key+'r'+i]=true;
+        if(autoOn){
+          if(navigator.vibrate)navigator.vibrate(200);
+          try{if('Notification' in window&&Notification.permission==='granted')new Notification('Sahabat Hijrah',{body:'⏰ 10 menit lagi '+NAMA[i]});}catch(e){}
+          tone(660,0.3,'sine',0.8);tone(880,0.3,'sine',0.8,0.35);
+        }
       }
     }
   }
@@ -479,6 +514,25 @@ document.addEventListener('visibilitychange',function(){
     navigator.wakeLock.request('screen').then(function(w){wakeLock=w;}).catch(function(){});
   }
 });
+
+/* ========== hikmah harian ========== */
+const HIKMAH=[
+{t:'Sesungguhnya Allah tidak akan mengubah keadaan suatu kaum sebelum mereka mengubah keadaan diri mereka sendiri.',s:'QS. Ar-Ra\'d: 11'},
+{t:'Maka sesungguhnya bersama kesulitan ada kemudahan.',s:'QS. Asy-Syarh: 5'},
+{t:'Dan Allah bersama orang-orang yang sabar.',s:'QS. Al-Anfal: 46'},
+{t:'Sesungguhnya sholat itu mencegah dari perbuatan keji dan mungkar.',s:'QS. Al-Ankabut: 45'},
+{t:'Karena itu, ingatlah kamu kepada-Ku niscaya Aku ingat (pula) kepadamu.',s:'QS. Al-Baqarah: 152'},
+{t:'Dan mintalah pertolongan (kepada Allah) dengan sabar dan sholat.',s:'QS. Al-Baqarah: 45'},
+{t:'Aku tidak menciptakan jin dan manusia melainkan agar mereka beribadah kepada-Ku.',s:'QS. Adz-Dzariyat: 56'},
+{t:'Barangsiapa bertawakal kepada Allah, niscaya Dia akan mencukupkan (keperluan)nya.',s:'QS. Ath-Thalaq: 3'},
+{t:'Ingatlah, hanya dengan mengingati Allah hati menjadi tenteram.',s:'QS. Ar-Ra\'d: 28'},
+{t:'Sesungguhnya beruntunglah orang-orang yang membersihkan dirinya (dengan beriman).',s:'QS. Al-A\'la: 14'}
+];
+function isiHikmah(){
+  const day=Math.floor(Date.now()/86400000);
+  const h=HIKMAH[day%HIKMAH.length];
+  document.getElementById('hikmahCard').innerHTML='❝ '+h.t+' ❞<div class="s">('+h.s+')</div>';
+}
 
 /* ========== tasbih ========== */
 let tbCount=+localStorage.getItem('sh_tb')||0;
@@ -625,18 +679,20 @@ function trToggle(i){
   sfxKlik();renderTracker();
 }
 
-/* ========== catatan hijrah ========== */
+/* ========== catatan hijrah + editor luas ========== */
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function getNotes(){return JSON.parse(localStorage.getItem('sh_notes')||'[]');}
-function addNote(){
-  const t=document.getElementById('noteTitle').value.trim();
-  const x=document.getElementById('noteText').value.trim();
+function bukaEditor(){document.getElementById('editor').classList.add('open');}
+function tutupEditor(){document.getElementById('editor').classList.remove('open');}
+function simpanEditor(){
+  const t=document.getElementById('edTitle').value.trim();
+  const x=document.getElementById('edText').value.trim();
   if(!t&&!x){alert('Isi judul atau catatan dulu ya.');return;}
   const arr=getNotes();
-  arr.unshift({type:document.getElementById('noteType').value,t:t,x:x,d:Date.now()});
+  arr.unshift({type:document.getElementById('edType').value,t:t,x:x,d:Date.now()});
   localStorage.setItem('sh_notes',JSON.stringify(arr));
-  document.getElementById('noteTitle').value='';document.getElementById('noteText').value='';
-  renderNotes();sfxWin();
+  document.getElementById('edTitle').value='';document.getElementById('edText').value='';
+  tutupEditor();renderNotes();sfxWin();
 }
 function delNote(i){if(!confirm('Hapus catatan ini?'))return;const arr=getNotes();arr.splice(i,1);localStorage.setItem('sh_notes',JSON.stringify(arr));renderNotes();}
 function renderNotes(){
@@ -651,21 +707,44 @@ function renderNotes(){
   });
 }
 
-/* ========== AL-QUR'AN (offline setelah dibuka) ========== */
+/* ========== AL-QUR'AN (offline setelah diunduh) ========== */
 const QAPI=['https://equran.id/apiv2','https://equran.id/api/v2'];
-let qAll=[],qReady=false;
+let qAll=[],qReady=false,qBusy=false;
 function normQ(t){return String(t).toLowerCase().replace(/[^a-z0-9]/g,'');}
+function qCountSaved(){let c=0;for(let i=1;i<=114;i++){if(localStorage.getItem('sh_q_s'+i))c++;}return c;}
+function qStatus(txt){document.getElementById('qProg').textContent=txt||('Offline: '+qCountSaved()+'/114 surah');}
 async function qInit(){
   renderQLast();
-  if(qReady){renderQList(qAll);return;}
+  if(qReady){qStatus();renderQList(qAll);return;}
   qAll=JSON.parse(localStorage.getItem('sh_q_list')||'null')||[];
-  if(qAll.length){qReady=true;renderQList(qAll);return;}
+  if(qAll.length){qReady=true;qStatus();renderQList(qAll);return;}
   for(const u of QAPI){
     try{const r=await fetch(u+'/surah');const j=await r.json();qAll=j.data||[];if(qAll.length)break;}catch(e){}
   }
-  if(!qAll.length){document.getElementById('qList').innerHTML='<div class="loading">Gagal memuat daftar surah.<br>Aktifkan internet, lalu coba lagi.<br><button class="btn small" style="margin-top:8px" onclick="qInit()">🔄 Ulangi</button></div>';return;}
+  if(!qAll.length){document.getElementById('qList').innerHTML='<div class="loading">Gagal memuat daftar surah.<br>Aktifkan internet, lalu coba lagi.<br><button class="btn small" style="margin-top:8px" onclick="qInit()">🔄 Ulangi</button></div>';qStatus('Status: butuh internet');return;}
   try{localStorage.setItem('sh_q_list',JSON.stringify(qAll));}catch(e){}
-  qReady=true;renderQList(qAll);
+  qReady=true;qStatus();renderQList(qAll);
+}
+async function qUnduh(silent){
+  if(qBusy)return;
+  if(!qReady){await qInit();if(!qReady){if(!silent)alert('Daftar surah belum siap. Cek internet.');return;}}
+  qBusy=true;
+  const btn=document.getElementById('qUnduhBtn');btn.disabled=true;
+  let saved=qCountSaved(),gagal=0,penuh=false;
+  for(let i=1;i<=114;i++){
+    if(localStorage.getItem('sh_q_s'+i))continue;
+    let s=null;
+    for(const u of QAPI){try{const r=await fetch(u+'/surah/'+i);const j=await r.json();s=j.data;if(s)break;}catch(e){}}
+    if(s){
+      try{localStorage.setItem('sh_q_s'+i,JSON.stringify(s));saved++;}catch(e){penuh=true;break;}
+    }else gagal++;
+    qStatus('Menyimpan '+saved+'/114...');
+  }
+  qBusy=false;btn.disabled=false;
+  if(penuh)qStatus('⚠️ Penyimpanan penuh — '+saved+' surah offline');
+  else qStatus();
+  renderQList(qAll);
+  if(!silent)alert(penuh?'Penyimpanan HP penuh. '+saved+' surah sudah offline.':(gagal?'Selesai, '+gagal+' surah gagal (coba ulangi).':'✅ Semua surah tersimpan offline!'));
 }
 function renderQLast(){
   const last=JSON.parse(localStorage.getItem('sh_q_last')||'null');
@@ -691,6 +770,7 @@ async function qBuka(n){
     for(const u of QAPI){try{const r=await fetch(u+'/surah/'+n);const j=await r.json();s=j.data;if(s)break;}catch(e){}}
     if(!s){det.innerHTML='<div class="loading">Gagal memuat. Cek internet.<br><button class="btn small" onclick="qBuka('+n+')">🔄 Ulangi</button> <button class="btn small" onclick="qKembali()">← Daftar</button></div>';return;}
     try{localStorage.setItem('sh_q_s'+n,JSON.stringify(s));}catch(e){}
+    qStatus();
   }
   localStorage.setItem('sh_q_last',JSON.stringify({nomor:s.nomor,namaLatin:s.namaLatin}));
   let h='<div class="card" style="text-align:center"><b style="font-size:18px;color:var(--green)">'+s.namaLatin+'</b><br><small class="soft">'+s.arti+' • '+s.jumlahAyat+' ayat</small><br><button class="btn small" style="margin-top:8px" onclick="qKembali()">← Daftar Surah</button></div>';
@@ -704,6 +784,14 @@ function qKembali(){
   document.getElementById('qList').classList.remove('hidden');
   document.getElementById('qCari').classList.remove('hidden');
   qInit();
+}
+
+/* ========== sambutan satu kali ========== */
+function maybeWelcome(){if(!localStorage.getItem('sh_welcome'))document.getElementById('welcomeBox').classList.remove('hidden');}
+function tutupWelcome(){
+  localStorage.setItem('sh_welcome','1');
+  document.getElementById('welcomeBox').classList.add('hidden');
+  qUnduh(true);
 }
 
 /* ========== navigasi ========== */
@@ -774,7 +862,7 @@ document.getElementById('qCari').addEventListener('input',function(e){
   const q=normQ(e.target.value);
   renderQList(qAll.filter(function(s){return normQ(s.namaLatin).indexOf(q)>-1||String(s.nomor).indexOf(e.target.value)>-1;}));
 });
-isiSelect();isiTanggal();isiDoa();renderTb();renderAuto();renderNotes();renderTracker();qInit();tick();setInterval(tick,1000);
+isiSelect();isiTanggal();isiHikmah();isiDoa();renderTb();renderAuto();renderNotes();renderTracker();qInit();maybeWelcome();tick();setInterval(tick,1000);
 </script>
 </body>
 </html>
