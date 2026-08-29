@@ -1,14 +1,14 @@
 {
-  "name": "Sahabat Hijrah - Jadwal Sholat dan Tasbih",
+  "name": "Sahabat Hijrah - Jadwal Sholat, Al-Qur'an & Tasbih",
   "short_name": "Sahabat Hijrah",
-  "description": "Jadwal sholat akurat untuk seluruh dunia, tasbih digital, dan alat ibadah. 100% offline.",
+  "description": "Jadwal sholat akurat, Al-Qur'an, tasbih, doa, kiblat, tracker ibadah & catatan hijrah.",
   "id": "./",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#06281f",
-  "theme_color": "#0e4032",
+  "background_color": "#f2efe6",
+  "theme_color": "#1b4d3e",
   "lang": "id",
   "categories": ["lifestyle", "productivity"],
   "icons": [
