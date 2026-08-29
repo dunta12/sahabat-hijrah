@@ -47,14 +47,16 @@ select,.btn{flex:1;padding:12px;border-radius:12px;border:1px solid var(--card2)
 .doa-ar{font-size:20px;text-align:right;direction:rtl;line-height:1.9;color:var(--text);margin-bottom:8px}
 .doa-latin{font-size:13px;font-style:italic;color:var(--soft);margin-bottom:6px}
 .doa-arti{font-size:13px;color:var(--text)}
-.dial{position:relative;width:230px;height:230px;border-radius:50%;border:3px solid var(--gold2);margin:12px auto;background:radial-gradient(circle,#125141,#0e4032)}
-.dir{position:absolute;color:var(--soft);font-size:12px;font-weight:700}
-.dir.n{top:6px;left:50%;transform:translateX(-50%)}
-.dir.s{bottom:6px;left:50%;transform:translateX(-50%)}
-.dir.w{left:8px;top:50%;transform:translateY(-50%)}
-.dir.e{right:8px;top:50%;transform:translateY(-50%)}
-.needle{position:absolute;left:50%;top:50%;width:4px;height:45%;margin-left:-2px;background:linear-gradient(to top,var(--gold2),var(--gold));transform-origin:50% 100%;border-radius:4px}
-.needle span{position:absolute;top:-30px;left:50%;transform:translateX(-50%);font-size:22px}
+.dial-wrap{position:relative;width:230px;margin:14px auto}
+.youmark{position:absolute;top:-16px;left:50%;transform:translateX(-50%);color:var(--gold);font-size:16px;z-index:2}
+.dial{position:relative;width:230px;height:230px;border-radius:50%;border:3px solid var(--gold2);background:radial-gradient(circle,#125141,#0e4032)}
+.dir{position:absolute;color:var(--soft);font-size:12px;font-weight:700;transform:translate(-50%,-50%)}
+.dir i,.kaaba i{display:inline-block;font-style:normal;transform:rotate(var(--hr,0deg))}
+.dir.n{left:50%;top:7%}
+.dir.s{left:50%;top:93%}
+.dir.w{left:7%;top:50%}
+.dir.e{left:93%;top:50%}
+.kaaba{position:absolute;transform:translate(-50%,-50%);font-size:28px}
 #adzanBanner{position:fixed;left:0;right:0;bottom:70px;background:var(--gold);color:#06281f;text-align:center;padding:14px;font-weight:800;z-index:98}
 #adzanBanner button{margin-left:12px;padding:6px 14px;border-radius:10px;border:none;background:#06281f;color:var(--gold);font-weight:700;cursor:pointer}
 nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);display:flex;border-top:2px solid var(--gold2)}
@@ -62,6 +64,7 @@ nav button{flex:1;padding:12px 0;background:none;border:none;color:var(--soft);f
 nav button.on{color:var(--gold)}
 nav button .ic{font-size:20px;display:block}
 footer{text-align:center;padding:10px;font-size:11px;color:#4e7a6a}
+.upd-btn{margin-top:6px;background:none;border:1px solid #4e7a6a;color:#9fc9b8;border-radius:14px;padding:6px 14px;font-size:12px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -130,17 +133,21 @@ footer{text-align:center;padding:10px;font-size:11px;color:#4e7a6a}
 <div id="hal-kiblat" class="screen hidden">
   <div class="card tasbih-wrap">
     <div id="kibInfo" style="color:var(--soft);font-size:14px">...</div>
-    <div class="dial">
-      <span class="dir n">U</span><span class="dir s">S</span>
-      <span class="dir w">B</span><span class="dir e">T</span>
-      <div class="needle" id="kibArrow"><span>🕋</span></div>
+    <div class="dial-wrap">
+      <div class="youmark">▼</div>
+      <div class="dial" id="dial">
+        <span class="dir n"><i>U</i></span><span class="dir s"><i>S</i></span>
+        <span class="dir w"><i>B</i></span><span class="dir e"><i>T</i></span>
+        <div class="kaaba" id="kaaba"><i>🕋</i></div>
+      </div>
     </div>
-    <div style="font-size:14px;color:var(--soft)">Arah HP: <b id="kibDeg">–</b></div>
+    <div id="kibGuide" style="font-size:15px;font-weight:700;color:var(--gold);margin:8px 0">–</div>
+    <div style="font-size:13px;color:var(--soft)">Kamu menghadap: <b id="kibDeg">–</b></div>
     <div class="row" style="justify-content:center">
       <button class="btn small" id="kibStart" onclick="mulaiKompas()">🧭 Aktifkan Kompas</button>
       <button class="btn small" onclick="pakaiGPS()">📍 GPS</button>
     </div>
-    <p style="color:var(--soft);font-size:12px;margin-top:10px">Panah emas menunjuk ke Ka'bah. Pegang HP datar, jauhkan dari logam.</p>
+    <p style="color:var(--soft);font-size:12px;margin-top:10px">Putar badan sampai 🕋 berada di ATAS (di bawah tanda ▼). Pegang HP datar, jauhkan dari logam.</p>
   </div>
 </div>
 
@@ -153,7 +160,7 @@ footer{text-align:center;padding:10px;font-size:11px;color:#4e7a6a}
   <button id="navKiblat" onclick="pindahHal('kiblat')"><span class="ic">🧭</span>Kiblat</button>
 </nav>
 
-<footer>© 2026 Sahabat Hijrah • Dibuat dengan ❤️ di Indonesia</footer>
+<footer>© 2026 Sahabat Hijrah • v1.1<br><button class="upd-btn" onclick="updateApp()">🔄 Update Aplikasi</button></footer>
 
 <script>
 /* pengaturan tersimpan */
@@ -335,6 +342,7 @@ function pakaiGPS(){
     set.tz=-new Date().getTimezoneOffset()/60;
     set.label='📍 Lokasiku';
     simpan();
+    kaabaPlaced=false;
     if(!document.getElementById('hal-kiblat').classList.contains('hidden'))initKiblat();
   },function(){alert('Gagal mengambil lokasi. Pilih kota manual.');});
 }
@@ -425,8 +433,8 @@ function isiDoa(){
   });
 }
 
-/* ========== arah kiblat ========== */
-let heading=0,qiblaDeg=0,compassOn=false;
+/* ========== arah kiblat (kompas berputar, gaya Muslim Pro) ========== */
+let heading=0,qiblaDeg=0,compassOn=false,kaabaPlaced=false;
 function qiblaBearing(la,lo){
   const R=Math.PI/180;
   const dLo=(39.8262-lo)*R;
@@ -438,26 +446,55 @@ function initKiblat(){
   const a=dataAktif();
   qiblaDeg=qiblaBearing(a.la,a.lo);
   document.getElementById('kibInfo').textContent='Kiblat dari '+a.label+': '+Math.round(qiblaDeg)+'° dari utara';
+  if(!kaabaPlaced){
+    const rad=qiblaDeg*Math.PI/180;
+    const k=document.getElementById('kaaba');
+    k.style.left=(115+92*Math.sin(rad))+'px';
+    k.style.top=(115-92*Math.cos(rad))+'px';
+    kaabaPlaced=true;
+  }
   drawKiblat();
 }
 function drawKiblat(){
-  document.getElementById('kibArrow').style.transform='rotate('+(qiblaDeg-heading)+'deg)';
+  const dial=document.getElementById('dial');
+  dial.style.transform='rotate('+(-heading)+'deg)';
+  dial.style.setProperty('--hr',heading+'deg');
+  document.getElementById('kibDeg').textContent=Math.round(heading)+'°';
+  const diff=((qiblaDeg-heading+540)%360)-180;
+  const g=document.getElementById('kibGuide');
+  if(Math.abs(diff)<4){g.textContent='✅ Pas! 🕋 tepat di depanmu';}
+  else{g.textContent=(diff>0?'↪️ Putar badan ke KANAN ':'↩️ Putar badan ke KIRI ')+Math.abs(Math.round(diff))+'°';}
+}
+function smoothAng(a,b,k){const d=((b-a+540)%360)-180;return (a+d*k+360)%360;}
+function handleOrient(e){
+  let h=null;
+  if(typeof e.webkitCompassHeading==='number'&&!isNaN(e.webkitCompassHeading))h=e.webkitCompassHeading;
+  else if(e.alpha!==null&&!isNaN(e.alpha))h=(360-e.alpha)%360;
+  if(h===null)return;
+  heading=smoothAng(heading,h,0.3);
+  drawKiblat();
 }
 function mulaiKompas(){
+  if(compassOn)return;
+  const start=function(){
+    compassOn=true;
+    let abs=false;
+    window.addEventListener('deviceorientationabsolute',function(e){abs=true;handleOrient(e);},true);
+    window.addEventListener('deviceorientation',function(e){if(!abs)handleOrient(e);});
+    document.getElementById('kibStart').textContent='✅ Kompas aktif';
+  };
   if(typeof DeviceOrientationEvent!=='undefined'&&DeviceOrientationEvent.requestPermission){
-    DeviceOrientationEvent.requestPermission().then(function(s){if(s==='granted')bindCompas();});
-  }else{bindCompas();}
+    DeviceOrientationEvent.requestPermission().then(function(s){if(s==='granted')start();}).catch(function(){});
+  }else{start();}
 }
-function bindCompas(){
-  if(compassOn)return;compassOn=true;
-  window.addEventListener('deviceorientation',function(e){
-    let h=e.webkitCompassHeading;
-    if(h===undefined||h===null){h=(e.alpha!==null)?(360-e.alpha):null;}
-    if(h===null)return;
-    heading=h;drawKiblat();
-    document.getElementById('kibDeg').textContent=Math.round(heading)+'°';
-  });
-  document.getElementById('kibStart').textContent='✅ Kompas aktif';
+
+/* ========== update aplikasi ========== */
+async function updateApp(){
+  if(!confirm('Cek versi terbaru & muat ulang aplikasi?'))return;
+  try{const regs=await navigator.serviceWorker.getRegistrations();for(const r of regs)await r.unregister();}catch(e){}
+  try{const ks=await caches.keys();for(const k of ks)await caches.delete(k);}catch(e){}
+  const u=location.href+(location.href.indexOf('?')>-1?'&':'?')+'upd='+Date.now();
+  location.replace(u);
 }
 
 /* ========== navigasi ========== */
