@@ -536,51 +536,5 @@ if('serviceWorker' in navigator){
 /* ========== mulai ========== */
 isiSelect();isiTanggal();isiDoa();renderTb();tick();setInterval(tick,1000);
 </script>
-<a href="quran.html" style="position:fixed;bottom:70px;left:12px;z-index:999;background:#1b4d3e;color:#fff;border-radius:50px;padding:12px 14px;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.3)">📖 Qur'an</a>
-
-<button id="adzanTombol" style="position:fixed;bottom:70px;right:12px;z-index:999;background:#1b4d3e;color:#fff;border:0;border-radius:50px;padding:12px 14px;box-shadow:0 2px 8px rgba(0,0,0,.3)">🔔 Adzan: MATI</button>
-<script>
-(function(){
-  let aktif=false, jadwal={}, terakhir='';
-  const ADZAN_URL='adhan.mp3';
-  const audio=new Audio();
-  const btn=document.getElementById('adzanTombol');
-  btn.onclick=async()=>{
-    aktif=!aktif;
-    if(aktif){
-      audio.src=ADZAN_URL; audio.muted=true;
-      audio.play().catch(()=>{});
-      setTimeout(()=>{audio.pause();audio.muted=false;},700);
-      try{Notification.requestPermission();}catch(e){}
-      await ambilJadwal();
-    }
-    btn.textContent=aktif?'🔔 Adzan: AKTIF':'🔔 Adzan: MATI';
-  };
-  async function ambilJadwal(){
-    try{
-      const pos=await new Promise((r,j)=>navigator.geolocation.getCurrentPosition(r,j,{timeout:5000}));
-      const r=await fetch('https://api.aladhan.com/v1/timings?latitude='+pos.coords.latitude+'&longitude='+pos.coords.longitude+'&method=3');
-      isi((await r.json()).data.timings);
-    }catch(e){
-      const r=await fetch('https://api.aladhan.com/v1/timingsByCity?city=Jakarta&country=Indonesia&method=3');
-      isi((await r.json()).data.timings);
-    }
-  }
-  function isi(t){jadwal={Subuh:t.Subuh,Dzuhur:t.Dhuhr,Ashar:t.Asr,Maghrib:t.Maghrib,Isya:t.Isha};}
-  setInterval(()=>{
-    if(!aktif)return;
-    const n=new Date(), hm=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
-    for(const[nama,w]of Object.entries(jadwal)){
-      if(w.slice(0,5)===hm && terakhir!==nama+hm){terakhir=nama+hm;bunyi(nama,w);}
-    }
-  },15000);
-  function bunyi(nama,w){
-    audio.muted=false; audio.currentTime=0; audio.play().catch(()=>{});
-    navigator.vibrate&&navigator.vibrate([500,300,500]);
-    try{new Notification('Sahabat Hijrah',{body:'Waktu '+nama+' telah tiba ('+w+')'});}catch(e){}
-  }
-})();
-</script>
-
 </body>
 </html>
