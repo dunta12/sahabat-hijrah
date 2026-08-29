@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Sahabat Hijrah — Jadwal Sholat & Tasbih</title>
 <meta name="description" content="Jadwal sholat akurat untuk seluruh dunia, tasbih digital, dan alat ibadah. 100% offline.">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0e4032">
+<link rel="icon" href="icon-192.png" type="image/png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{--bg:#06281f;--card:#0e4032;--card2:#125141;--gold:#ffd700;--gold2:#d4af37;--text:#f5f0e1;--soft:#9fc9b8}
@@ -81,6 +86,7 @@ footer{text-align:center;padding:10px;font-size:11px;color:#4e7a6a}
     <ul class="jadwal-list" id="jadwalList"></ul>
     <div class="row">
       <button class="btn" onclick="tesAdzan()">🔊 Tes Adzan</button>
+      <button class="btn" id="wakeBtn" onclick="toggleWake()">🔆 Layar: OFF</button>
     </div>
   </div>
 </div>
@@ -302,6 +308,28 @@ function pakaiGPS(){
   },function(){alert('Gagal mengambil lokasi. Pilih kota manual.');});
 }
 
+/* ========== layar menyala (biar adzan bunyi saat ditinggal) ========== */
+let wakeLock=null,wakeOn=false;
+async function toggleWake(){
+  if(!wakeOn){
+    try{
+      wakeLock=await navigator.wakeLock.request('screen');
+      wakeOn=true;
+      wakeLock.addEventListener('release',function(){wakeOn=false;renderWake();});
+    }catch(e){alert('HP tidak mendukung. Biarkan app terbuka saja.');}
+  }else{
+    if(wakeLock)wakeLock.release();
+    wakeLock=null;wakeOn=false;
+  }
+  renderWake();
+}
+function renderWake(){document.getElementById('wakeBtn').textContent='🔆 Layar: '+(wakeOn?'ON':'OFF');}
+document.addEventListener('visibilitychange',function(){
+  if(wakeOn&&document.visibilityState==='visible'&&navigator.wakeLock){
+    navigator.wakeLock.request('screen').then(function(w){wakeLock=w;}).catch(function(){});
+  }
+});
+
 /* ========== tasbih ========== */
 let tbCount=+localStorage.getItem('sh_tb')||0;
 let tbTotal=+localStorage.getItem('sh_tbt')||0;
@@ -350,15 +378,30 @@ function pindahHal(h){
   document.getElementById('navTasbih').classList.toggle('on',h==='tasbih');
 }
 
-/* ========== tanggal ========== */
+/* ========== tanggal (Hijriah manual, anti-bug) ========== */
+const BULAN_H=['Muharram','Safar','Rabiulawal','Rabiulakhir','Jumadilawal','Jumadilakhir','Rajab','Sya\'ban','Ramadhan','Syawal','Dzulqa\'dah','Dzulhijjah'];
 function isiTanggal(){
   const now=new Date();
   document.getElementById('tglMasehi').textContent=now.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   try{
-    document.getElementById('tglHijri').textContent=new Intl.DateTimeFormat('id-ID-u-ca-islamic-umalqura',{day:'numeric',month:'long',year:'numeric'}).format(now)+' H';
+    const parts=new Intl.DateTimeFormat('en-u-ca-islamic-umalqura',{day:'numeric',month:'numeric',year:'numeric'}).formatToParts(now);
+    let d='',m='',y='';
+    parts.forEach(function(p){
+      if(p.type==='day')d=p.value;
+      if(p.type==='month')m=p.value;
+      if(p.type==='year')y=p.value;
+    });
+    document.getElementById('tglHijri').textContent=d+' '+BULAN_H[parseInt(m,10)-1]+' '+y.replace(/\D/g,'')+' H';
   }catch(e){
     document.getElementById('tglHijri').textContent='';
   }
+}
+
+/* ========== PWA: daftar service worker ========== */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  });
 }
 
 /* ========== mulai ========== */
