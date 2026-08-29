@@ -32,6 +32,7 @@ select{width:100%;padding:12px;border-radius:12px;border:1px solid #cfd8d2;backg
 .txt{width:100%;padding:12px;border-radius:12px;border:1px solid #cfd8d2;background:#fff;color:var(--text);font-size:14px;font-weight:600}
 .btn{flex:1;padding:12px;border-radius:12px;border:none;background:var(--green);color:#fff;font-size:14px;font-weight:700;cursor:pointer}
 .btn:active{transform:scale(.96)}
+.btn:disabled{opacity:.4;transform:none}
 .btn.small{flex:0 0 auto;padding:10px 14px}
 .btn.gold{background:var(--gold);color:var(--green)}
 .countdown{background:linear-gradient(135deg,var(--green),var(--green2));border-radius:16px;padding:18px;text-align:center;margin-bottom:12px;color:#fff}
@@ -62,7 +63,7 @@ select{width:100%;padding:12px;border-radius:12px;border:1px solid #cfd8d2;backg
 .dir i,.kaaba i{display:inline-block;font-style:normal;transform:rotate(var(--hr,0deg))}
 .dir.n{left:50%;top:7%}.dir.s{left:50%;top:93%}.dir.w{left:7%;top:50%}.dir.e{left:93%;top:50%}
 .kaaba{position:absolute;transform:translate(-50%,-50%);font-size:28px}
-#adzanBanner{position:fixed;left:0;right:0;bottom:70px;background:var(--gold);color:var(--green);text-align:center;padding:14px;font-weight:800;z-index:98}
+#adzanBanner{position:fixed;left:0;right:0;bottom:130px;background:var(--gold);color:var(--green);text-align:center;padding:14px;font-weight:800;z-index:98}
 #adzanBanner button{margin-left:12px;padding:6px 14px;border-radius:10px;border:none;background:var(--green);color:var(--gold);font-weight:700;cursor:pointer}
 .loading{text-align:center;padding:24px;color:var(--soft)}
 .surah{background:var(--card);border:1px solid var(--line);border-radius:12px;margin:8px 0;padding:12px;display:flex;gap:10px;align-items:center;cursor:pointer}
@@ -72,6 +73,11 @@ select{width:100%;padding:12px;border-radius:12px;border:1px solid #cfd8d2;backg
 .s-mid{flex:1}
 .q-head{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;margin:8px 0}
 .q-head .ar{font-size:20px;color:var(--green)}
+#qDetail{padding-bottom:150px}
+.qbar{position:fixed;left:0;right:0;bottom:70px;background:#fff;border-top:1px solid var(--line);display:flex;align-items:center;gap:6px;padding:8px 10px;z-index:55}
+.qbar button{border:none;background:var(--green);color:#fff;border-radius:10px;padding:10px 16px;font-weight:800;cursor:pointer;font-size:16px}
+.qbar button:disabled{opacity:.35}
+.qbar .t{flex:1;text-align:center;font-size:12px;font-weight:700;color:var(--green)}
 .ayat{background:var(--card);border:1px solid var(--line);border-radius:12px;margin:8px 0;padding:14px}
 .ayat .a{font-size:22px;text-align:right;direction:rtl;line-height:2;color:var(--text)}
 .a-no{display:inline-block;min-width:26px;height:26px;border:1px solid var(--gold2);border-radius:50%;color:var(--gold2);font-size:12px;text-align:center;line-height:24px;margin-left:8px;vertical-align:middle}
@@ -245,13 +251,20 @@ nav button .ic{font-size:20px;display:block}
   </div>
   <div class="card">
     <h3 class="phead">ℹ️ Tentang</h3>
-    <p class="soft">Sahabat Hijrah - jadwal sholat dunia + imsak, Al-Qur'an offline (3 sumber data, nama surah Indonesia), tasbih, doa, kiblat, tracker & catatan. Semua data tersimpan di HP-mu saja.</p>
+    <p class="soft">Sahabat Hijrah - jadwal sholat dunia + imsak, Al-Qur'an offline mode mushaf per halaman, tasbih, doa, kiblat, tracker & catatan. Semua data tersimpan di HP-mu saja.</p>
     <div class="row"><button class="btn" onclick="updateApp()">🔄 Update Aplikasi</button></div>
     <p class="soft" style="margin-top:10px"><a href="privacy.html" style="color:var(--green)">Kebijakan Privasi</a> • © 2026 Sahabat Hijrah</p>
   </div>
 </div>
 
 <div id="adzanBanner" class="hidden">🕌 Waktu <span id="adzanNama"></span> telah masuk <button onclick="stopAdzan()">Stop</button></div>
+
+<div class="qbar hidden" id="qBar">
+  <button onclick="qKembali()">←</button>
+  <div class="t" id="qBarT">–</div>
+  <button id="qPrev" onclick="qPage(-1)">‹</button>
+  <button id="qNext" onclick="qPage(1)">›</button>
+</div>
 
 <div class="welcome hidden" id="welcomeBox"><div class="box">
   <h2>🌙 Assalamu'alaikum</h2>
@@ -592,7 +605,8 @@ const DOA=[
 {t:'Bangun Tidur',a:'الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ',l:'Alhamdulillahilladzi ahyaana ba\'da maa amaatana wa ilaihin nusyur',m:'Segala puji bagi Allah yang menghidupkan kami setelah mematikan kami, dan kepada-Nya kami dibangkitkan.'},
 {t:'Masuk Kamar Mandi',a:'اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْخُبُثِ وَالْخَبَائِثِ',l:'Allahumma inni a\'udzu bika minal khubutsi wal khaba\'its',m:'Ya Allah, aku berlindung kepada-Mu dari godaan setan laki-laki dan perempuan.'},
 {t:'Keluar Kamar Mandi',a:'غُفْرَانَكَ',l:'Ghufranaka',m:'Aku mohon ampunan-Mu.'},
-{t:'Keluar Rumah',a:'بِسْمِ اللَّهِ تَوَكَّلْتُ عَلَى اللَّهِ وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ',l:'Bismillahi tawakkaltu \'alallahi wa laa hawla wa laa quwwata illa billah',m:'Dengan nama Allah, aku bertawakal kepada Allah; tiada daya dan kekuatan kecuali dengan Allah.'},
+{t:'Keluar Rumah',a:'بِسْمِ اللَّهِ تَوَكَّلْتُ عَلَى اللَّهِ وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ',
+l:'Bismillahi tawakkaltu \'alallahi wa laa hawla wa laa quwwata illa billah',m:'Dengan nama Allah, aku bertawakal kepada Allah; tiada daya dan kekuatan kecuali dengan Allah.'},
 {t:'Masuk Masjid',a:'اللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ',l:'Allahummaftah li abwaba rahmatik',m:'Ya Allah, bukakanlah untukku pintu-pintu rahmat-Mu.'},
 {t:'Untuk Orang Tua',a:'رَبِّ اغْفِرْ لِي وَلِوَالِدَيَّ وَارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا',l:'Rabbighfir li wa li walidayya warhamhuma kama rabbayani shaghira',m:'Ya Tuhanku, ampunilah aku dan kedua orang tuaku, sayangilah mereka sebagaimana mereka merawatku waktu kecil.'},
 {t:'Kebaikan Dunia-Akhirat',a:'رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ',l:'Rabbana atina fid-dunya hasanah wa fil-akhirati hasanah wa qina adzaban nar',m:'Ya Tuhan kami, berikanlah kebaikan di dunia dan di akhirat, dan peliharalah kami dari siksa neraka.'}
@@ -715,13 +729,14 @@ function renderNotes(){
   });
 }
 
-/* ========== AL-QUR'AN: 3 sumber + nama Indonesia + offline ========== */
+/* ========== AL-QUR'AN: 3 sumber + nama Indonesia + mode mushaf ========== */
 const QAPI=[
 {t:'eq',u:'https://equran.id/apiv2'},
 {t:'eq',u:'https://equran.id/api/v2'},
 {t:'aqc',u:'https://api.alquran.cloud/v1'}
 ];
 let qAll=[],qReady=false,qBusy=false;
+let qNow=null,qPages=[],qCur=0;
 const QID=[
 ['Al-Fatihah','Pembukaan'],['Al-Baqarah','Sapi Betina'],["Ali 'Imran",'Keluarga Imran'],["An-Nisa'",'Wanita'],["Al-Ma'idah",'Hidangan'],["Al-An'am",'Binatang Ternak'],["Al-A'raf",'Tempat Tertinggi'],['Al-Anfal','Rampasan Perang'],['At-Taubah','Pengampunan'],['Yunus','Yunus'],
 ['Hud','Hud'],['Yusuf','Yusuf'],["Ar-Ra'd",'Guruh'],['Ibrahim','Ibrahim'],['Al-Hijr','Hijr'],['An-Nahl','Lebah'],["Al-Isra'",'Perjalanan Malam'],['Al-Kahf','Gua'],['Maryam','Maryam'],['Ta Ha','Ta Ha'],
@@ -775,6 +790,17 @@ async function qFetchDetail(n){
   }
   return null;
 }
+/* potong surah menjadi "halaman" ± seukuran mushaf cetak */
+function qBuildPages(s){
+  const pages=[];let cur=[],len=0;
+  s.ayat.forEach(function(a){
+    const L=(a.teksArab||'').length;
+    if(len>0&&len+L>600){pages.push(cur);cur=[];len=0;}
+    cur.push(a);len+=L;
+  });
+  if(cur.length)pages.push(cur);
+  return pages;
+}
 async function qInit(){
   renderQLast();
   if(qReady){qStatus();renderQList(qAll);return;}
@@ -819,7 +845,8 @@ function renderQLast(){
   if(!last){el.classList.add('hidden');return;}
   el.classList.remove('hidden');
   const e2=QID[last.nomor-1];
-  el.innerHTML='<div class="soft">📖 Terakhir dibaca</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px"><b style="color:var(--green);font-size:17px">'+(e2?e2[0]:last.namaLatin)+'</b><button class="btn small" onclick="qBuka('+last.nomor+')">Lanjutkan →</button></div>';
+  const pos=(last.ayat?'Ayat '+last.ayat:'')+(last.total?' • Hal. '+last.hal+'/'+last.total:'');
+  el.innerHTML='<div class="soft">📖 Terakhir dibaca</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px"><div><b style="color:var(--green);font-size:17px">'+(e2?e2[0]:last.namaLatin)+'</b><br><small class="soft">'+pos+'</small></div><button class="btn small" onclick="qBuka('+last.nomor+','+(last.ayat||1)+')">Lanjutkan →</button></div>';
 }
 function renderQList(l){
   document.getElementById('qList').innerHTML=l.map(function(s){
@@ -828,7 +855,7 @@ function renderQList(l){
     return '<div class="surah" onclick="qBuka('+s.nomor+')"><div class="s-num">'+s.nomor+'</div><div class="s-mid"><b>'+nm.n+'</b>'+off+'<br><small>'+nm.a+' • '+s.jumlahAyat+' ayat</small></div><div class="arab">'+qArab(s)+'</div></div>';
   }).join('');
 }
-async function qBuka(n){
+async function qBuka(n,ayat){
   document.getElementById('qList').classList.add('hidden');
   document.getElementById('qCari').classList.add('hidden');
   document.getElementById('qLast').classList.add('hidden');
@@ -841,23 +868,43 @@ async function qBuka(n){
     try{localStorage.setItem('sh_q_s'+n,JSON.stringify(s));}catch(e){}
     qStatus();
   }
-  localStorage.setItem('sh_q_last',JSON.stringify({nomor:s.nomor,namaLatin:s.namaLatin}));
-  const nm=qNama(s);
+  qNow=s;qPages=qBuildPages(s);qCur=0;
+  if(ayat){for(let i=0;i<qPages.length;i++){if(qPages[i][0].nomorAyat<=ayat)qCur=i;else break;}}
+  document.getElementById('qBar').classList.remove('hidden');
+  qRenderPage();
+}
+function qRenderPage(){
+  const s=qNow,nm=qNama(s),pg=qPages[qCur];
   const tm=String(s.tempatTurun||'').toLowerCase();
   const tmp=(tm.indexOf('madan')>-1||tm.indexOf('medinan')>-1)?'Madaniyah':(tm?'Makkiyah':'');
-  let h='<div class="card" style="text-align:center"><b style="font-size:18px;color:var(--green)">'+nm.n+'</b><br><small class="soft">'+nm.a+' • '+s.jumlahAyat+' ayat</small><br><button class="btn small" style="margin-top:8px" onclick="qKembali()">← Daftar Surah</button></div>';
+  let h='<div class="card" style="text-align:center"><b style="font-size:18px;color:var(--green)">'+nm.n+'</b><br><small class="soft">'+nm.a+' • '+s.jumlahAyat+' ayat</small></div>';
   h+='<div class="q-head"><span>'+tmp+'</span><span class="ar">'+qArab(s)+'</span><span>'+s.jumlahAyat+' Ayat</span></div>';
-  if(s.src!=='aqc'&&s.nomor!==1&&s.nomor!==9)h+='<div class="ayat" style="text-align:center;font-size:20px">بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ</div>';
-  h+=s.ayat.map(function(a){
+  if(qCur===0&&s.src!=='aqc'&&s.nomor!==1&&s.nomor!==9)h+='<div class="ayat" style="text-align:center;font-size:20px">بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ</div>';
+  h+=pg.map(function(a){
     return '<div class="ayat"><div class="a">'+a.teksArab+'<span class="a-no">'+a.nomorAyat+'</span></div>'+(a.teksLatin?'<div class="l">'+a.teksLatin+'</div>':'')+'<div class="t">'+a.teksIndonesia+'</div></div>';
   }).join('');
-  det.innerHTML=h;
+  document.getElementById('qDetail').innerHTML=h;
+  document.getElementById('qBarT').textContent=nm.n+' • Hal '+(qCur+1)+'/'+qPages.length;
+  document.getElementById('qPrev').disabled=(qCur===0);
+  document.getElementById('qNext').disabled=(qCur===qPages.length-1&&s.nomor===114);
+  localStorage.setItem('sh_q_last',JSON.stringify({nomor:s.nomor,namaLatin:s.namaLatin,ayat:pg[0].nomorAyat,hal:qCur+1,total:qPages.length}));
   window.scrollTo(0,0);
 }
+function qPage(d){
+  if(d>0&&qCur===qPages.length-1){
+    if(qNow.nomor<114){qBuka(qNow.nomor+1);} /* halaman terakhir → lanjut surah berikut, seperti mushaf */
+    return;
+  }
+  const nx=qCur+d;
+  if(nx<0||nx>=qPages.length)return;
+  qCur=nx;sfxKlik();qRenderPage();
+}
 function qKembali(){
+  document.getElementById('qBar').classList.add('hidden');
   document.getElementById('qDetail').classList.add('hidden');
   document.getElementById('qList').classList.remove('hidden');
   document.getElementById('qCari').classList.remove('hidden');
+  renderQLast();
   qInit();
 }
 
@@ -878,6 +925,8 @@ function pindahHal(h){
     document.getElementById('hal-'+x).classList.toggle('hidden',x!==h);
     document.getElementById(NAVMAP[x]).classList.toggle('on',x===h);
   }
+  if(h!=='quran')document.getElementById('qBar').classList.add('hidden');
+  else if(document.getElementById('qDetail').classList.contains('hidden'))document.getElementById('qBar').classList.add('hidden');
   if(h==='quran')qInit();
   if(h==='catatan')renderNotes();
   if(h==='profil')isiSelectRefresh();
@@ -939,6 +988,14 @@ document.getElementById('qCari').addEventListener('input',function(e){
   const v=e.target.value.trim();
   renderQList(qAll.filter(function(s){const nm=qNama(s);return normQ(nm.n).indexOf(q)>-1||normQ(nm.a).indexOf(q)>-1||String(s.nomor).indexOf(v)>-1;}));
 });
+/* geser kiri/kanan untuk balik halaman (seperti membalik buku) */
+let qTouchX=0,qTouchY=0;
+document.getElementById('qDetail').addEventListener('touchstart',function(e){qTouchX=e.touches[0].clientX;qTouchY=e.touches[0].clientY;},{passive:true});
+document.getElementById('qDetail').addEventListener('touchend',function(e){
+  const dx=e.changedTouches[0].clientX-qTouchX;
+  const dy=e.changedTouches[0].clientY-qTouchY;
+  if(Math.abs(dx)>60&&Math.abs(dy)<50){if(dx<0)qPage(1);else qPage(-1);}
+},{passive:true});
 isiSelect();isiTanggal();isiHikmah();isiDoa();renderTb();renderAuto();renderNotes();renderTracker();qInit();maybeWelcome();tick();setInterval(tick,1000);
 </script>
 </body>
