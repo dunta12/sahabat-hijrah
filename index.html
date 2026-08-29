@@ -245,7 +245,7 @@ nav button .ic{font-size:20px;display:block}
   </div>
   <div class="card">
     <h3 class="phead">ℹ️ Tentang</h3>
-    <p class="soft">Sahabat Hijrah - jadwal sholat dunia + imsak, Al-Qur'an offline (3 sumber data), tasbih, doa, kiblat, tracker & catatan. Semua data tersimpan di HP-mu saja.</p>
+    <p class="soft">Sahabat Hijrah v2.4 — jadwal sholat dunia + imsak, Al-Qur'an offline (3 sumber data, nama surah Indonesia), tasbih, doa, kiblat, tracker & catatan. Semua data tersimpan di HP-mu saja.</p>
     <div class="row"><button class="btn" onclick="updateApp()">🔄 Update Aplikasi</button></div>
     <p class="soft" style="margin-top:10px"><a href="privacy.html" style="color:var(--green)">Kebijakan Privasi</a> • © 2026 Sahabat Hijrah</p>
   </div>
@@ -258,7 +258,7 @@ nav button .ic{font-size:20px;display:block}
   <p class="soft">Selamat datang di Sahabat Hijrah. Tiga hal penting:</p>
   <ul>
     <li>🔔 Ketuk lonceng di atas agar <b>adzan berbunyi otomatis</b> saat masuk waktu (selama app terbuka) + pengingat 10 menit sebelumnya.</li>
-    <li>📖 Al-Qur'an butuh internet <b>sekali</b>: setelah diunduh, offline selamanya. Unduhan semua surah dimulai otomatis setelah sambutan ini.</li>
+    <li>📖 Al-Qur'an butuh internet <b>sekali</b>; setelah diunduh, offline selamanya. Unduhan semua surah dimulai otomatis setelah sambutan ini.</li>
     <li>🔒 Semua catatan & tracker tersimpan <b>di HP-mu saja</b>, tanpa akun.</li>
   </ul>
   <div class="row"><button class="btn" onclick="tutupWelcome()">Bismillah, mulai 🤍</button></div>
@@ -324,7 +324,7 @@ function tone(f,d,type,vol,delay){
 }
 function sfxKlik(){tone(1500,0.06,'square',0.8);tone(2200,0.05,'square',0.5,0.02);}
 function sfxWin(){tone(523,0.12,'square',0.8,0);tone(659,0.12,'square',0.8,0.12);tone(784,0.12,'square',0.8,0.24);tone(1047,0.35,'square',0.9,0.36);}
-function toggleMute(){muted=!muted;document.getElementById('muteBtn').textContent=muted?'🔇':'';if(muted)stopAdzan();}
+function toggleMute(){muted=!muted;document.getElementById('muteBtn').textContent=muted?'🔇':'🔊';if(muted)stopAdzan();}
 
 /* adzan */
 let adhanOK=true,adzanSedang=false,adhanBoost=false;
@@ -690,7 +690,7 @@ function trToggle(i){
 /* ========== catatan hijrah + editor luas ========== */
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function getNotes(){return JSON.parse(localStorage.getItem('sh_notes')||'[]');}
-function bukaEditor(){document.getElementById('editor').classList.add('open');}
+function bukaEditor(){document.getElementById('editor').classList.add('open');setTimeout(function(){document.getElementById('edText').focus();},150);}
 function tutupEditor(){document.getElementById('editor').classList.remove('open');}
 function simpanEditor(){
   const t=document.getElementById('edTitle').value.trim();
@@ -708,20 +708,36 @@ function renderNotes(){
   const arr=getNotes();
   if(!arr.length){w.innerHTML='<div class="card soft" style="text-align:center">Belum ada catatan. Mulai tulis refleksi hijrahmu 🌱</div>';return;}
   arr.forEach(function(n,i){
-    const ic=n.type==='Refleksi'?'🪞':n.type==='Target'?'🎯':'';
+    const ic=n.type==='Refleksi'?'🪞':n.type==='Target'?'🎯':'⏰';
     const div=document.createElement('div');div.className='note';
     div.innerHTML='<button class="x" onclick="delNote('+i+')">✖</button><div class="t">'+ic+' '+esc(n.t||n.type)+'</div><div class="m">'+new Date(n.d).toLocaleString('id-ID')+'</div><div>'+esc(n.x)+'</div>';
     w.appendChild(div);
   });
 }
 
-/* ========== AL-QUR'AN: 3 sumber data + offline ========== */
+/* ========== AL-QUR'AN: 3 sumber + nama Indonesia + offline ========== */
 const QAPI=[
 {t:'eq',u:'https://equran.id/apiv2'},
 {t:'eq',u:'https://equran.id/api/v2'},
 {t:'aqc',u:'https://api.alquran.cloud/v1'}
 ];
 let qAll=[],qReady=false,qBusy=false;
+const QID=[
+['Al-Fatihah','Pembukaan'],['Al-Baqarah','Sapi Betina'],["Ali 'Imran",'Keluarga Imran'],["An-Nisa'",'Wanita'],["Al-Ma'idah",'Hidangan'],["Al-An'am",'Binatang Ternak'],["Al-A'raf",'Tempat Tertinggi'],['Al-Anfal','Rampasan Perang'],['At-Taubah','Pengampunan'],['Yunus','Yunus'],
+['Hud','Hud'],['Yusuf','Yusuf'],["Ar-Ra'd",'Guruh'],['Ibrahim','Ibrahim'],['Al-Hijr','Hijr'],['An-Nahl','Lebah'],["Al-Isra'",'Perjalanan Malam'],['Al-Kahf','Gua'],['Maryam','Maryam'],['Ta Ha','Ta Ha'],
+["Al-Anbiya'",'Para Nabi'],['Al-Hajj','Haji'],["Al-Mu'minun",'Orang-orang Mukmin'],['An-Nur','Cahaya'],['Al-Furqan','Pembeda'],["Asy-Syu'ara'",'Para Penyair'],['An-Naml','Semut'],['Al-Qasas','Cerita'],["Al-'Ankabut",'Laba-laba'],['Ar-Rum','Romawi'],
+['Luqman','Luqman'],['As-Sajdah','Sujud'],['Al-Ahzab','Golongan yang Bersekutu'],["Saba'",'Kaum Saba'],['Fatir','Pencipta'],['Ya Sin','Ya Sin'],['As-Saffat','Yang Bersaf-saf'],['Sad','Sad'],['Az-Zumar','Rombongan'],['Gafir','Maha Pengampun'],
+['Fussilat','Yang Dijelaskan'],['Asy-Syura','Musyawarah'],['Az-Zukhruf','Perhiasan'],['Ad-Dukhan','Kabut'],['Al-Jasiyah','Yang Berlutut'],['Al-Ahqaf','Bukit Pasir'],['Muhammad','Muhammad'],['Al-Fath','Kemenangan'],['Al-Hujurat','Kamar-kamar'],['Qaf','Qaf'],
+['Az-Zariyat','Angin yang Menerbangkan'],['At-Tur','Bukit'],['An-Najm','Bintang'],['Al-Qamar','Bulan'],['Ar-Rahman','Yang Maha Pengasih'],["Al-Waqi'ah",'Hari Kiamat'],['Al-Hadid','Besi'],['Al-Mujadalah','Wanita yang Menggugat'],['Al-Hasyr','Pengusiran'],['Al-Mumtahanah','Wanita yang Diuji'],
+['As-Saff','Barisan'],["Al-Jumu'ah",'Jumat'],['Al-Munafiqun','Orang-orang Munafik'],['At-Tagabun','Pengungkapan Kesalahan'],['At-Talaq','Talak'],['At-Tahrim','Pengharaman'],['Al-Mulk','Kerajaan'],['Al-Qalam','Pena'],['Al-Haqqah','Hari Kiamat'],["Al-Ma'arij",'Tempat Naik'],
+['Nuh','Nuh'],['Al-Jinn','Jin'],['Al-Muzzammil','Orang yang Berselimut'],['Al-Muddassir','Orang yang Berkemul'],['Al-Qiyamah','Hari Kiamat'],['Al-Insan','Manusia'],['Al-Mursalat','Malaikat yang Diutus'],["An-Naba'",'Berita Besar'],["An-Nazi'at",'Malaikat yang Mencabut'],["'Abasa",'Bermuka Masam'],
+['At-Takwir','Penggulungan'],['Al-Infitar','Terbelah'],['Al-Mutaffifin','Orang-orang Curang'],['Al-Insyiqaq','Terbelah'],['Al-Buruj','Gugusan Bintang'],['At-Tariq','Yang Datang di Malam Hari'],["Al-A'la",'Yang Paling Tinggi'],['Al-Gasyiyah','Hari Kiamat'],['Al-Fajr','Fajar'],['Al-Balad','Negeri'],
+['Asy-Syams','Matahari'],['Al-Lail','Malam'],['Ad-Duha','Waktu Duha'],['Asy-Syarh','Kelapangan'],['At-Tin','Buah Tin'],["Al-'Alaq",'Segumpal Darah'],['Al-Qadr','Kemuliaan'],['Al-Bayyinah','Bukti Nyata'],['Az-Zalzalah','Guncangan'],["Al-'Adiyat",'Kuda Perang'],
+["Al-Qari'ah",'Ketukan Keras'],['At-Takasur','Bermegah-megahan'],["Al-'Asr",'Masa'],['Al-Humazah','Pengumpat'],['Al-Fil','Gajah'],['Quraisy','Suku Quraisy'],["Al-Ma'un",'Barang Berguna'],['Al-Kausar','Nikmat Berlimpah'],['Al-Kafirun','Orang-orang Kafir'],['An-Nasr','Pertolongan'],
+['Al-Lahab','Gejolak Api'],['Al-Ikhlas','Ikhlas'],['Al-Falaq','Waktu Subuh'],['An-Nas','Manusia']
+];
+function qNama(s){const e=QID[s.nomor-1];return e?{n:e[0],a:e[1]}:{n:s.namaLatin,a:s.arti};}
+function qArab(s){return String(s.nama||'').replace(/^سُورَةُ\s*/,'').replace(/^سورة\s*/,'');}
 function normQ(t){return String(t).toLowerCase().replace(/[^a-z0-9]/g,'');}
 function qCountSaved(){let c=0;for(let i=1;i<=114;i++){if(localStorage.getItem('sh_q_s'+i))c++;}return c;}
 function qStatus(txt){document.getElementById('qProg').textContent=txt||('Offline: '+qCountSaved()+'/114 surah');}
@@ -771,7 +787,10 @@ async function qInit(){
   try{localStorage.setItem('sh_q_list',JSON.stringify(qAll));}catch(e){}
   qReady=true;qStatus();renderQList(qAll);
 }
-window.addEventListener('online',function(){if(!qReady)qInit();});
+window.addEventListener('online',function(){
+  if(!qReady)qInit();
+  else if(localStorage.getItem('sh_q_auto'))qUnduh(true);
+});
 async function qUnduh(silent){
   if(qBusy)return;
   if(!qReady){await qInit();if(!qReady){if(!silent)alert('Daftar surah belum siap. Cek internet.');return;}}
@@ -785,8 +804,10 @@ async function qUnduh(silent){
       try{localStorage.setItem('sh_q_s'+i,JSON.stringify(s));saved++;}catch(e){penuh=true;break;}
     }else gagal++;
     qStatus('Menyimpan '+saved+'/114...');
+    await new Promise(function(r){setTimeout(r,120);});
   }
   qBusy=false;btn.disabled=false;
+  if(!penuh&&gagal===0&&saved===114)localStorage.removeItem('sh_q_auto');
   if(penuh)qStatus('⚠️ Penyimpanan penuh — '+saved+' surah offline');
   else qStatus();
   renderQList(qAll);
@@ -797,12 +818,14 @@ function renderQLast(){
   const el=document.getElementById('qLast');
   if(!last){el.classList.add('hidden');return;}
   el.classList.remove('hidden');
-  el.innerHTML='<div class="soft">📖 Terakhir dibaca</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px"><b style="color:var(--green);font-size:17px">'+last.namaLatin+'</b><button class="btn small" onclick="qBuka('+last.nomor+')">Lanjutkan →</button></div>';
+  const e2=QID[last.nomor-1];
+  el.innerHTML='<div class="soft">📖 Terakhir dibaca</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px"><b style="color:var(--green);font-size:17px">'+(e2?e2[0]:last.namaLatin)+'</b><button class="btn small" onclick="qBuka('+last.nomor+')">Lanjutkan →</button></div>';
 }
 function renderQList(l){
   document.getElementById('qList').innerHTML=l.map(function(s){
+    const nm=qNama(s);
     const off=localStorage.getItem('sh_q_s'+s.nomor)?' <span class="badge">⬇ offline</span>':'';
-    return '<div class="surah" onclick="qBuka('+s.nomor+')"><div class="s-num">'+s.nomor+'</div><div class="s-mid"><b>'+s.namaLatin+'</b>'+off+'<br><small>'+s.arti+' • '+s.jumlahAyat+' ayat</small></div><div class="arab">'+s.nama+'</div></div>';
+    return '<div class="surah" onclick="qBuka('+s.nomor+')"><div class="s-num">'+s.nomor+'</div><div class="s-mid"><b>'+nm.n+'</b>'+off+'<br><small>'+nm.a+' • '+s.jumlahAyat+' ayat</small></div><div class="arab">'+qArab(s)+'</div></div>';
   }).join('');
 }
 async function qBuka(n){
@@ -819,10 +842,11 @@ async function qBuka(n){
     qStatus();
   }
   localStorage.setItem('sh_q_last',JSON.stringify({nomor:s.nomor,namaLatin:s.namaLatin}));
+  const nm=qNama(s);
   const tm=String(s.tempatTurun||'').toLowerCase();
   const tmp=(tm.indexOf('madan')>-1||tm.indexOf('medinan')>-1)?'Madaniyah':(tm?'Makkiyah':'');
-  let h='<div class="card" style="text-align:center"><b style="font-size:18px;color:var(--green)">'+s.namaLatin+'</b><br><small class="soft">'+s.arti+' • '+s.jumlahAyat+' ayat</small><br><button class="btn small" style="margin-top:8px" onclick="qKembali()">← Daftar Surah</button></div>';
-  h+='<div class="q-head"><span>'+tmp+'</span><span class="ar">'+(s.nama||'')+'</span><span>'+s.jumlahAyat+' Ayat</span></div>';
+  let h='<div class="card" style="text-align:center"><b style="font-size:18px;color:var(--green)">'+nm.n+'</b><br><small class="soft">'+nm.a+' • '+s.jumlahAyat+' ayat</small><br><button class="btn small" style="margin-top:8px" onclick="qKembali()">← Daftar Surah</button></div>';
+  h+='<div class="q-head"><span>'+tmp+'</span><span class="ar">'+qArab(s)+'</span><span>'+s.jumlahAyat+' Ayat</span></div>';
   if(s.src!=='aqc'&&s.nomor!==1&&s.nomor!==9)h+='<div class="ayat" style="text-align:center;font-size:20px">بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ</div>';
   h+=s.ayat.map(function(a){
     return '<div class="ayat"><div class="a">'+a.teksArab+'<span class="a-no">'+a.nomorAyat+'</span></div>'+(a.teksLatin?'<div class="l">'+a.teksLatin+'</div>':'')+'<div class="t">'+a.teksIndonesia+'</div></div>';
@@ -841,6 +865,7 @@ function qKembali(){
 function maybeWelcome(){if(!localStorage.getItem('sh_welcome'))document.getElementById('welcomeBox').classList.remove('hidden');}
 function tutupWelcome(){
   localStorage.setItem('sh_welcome','1');
+  localStorage.setItem('sh_q_auto','1');
   document.getElementById('welcomeBox').classList.add('hidden');
   qUnduh(true);
 }
@@ -911,7 +936,8 @@ if('serviceWorker' in navigator){
 document.getElementById('qCari').addEventListener('input',function(e){
   if(!qReady)return;
   const q=normQ(e.target.value);
-  renderQList(qAll.filter(function(s){return normQ(s.namaLatin).indexOf(q)>-1||String(s.nomor).indexOf(e.target.value)>-1;}));
+  const v=e.target.value.trim();
+  renderQList(qAll.filter(function(s){const nm=qNama(s);return normQ(nm.n).indexOf(q)>-1||normQ(nm.a).indexOf(q)>-1||String(s.nomor).indexOf(v)>-1;}));
 });
 isiSelect();isiTanggal();isiHikmah();isiDoa();renderTb();renderAuto();renderNotes();renderTracker();qInit();maybeWelcome();tick();setInterval(tick,1000);
 </script>
