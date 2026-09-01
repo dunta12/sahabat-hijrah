@@ -69,6 +69,24 @@ input,select{width:100%;padding:10px;border-radius:10px;border:1px solid #cfd8d3
 .lock h3{font-size:18px}
 .lock p{font-size:13px;color:var(--muted);max-width:260px}
 .lock button{background:var(--yellow);border:none;border-radius:14px;padding:13px 18px;font-size:15px;font-weight:700;color:#21302b}
+/* TAMBAHKAN INI DI BAGIAN <STYLE> */
+/* Memaksa konten utama tetap di atas overlay CPAGrip */
+.lockbox {
+    position: relative !important;
+    z-index: 100000 !important; /* Z-index sangat tinggi agar menang dari overlay */
+}
+
+/* Jika CPAGrip membuat div dengan class tertentu, kita sembunyikan atau atur ulang */
+div[id*="opti"], div[class*="opti"], iframe[src*="optilink"] {
+    display: none !important; /* Sembunyikan overlay otomatis jika ada */
+}
+
+/* Pastikan tombol unlock selalu bisa diklik */
+#unlock {
+    position: relative !important;
+    z-index: 100001 !important;
+    pointer-events: auto !important;
+}
 </style>
 </head>
 <body>
