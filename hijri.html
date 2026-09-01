@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1e5b46">
+<title>Kalender Hijriyah — Sahabat Hijrah</title>
+<style>
+:root{--green:#1e5b46;--yellow:#ffd200;--bg:#efece4;--card:#f8f8f6;--text:#21302b;--muted:#7d8a83}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);padding-bottom:24px}
+header{position:sticky;top:0;z-index:5;background:var(--green);color:#fff;display:flex;align-items:center;gap:10px;padding:14px 16px}
+header a{color:#fff;text-decoration:none;font-size:22px;line-height:1}
+header h1{font-size:18px;flex:1}
+header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:50%;width:38px;height:38px;font-size:17px}
+.wrap{padding:14px 16px 0}
+.card{background:var(--card);border-radius:18px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.today{text-align:center;margin-bottom:12px}
+.today b{color:var(--green);font-size:17px}
+.today small{display:block;color:var(--muted);margin-top:2px}
+h3.sec{font-size:13px;color:var(--muted);margin:4px 0 8px;font-weight:600}
+.seg{display:flex;gap:6px;margin:8px 0}
+.seg button{flex:1;padding:9px;border-radius:10px;border:1px solid #cfd8d3;background:#fff;font-size:13px;color:var(--text)}
+.seg button.on{background:var(--green);color:#fff;border-color:var(--green)}
+input,select{width:100%;padding:10px;border-radius:10px;border:1px solid #cfd8d3;background:#fff;font-size:14px;margin-top:8px;color:var(--text)}
+.hmRow{display:flex;gap:6px}
+#convRes{margin-top:10px;background:#e2efe8;border-radius:12px;padding:10px;font-size:14px;color:var(--green);font-weight:600;text-align:center}
+.lockbox{position:relative;margin-top:12px}
+.nav{display:flex;align-items:center;justify-content:space-between;margin:0 0 10px}
+.nav button{background:var(--green);color:#fff;border:none;border-radius:12px;width:40px;height:40px;font-size:20px}
+.nav h2{font-size:16px;color:var(--green);background:#e2efe8;border:none;border-radius:12px;padding:9px 12px}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.dow{font-size:11px;color:var(--muted);text-align:center;padding:4px 0;font-weight:600}
+.day{position:relative;min-height:46px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:12px;font-size:14px;background:#fff}
+.day small{font-size:9px;color:var(--muted)}
+.day.empty{background:transparent}
+.day.now{background:var(--yellow);font-weight:700}
+.day.now small{color:#5c4a00}
+.day.ev{background:#e2efe8;color:var(--green);font-weight:600}
+.day.ev::after{content:"";position:absolute;bottom:4px;width:5px;height:5px;border-radius:50%;background:var(--green)}
+.events{margin-top:14px;border-top:1px solid #e3e0d7;padding-top:12px}
+.events h3{font-size:13px;color:var(--muted);margin-bottom:8px;font-weight:600}
+.events li{list-style:none;display:flex;gap:8px;font-size:14px;padding:5px 0}
+.events li b{color:var(--green);min-width:26px}
+.badge{margin-top:12px;text-align:center;font-size:12px;color:var(--green);background:#e2efe8;border-radius:10px;padding:6px}
+.note{font-size:11px;color:var(--muted);text-align:center;margin:12px 4px}
+.lock{position:absolute;inset:0;z-index:2;background:rgba(239,236,228,.78);backdrop-filter:blur(6px);border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:20px}
+.lock h3{font-size:18px}
+.lock p{font-size:13px;color:var(--muted);max-width:260px}
+.lock button{background:var(--yellow);border:none;border-radius:14px;padding:13px 18px;font-size:15px;font-weight:700;color:#21302b;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.modal{position:fixed;inset:0;z-index:9;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;padding:20px}
+.modal.show{display:flex}
+.modal .box{background:#fff;border-radius:20px;padding:26px;text-align:center;max-width:320px;width:100%}
+.modal .num{font-size:52px;font-weight:800;color:var(--green);margin:10px 0}
+.modal p{font-size:13px;color:var(--muted)}
+.modal .box button{margin-top:14px;background:var(--green);color:#fff;border:none;border-radius:12px;padding:12px 20px;font-size:15px;font-weight:600}
+</style>
+</head>
+<body>
+<header>
+  <a href="index.html">←</a>
+  <h1 id="t"></h1>
+  <button id="lang">🌐</button>
+</header>
+<div class="wrap">
+  <div class="card today">
+    <b id="todayHijri"></b>
+    <small id="todayGreg"></small>
+  </div>
+
+  <div class="card">
+    <h3 class="sec" id="convT"></h3>
+    <div class="seg">
+      <button id="bMH" class="on"></button>
+      <button id="bHM"></button>
+    </div>
+    <div id="mhBox"><input type="date" id="mDate"></div>
+    <div id="hmBox" hidden>
+      <div class="hmRow">
+        <select id="dSel"></select>
+        <select id="mSel"></select>
+      </div>
+      <input type="number" id="yInp" min="1400" max="1500" value="1447">
+    </div>
+    <div id="convRes"></div>
+  </div>
+
+  <div class="lockbox">
+    <div class="card">
+      <div class="nav">
+        <button id="prev">‹</button>
+        <h2 id="label"></h2>
+        <button id="next">›</button>
+      </div>
+      <div class="grid" id="grid"></div>
+      <div class="events"><h3 id="evTitle"></h3><ul id="evList"></ul></div>
+      <div class="badge" id="badge" hidden></div>
+    </div>
+    <div class="lock" id="lock">
+      <h3>🔒 <span id="lk1"></span></h3>
+      <p id="lk2"></p>
+      <button id="unlock">▶️ <span id="lk3"></span></button>
+    </div>
+  </div>
+  <p class="note" id="note"></p>
+</div>
+
+<div class="modal" id="modal">
+  <div class="box">
+    <div id="adTitle" style="font-weight:700"></div>
+    <div class="num" id="count">5</div>
+    <p id="adNote"></p>
+  </div>
+</div>
+<div class="modal" id="pick">
+  <div class="box">
+    <div id="pkT" style="font-weight:700"></div>
+    <select id="pMonth"></select>
+    <input type="number" id="pYear" min="1400" max="1500">
+    <button id="pGo"></button>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const KEY='sh_premium_until',LKEY='sh_lang';
+let lang=localStorage.getItem(LKEY)||'id';
+let cur={hy:0,hm:0};
+const T={
+ id:{t:'Kalender Hijriyah',lk1:'Fitur Premium',lk2:'Kalender Hijriyah lengkap dengan tanggal Masehi & tanggal penting Islam. Buka gratis dengan menonton satu iklan — akses 24 jam.',lk3:'Buka Gratis — Nonton Iklan',ev:'Tanggal penting bulan ini',none:'Tidak ada tanggal penting bulan ini.',badge:'✅ Akses premium aktif · %h% jam lagi',adT:'📺 Iklan (simulasi)',adN:'Di versi berikutnya, kotak ini digantikan iklan Unity Ads (Rewarded).',thanks:'Terima kasih! Kalender terbuka 24 jam.',conv:'Konversi Tanggal · gratis',mh:'Masehi → Hijriyah',hm2:'Hijriyah → Masehi',pick:'Lompat ke bulan/tahun',go:'Buka',note:'Mengikuti kalender Ummul Qura; dapat berbeda ±1 hari dengan penetapan resmi pemerintah.',invalid:'Tanggal tidak valid.',
+ months:['Muharram','Safar','Rabiulawal','Rabiulakhir','Jumadilawal','Jumadilakhir','Rajab','Sya\'ban','Ramadhan','Syawal','Dzulqa\'dah','Dzulhijjah'],
+ dows:['Sen','Sel','Rab','Kam','Jum','Sab','Ahd']},
+ en:{t:'Hijri Calendar',lk1:'Premium Feature',lk2:'Full Hijri calendar with Gregorian dates & important Islamic dates. Unlock free by watching one ad — 24-hour access.',lk3:'Unlock Free — Watch Ad',ev:'Important dates this month',none:'No important dates this month.',badge:'✅ Premium active · %h% hours left',adT:'📺 Ad (simulation)',adN:'In the next version, this box is replaced by Unity Ads (Rewarded).',thanks:'Thank you! Calendar unlocked for 24 hours.',conv:'Date Converter · free',mh:'Gregorian → Hijri',hm2:'Hijri → Gregorian',pick:'Jump to month/year',go:'Go',note:'Based on the Umm al-Qura calendar; may differ by ±1 day from official government announcements.',invalid:'Invalid date.',
+ months:['Muharram','Safar','Rabi al-Awwal','Rabi al-Thani','Jumada al-Awwal','Jumada al-Thani','Rajab','Sha\'ban','Ramadan','Shawwal','Dhu al-Qi\'dah','Dhu al-Hijjah'],
+ dows:['Mon','Tue','Wed','Thu','Fri','Sat','Sun']}
+};
+const EV={
+ '1-1':{id:'Tahun Baru Hijriyah',en:'Hijri New Year'},
+ '1-10':{id:'Puasa Asyura',en:'Ashura Fast'},
+ '3-12':{id:'Maulid Nabi ﷺ',en:'Mawlid an-Nabi ﷺ'},
+ '7-27':{id:'Isra\' Mi\'raj',en:'Isra\' Mi\'raj'},
+ '8-15':{id:'Nisfu Sya\'ban',en:'Mid-Sha\'ban'},
+ '9-1':{id:'Awal Ramadhan',en:'Start of Ramadan'},
+ '9-17':{id:'Nuzulul Qur\'an',en:'Nuzulul Qur\'an'},
+ '10-1':{id:'Idulfitri',en:'Eid al-Fitr'},
+ '12-9':{id:'Puasa Arafah',en:'Day of Arafah'},
+ '12-10':{id:'Iduladha',en:'Eid al-Adha'}
+};
+const HF=new Intl.DateTimeFormat('en-u-ca-islamic-umalqura',{day:'numeric',month:'numeric',year:'numeric'});
+function hijri(d){const p=HF.formatToParts(d),g=t=>+p.find(x=>x.type===t).value;return{hd:g('day'),hm:g('month'),hy:g('year')}}
+function mk(y,m,d){return new Date(y,m,d,12,0,0)}
+const now=new Date(),today=mk(now.getFullYear(),now.getMonth(),now.getDate()),t0=hijri(today);
+const ANCH=Date.UTC(2025,5,27);
+function targetFirst(hy,hm){
+ const months=(hy*12+hm)-(1447*12+1);
+ const u=new Date(ANCH+months*29.530588853*86400000);
+ const base=mk(u.getUTCFullYear(),u.getUTCMonth(),u.getUTCDate());
+ for(let off=-6;off<=10;off++){const d=new Date(base);d.setDate(base.getDate()+off);const h=hijri(d);if(h.hd===1&&h.hm===hm&&h.hy===hy)return d}
+ for(let off=-20;off<=20;off++){const d=new Date(base);d.setDate(base.getDate()+off);const h=hijri(d);if(h.hd===1&&h.hm===hm&&h.hy===hy)return d}
+ return base;
+}
+function mLen(f){const c=hijri(f);let x=new Date(f),n=0;for(;;){x.setDate(x.getDate()+1);const h=hijri(x);if(h.hm!==c.hm||h.hy!==c.hy)break;n++;if(n>30)break}return n+1}
+function unlocked(){return Date.now()<(+localStorage.getItem(KEY)||0)}
+function refreshLock(){const L=T[lang];
+ if(unlocked()){$('lock').style.display='none';const h=Math.max(1,Math.round((+localStorage.getItem(KEY)-Date.now())/36e5));$('badge').hidden=false;$('badge').textContent=L.badge.replace('%h%',h)}
+ else{$('lock').style.display='flex';$('badge').hidden=true}}
+function startRewardedAd(done){
+ /* === V2: ganti isi fungsi ini dengan jembatan Unity Ads === */
+ $('adTitle').textContent=T[lang].adT;$('adNote').textContent=T[lang].adN;
+ $('modal').classList.add('show');let c=5;$('count').textContent=c;
+ const iv=setInterval(()=>{c--;
+  if(c<=0){clearInterval(iv);$('count').textContent='✅';$('adNote').textContent=T[lang].thanks;
+   setTimeout(()=>{$('modal').classList.remove('show');done()},1200)}
+  else $('count').textContent=c},1000);
+}
+function fillMonths(sel){const L=T[lang];sel.innerHTML=L.months.map((m,i)=>'<option value="'+(i+1)+'">'+m+'</option>').join('')}
+function conv(){const L=T[lang],loc=lang==='id'?'id-ID':'en-US';
+ if(!$('bMH').classList.contains('on')){
+  const hd=+$('dSel').value,hm=+$('mSel').value,hy=+$('yInp').value;
+  const f=targetFirst(hy,hm),len=mLen(f);
+  if(hd>len){$('convRes').textContent=L.invalid;return}
+  const g=new Date(f);g.setDate(f.getDate()+hd-1);
+  $('convRes').textContent=g.toLocaleDateString(loc,{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+ }else{
+  const v=$('mDate').value;if(!v)return;
+  const a=v.split('-').map(Number),h=hijri(mk(a[0],a[1]-1,a[2]));
+  $('convRes').textContent=h.hd+' '+L.months[h.hm-1]+' '+h.hy+' H';
+ }}
+function render(){const L=T[lang];
+ $('t').textContent=L.t;document.title=L.t+' — Sahabat Hijrah';
+ $('lk1').textContent=L.lk1;$('lk2').textContent=L.lk2;$('lk3').textContent=L.lk3;
+ $('evTitle').textContent=L.ev;$('note').textContent=L.note;
+ $('convT').textContent=L.conv;$('bMH').textContent=L.mh;$('bHM').textContent=L.hm2;
+ $('pkT').textContent=L.pick;$('pGo').textContent=L.go;
+ $('todayHijri').textContent=t0.hd+' '+L.months[t0.hm-1]+' '+t0.hy+' H';
+ $('todayGreg').textContent=today.toLocaleDateString(lang==='id'?'id-ID':'en-US',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+ const f=targetFirst(cur.hy,cur.hm),len=mLen(f);
+ $('label').textContent=L.months[cur.hm-1]+' '+cur.hy+' H';
+ $('pMonth').value=cur.hm;$('pYear').value=cur.hy;
+ let html=L.dows.map(d=>'<div class="dow">'+d+'</div>').join('');
+ const lead=(f.getDay()+6)%7;
+ for(let i=0;i<lead;i++)html+='<div class="day empty"></div>';
+ let evs='';
+ for(let d=1;d<=len;d++){
+  const dt=new Date(f);dt.setDate(f.getDate()+d-1);
+  const cls=['day'];
+  if(dt.toDateString()===today.toDateString())cls.push('now');
+  const e=EV[cur.hm+'-'+d];
+  if(e){cls.push('ev');evs+='<li><b>'+d+'</b><span>'+e[lang]+'</span></li>'}
+  html+='<div class="'+cls.join(' ')+'">'+d+'<small>'+dt.getDate()+'</small></div>';
+ }
+ $('grid').innerHTML=html;
+ $('evList').innerHTML=evs||'<li><span style="color:var(--muted)">'+L.none+'</span></li>';
+ refreshLock();conv();
+}
+function shift(n){cur.hm+=n;if(cur.hm>12){cur.hm=1;cur.hy++}if(cur.hm<1){cur.hm=12;cur.hy--}render()}
+$('prev').onclick=()=>shift(-1);
+$('next').onclick=()=>shift(1);
+$('label').onclick=()=>{$('pick').classList.add('show')};
+$('pGo').onclick=()=>{cur={hy:+$('pYear').value,hm:+$('pMonth').value};$('pick').classList.remove('show');render()};
+$('lang').onclick=()=>{lang=lang==='id'?'en':'id';localStorage.setItem(LKEY,lang);fillMonths($('mSel'));fillMonths($('pMonth'));render()};
+$('bMH').onclick=()=>{$('bMH').classList.add('on');$('bHM').classList.remove('on');$('mhBox').hidden=false;$('hmBox').hidden=true;conv()};
+$('bHM').onclick=()=>{$('bHM').classList.add('on');$('bMH').classList.remove('on');$('hmBox').hidden=false;$('mhBox').hidden=true;conv()};
+$('mDate').onchange=conv;$('dSel').onchange=conv;$('mSel').onchange=conv;$('yInp').onchange=conv;
+$('unlock').onclick=()=>startRewardedAd(()=>{localStorage.setItem(KEY,Date.now()+24*36e5);render()});
+$('dSel').innerHTML=Array.from({length:30},(_,i)=>'<option value="'+(i+1)+'">'+(i+1)+'</option>').join('');
+const iso=t=>t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0');
+$('mDate').value=iso(today);
+fillMonths($('mSel'));fillMonths($('pMonth'));
+cur={hy:t0.hy,hm:t0.hm};
+render();
+</script>
+</body>
+</html>
