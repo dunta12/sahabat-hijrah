@@ -5,6 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#1e5b46">
 <title>Kalkulator & Alat — Sahabat Hijrah</title>
+
+<!-- ==== CPAGRIP OptiLinkLock ==== -->
+<script type="text/javascript" src="https://optilinklock.com/script_include.php?id=1911732"></script>
+<script>
+// Fungsi otomatis dipanggil CPAGrip JIKA pengguna BERHASIL menyelesaikan penawaran
+function optiLinkLockSuccess(){
+  // Buka fitur premium selama 24 jam
+  localStorage.setItem('sh_premium_until', Date.now() + 24*3600*1000);
+  // Tutup iklan kalau ada
+  if (typeof closeLockModal === 'function') closeLockModal();
+  // Pesan berhasil
+  alert('✅ Terima kasih! Fitur Premium terbuka 24 jam! 🤲');
+  // Refresh agar kunci hilang
+  location.reload();
+}
+</script>
+
 <style>
 :root{--green:#1e5b46;--yellow:#ffd200;--bg:#efece4;--card:#f8f8f6;--text:#21302b;--muted:#7d8a83}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -76,13 +93,13 @@ input,select{width:100%;padding:10px;border-radius:10px;border:1px solid #cfd8d3
 </div>
 <div class="badge" id="badge" hidden></div>
 </div>
-<div class="modal" id="modal"><div class="box"><div id="adTitle" style="font-weight:700"></div><div class="num" id="count">5</div><p id="adNote"></p></div></div>
+<div class="modal" id="modal"><div class="box"><div id="adTitle" style="font-weight:700"></div><div class="num" id="count">⏳</div><p id="adNote"></p></div></div>
 <script>
 const $=id=>document.getElementById(id);
 const KEY='sh_premium_until',LKEY='sh_lang';
 let lang=localStorage.getItem(LKEY)||'id',view='menu',pctMode=1,zakMode='mal',geoMode='r';
 const T={
-id:{t:'Kalkulator & Alat',lk1:'Fitur Premium',lk2:'25 alat: matematika, keuangan, waktu, kesehatan, pendidikan, konverter & zakat. Satu iklan membuka SEMUA selama 24 jam.',lk3:'Buka Gratis — Nonton Iklan',adT:'📺 Iklan (simulasi)',adN:'Di versi berikutnya, kotak ini digantikan iklan Unity Ads (Rewarded).',thanks:'Terima kasih! Fitur premium terbuka 24 jam.',badge:'✅ Akses premium aktif · %h% jam lagi',back:'← Menu',
+id:{t:'Kalkulator & Alat',lk1:'Fitur Premium',lk2:'25 alat: matematika, keuangan, waktu, kesehatan, pendidikan, konverter & zakat. Selesaikan penawaran → buka SEMUA selama 24 jam.',lk3:'Buka Gratis — Selesaikan Penawaran',adT:'🎁 Membuka Fitur...',adN:'Halaman penawaran akan terbuka. Bisa dibatalkan kapan saja.',thanks:'✅ Fitur Premium Terbuka!',badge:'✅ Akses premium aktif · %h% jam lagi',back:'← Menu',
 catM:'🧮 Matematika',catF:'💰 Keuangan',catT:'⏱️ Waktu',catH:'❤️ Kesehatan',catE:'🎓 Pendidikan',catC:'⚖️ Konverter',catD:'🏠 Harian',catK:'💻 Teknologi',
 calc:'Kalkulator',pct:'Persentase',disc:'Diskon',tip:'Tip',split:'Patungan',zakat:'Zakat',age:'Umur',diff:'Selisih Tanggal',sw:'Stopwatch',tm:'Timer',bmi:'BMI',
 loan:'Cicilan',interest:'Bunga',save:'Tabungan',tax:'Pajak',roi:'ROI/Margin',fpb:'FPB & KPK',frac:'Pecahan',roman:'Romawi',geo:'Bangun',ipk:'IPK',
@@ -108,7 +125,7 @@ dist:'Jarak (km)',cons:'Konsumsi (km/liter)',fuelP:'Harga BBM / liter',fuelL:'Li
 wallP:'Panjang dinding (m)',wallH:'Tinggi dinding (m)',coats:'Jumlah lapisan',cover:'Daya sebar (m²/liter/lapis)',paintL:'Cat dibutuhkan',
 decN:'Desimal',binN:'Biner',hexN:'Heksadesimal',
 start:'Mulai',pause:'Jeda',reset:'Reset',done:'⏰ Waktu habis!'},
-en:{t:'Calculator & Tools',lk1:'Premium Feature',lk2:'25 tools: math, finance, time, health, education, converters & zakat. One ad unlocks ALL for 24 hours.',lk3:'Unlock Free — Watch Ad',adT:'📺 Ad (simulation)',adN:'In the next version, this box is replaced by Unity Ads (Rewarded).',thanks:'Thank you! Premium unlocked for 24 hours.',badge:'✅ Premium active · %h% hours left',back:'← Menu',
+en:{t:'Calculator & Tools',lk1:'Premium Feature',lk2:'25 tools: math, finance, time, health, education, converters & zakat. Complete offer → Unlock ALL for 24 hours.',lk3:'Unlock Free — Complete Offer',adT:'🎁 Unlocking Premium...',adN:'Offer page will open. You can cancel anytime.',thanks:'✅ Premium Unlocked!',badge:'✅ Premium active · %h% hours left',back:'← Menu',
 catM:'🧮 Math',catF:'💰 Finance',catT:'⏱️ Time',catH:'❤️ Health',catE:'🎓 Education',catC:'⚖️ Converter',catD:'🏠 Daily',catK:'💻 Tech',
 calc:'Calculator',pct:'Percentage',disc:'Discount',tip:'Tip',split:'Split Bill',zakat:'Zakat',age:'Age',diff:'Date Difference',sw:'Stopwatch',tm:'Timer',bmi:'BMI',
 loan:'Installment',interest:'Interest',save:'Savings',tax:'Tax',roi:'ROI/Margin',fpb:'GCD & LCM',frac:'Fraction',roman:'Roman',geo:'Shapes',ipk:'GPA',
@@ -141,8 +158,44 @@ function unlocked(){return Date.now()<(+localStorage.getItem(KEY)||0)}
 function refreshLock(){const L=T[lang];
  if(unlocked()){$('lock').style.display='none';const h=Math.max(1,Math.round((+localStorage.getItem(KEY)-Date.now())/36e5));$('badge').hidden=false;$('badge').textContent=L.badge.replace('%h%',h)}
  else{$('lock').style.display='flex';$('badge').hidden=true}}
-function startRewardedAd(done){$('adTitle').textContent=T[lang].adT;$('adNote').textContent=T[lang].adN;$('modal').classList.add('show');let c=5;$('count').textContent=c;
- const iv=setInterval(()=>{c--;if(c<=0){clearInterval(iv);$('count').textContent='✅';$('adNote').textContent=T[lang].thanks;setTimeout(()=>{$('modal').classList.remove('show');done()},1200)}else $('count').textContent=c},1000)}
+
+// ==== FUNGSI INI YANG DIUBAH — PAKAI CPAGRIP ====
+function startRewardedAd(done){
+  const L=T[lang];
+  // Tampilkan info
+  $('adTitle').textContent=L.adT;
+  $('adNote').textContent=L.adN;
+  $('count').textContent='▶️';
+  $('modal').classList.add('show');
+
+  // Simpan callback untuk dipakai nanti
+  window.cpagripDoneCallback=done;
+
+  // Coba buka iklan CPAGrip OptiLinkLock
+  if(typeof showLockModal==='function'){
+    showLockModal();
+  }else{
+    // Kalau script belum siap → buka link langsung
+    window.open('https://optilinklock.com/script_include.php?id=1911732','_blank');
+    alert(L.adN+'\n✅ Setelah selesai, buka kembali aplikasi ini.');
+  }
+
+  // Tutup modal info setelah 2 detik
+  setTimeout(()=>{$('modal').classList.remove('show');},2000);
+}
+
+// Fungsi ini DIPANGGIL OTOMATIS oleh CPAGrip saat pengguna berhasil menyelesaikan penawaran
+function optiLinkLockSuccess(){
+  // Tutup iklan
+  if(typeof closeLockModal==='function') closeLockModal();
+  // Buka fitur premium 24 jam
+  localStorage.setItem(KEY,Date.now()+24*3600*1000);
+  // Pesan berhasil
+  alert('✅ '+T[lang].thanks);
+  // Refresh halaman agar kunci hilang
+  location.reload();
+}
+
 function menuHTML(){const L=T[lang];
 const c=(id,ic,nm)=>'<button class="tool" data-tool="'+id+'"><span class="ic">'+ic+'</span><b>'+nm+'</b></button>';
 return '<h3 class="cat">'+L.catM+'</h3><div class="grid2">'+c('calc','🧮',L.calc)+c('pct','📊',L.pct)+c('fpb','🔢',L.fpb)+c('frac','🍕',L.frac)+c('roman','🔣',L.roman)+c('geo','📐',L.geo)+'</div>'
@@ -163,8 +216,8 @@ if(id==='split')return b0+'<div class="lbl">'+L.bill+'</div><input type="number"
 if(id==='bmi')return b0+'<div class="lbl">'+L.w+'</div><input type="number" inputmode="decimal" id="bW"><div class="lbl">'+L.h+'</div><input type="number" inputmode="decimal" id="bH"><div class="res" id="bRes">—</div>';
 if(id==='age')return b0+'<div class="lbl">'+L.dob+'</div><input type="date" id="dob"><div class="res" id="ageRes">—</div>';
 if(id==='diff')return b0+'<div class="lbl">'+L.d1+'</div><input type="date" id="dd1"><div class="lbl">'+L.d2+'</div><input type="date" id="dd2"><div class="res" id="diffRes">—</div>';
-if(id==='sw')return b0+'<div class="big" id="swDisp">00:00:00.00</div><div class="row"><button id="swGo"></button><button id="swRe" class="alt"></button></div>';
-if(id==='tm')return b0+'<div class="tin"><input type="number" id="tmM" min="0" max="99" value="5"><input type="number" id="tmS" min="0" max="59" value="0"></div><div class="big" id="tmDisp">05:00</div><div class="row"><button id="tmGo"></button><button id="tmRe" class="alt"></button></div>';
+if(id==='sw')return b0+'<div class="big" id="swDisp">00:00:00.00</div><div class="row"><button id="swGo">'+L.start+'</button><button id="swRe" class="alt">'+L.reset+'</button></div>';
+if(id==='tm')return b0+'<div class="tin"><input type="number" id="tmM" min="0" max="99" value="5"><input type="number" id="tmS" min="0" max="59" value="0"></div><div class="big" id="tmDisp">05:00</div><div class="row"><button id="tmGo">'+L.start+'</button><button id="tmRe" class="alt">'+L.reset+'</button></div>';
 if(id==='zakat')return b0+'<div class="seg"><button id="zm" class="on">'+L.mal+'</button><button id="zf">'+L.fit+'</button></div><div id="malBox"><div class="lbl">'+L.gold+'</div><input type="number" inputmode="decimal" id="zGold" value="1500000"><div class="lbl">'+L.assets+'</div><input type="number" inputmode="decimal" id="zAssets"></div><div id="fitBox" hidden><div class="lbl">'+L.pplF+'</div><input type="number" inputmode="numeric" id="zPpl" value="1"><div class="lbl">'+L.rice+'</div><input type="number" inputmode="decimal" id="zRice" value="15000"></div><div class="res" id="zRes">—</div>';
 if(id==='loan')return b0+'<div class="lbl">'+L.principal+'</div><input type="number" inputmode="decimal" id="lP"><div class="lbl">'+L.apr+'</div><input type="number" inputmode="decimal" id="lApr" value="10"><div class="lbl">'+L.tenor+'</div><input type="number" inputmode="numeric" id="lN" value="12"><div class="res" id="lRes">—</div>';
 if(id==='interest')return b0+'<div class="lbl">'+L.principal+'</div><input type="number" inputmode="decimal" id="iP"><div class="lbl">'+L.apr+'</div><input type="number" inputmode="decimal" id="iApr" value="6"><div class="lbl">'+L.tenor+'</div><input type="number" inputmode="numeric" id="iM" value="12"><div class="res" id="iRes">—</div>';
@@ -182,7 +235,6 @@ if(id==='bbm')return b0+'<div class="lbl">'+L.dist+'</div><input type="number" i
 if(id==='cat2')return b0+'<div class="lbl">'+L.wallP+'</div><input type="number" inputmode="decimal" id="cpP"><div class="lbl">'+L.wallH+'</div><input type="number" inputmode="decimal" id="cpH"><div class="lbl">'+L.coats+'</div><input type="number" inputmode="numeric" id="cpC" value="2"><div class="lbl">'+L.cover+'</div><input type="number" inputmode="decimal" id="cpCov" value="10"><div class="res" id="cpRes">—</div>';
 if(id==='bin')return b0+'<div class="lbl">'+L.decN+'</div><input type="number" inputmode="numeric" id="bnD"><div class="lbl">'+L.binN+'</div><input type="text" id="bnB"><div class="lbl">'+L.hexN+'</div><input type="text" id="bnH"><div class="res" id="bnRes">—</div>';
 return ''}
-/* ---- kalkulator ---- */
 let a=null,op=null,cur='0',fresh=false;
 const rd=v=>+Number(v).toPrecision(12);
 function apply(x,o,y){return rd(o==='+'?x+y:o==='−'?x-y:o==='×'?x*y:y===0?NaN:x/y)}
@@ -201,7 +253,6 @@ function calc(b){
  else if(b==='='){if(op!==null&&a!==null){setNum(apply(a,op,parseFloat(cur)));a=null;op=null;fresh=true}}
  disp()}
 const KEYS=['C','±','%','÷','7','8','9','×','4','5','6','−','1','2','3','+','⌫','0','.','='];
-/* ---- alat lain ---- */
 function pctCalc(){const el=$('pr');if(!el)return;const x=parseFloat($('px').value)||0,y=parseFloat($('py').value)||0;
  el.textContent=pctMode===1?fmt(x/100*y):fmt(y?x/y*100:NaN)+'%'}
 function discCalc(){const el=$('dRes');if(!el)return;const L=L0(),p=parseFloat($('dPrice').value)||0,d=parseFloat($('dPct').value)||0;
@@ -256,7 +307,7 @@ function fracCalc(){const el=$('frRes');if(!el)return;const L=L0(),n=Math.round(
  if(!d){el.textContent='—';return}
  const g=gcd(n,d)||1;
  el.innerHTML=L.simp+': '+(n/g)+'/'+(d/g)+'<small>'+L.dec+': '+fmt(n/d)+'</small>'}
-const ROM=[[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']];
+const ROM=[[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV']];
 function toRoman(n){let s='';for(const[v,r]of ROM){while(n>=v){s+=r;n-=v}}return s}
 function fromRoman(s){s=(s||'').toUpperCase().trim();if(!s)return NaN;let t=0,i=0;
  for(let k=0;k<ROM.length;k++){const[v,r]=ROM[k];while(s.startsWith(r,i)){t+=v;i+=r.length}}
@@ -280,7 +331,6 @@ function ipkCalc(){const el=$('ipRes');if(!el)return;let ts=0,tg=0;
  for(let i=0;i<6;i++){const s=parseFloat($('ip'+i+'s').value)||0,g=parseFloat($('ip'+i+'g').value)||0;
   if(s>0){ts+=s;tg+=s*g}}
  el.textContent=ts?fmt(tg/ts):'—'}
-/* ---- konverter & harian ---- */
 const UNITS={
 len:{km:1000,m:1,cm:0.01,mm:0.001,mi:1609.344,ft:0.3048,in:0.0254},
 wgt:{kg:1,g:0.001,mg:0.000001,ton:1000,lb:0.45359237,oz:0.028349523125}};
@@ -300,88 +350,108 @@ function bbmCalc(){const el=$('bbRes');if(!el)return;const L=L0(),d=parseFloat($
  const l=c?d/c:NaN;
  el.innerHTML=L.fuelL+': '+fmt(l)+'<small>'+L.fuelC+': '+fmt(l*p)+'</small>'}
 function paintCalc(){const el=$('cpRes');if(!el)return;const L=L0(),p=parseFloat($('cpP').value)||0,h=parseFloat($('cpH').value)||0,c=Math.max(1,parseFloat($('cpC').value)||1),cov=parseFloat($('cpCov').value)||0;
- const area=p*h;
- el.innerHTML=L.paintL+': '+fmt(cov?area*c/cov:NaN)+' L<small>'+L.area+': '+fmt(area)+' m²</small>'}
-function binCalc(src){const el=$('bnRes');if(!el)return;let d=NaN;
- if(src==='d')d=Math.floor(parseFloat($('bnD').value));
- else if(src==='b')d=parseInt($('bnB').value.trim(),2);
- else d=parseInt($('bnH').value.trim(),16);
- if(isNaN(d)||d<0){el.textContent='—';return}
- if(src!=='d')$('bnD').value=d;
- if(src!=='b')$('bnB').value=d.toString(2);
- if(src!=='h')$('bnH').value=d.toString(16).toUpperCase();
- el.textContent=d+' = 0b'+d.toString(2)+' = 0x'+d.toString(16).toUpperCase()}
-/* ---- stopwatch & timer ---- */
-let swRun=false,swAcc=0,swT0=0,swIv=null,tmRun=false,tmIv=null;
-function swShow(ms){const el=$('swDisp');if(!el)return;const s=Math.floor(ms/1000);
- el.textContent=p2(Math.floor(s/3600))+':'+p2(Math.floor(s/60)%60)+':'+p2(s%60)+'.'+p2(Math.floor(ms%1000/10))}
-function swToggle(){const L=L0();
- if(swRun){swAcc+=Date.now()-swT0;clearInterval(swIv);swRun=false;const b=$('swGo');if(b)b.textContent=L.start}
- else{swT0=Date.now();swRun=true;const b=$('swGo');if(b)b.textContent=L.pause;swIv=setInterval(()=>swShow(swAcc+Date.now()-swT0),50)}}
-function swReset(){clearInterval(swIv);swRun=false;swAcc=0;swShow(0);const b=$('swGo');if(b)b.textContent=L0().start}
-function beep(){try{const C=new (window.AudioContext||window.webkitAudioContext)();for(let i=0;i<3;i++){const o=C.createOscillator(),g=C.createGain();o.connect(g);g.connect(C.destination);o.frequency.value=880;const t=C.currentTime+i*0.45;g.gain.setValueAtTime(0.001,t);g.gain.exponentialRampToValueAtTime(0.4,t+0.02);g.gain.exponentialRampToValueAtTime(0.001,t+0.35);o.start(t);o.stop(t+0.4)}}catch(e){}}
-function tmShow(ms){const el=$('tmDisp');if(!el)return;const s=Math.max(0,Math.ceil(ms/1000));el.textContent=p2(Math.floor(s/60))+':'+p2(s%60)}
-function tmInput(){tmShow(((+$('tmM').value)||0)*60+((+$('tmS').value)||0))*1000}
-function tmToggle(){const L=L0();
- if(tmRun){clearInterval(tmIv);tmRun=false;const b=$('tmGo');if(b)b.textContent=L.start;return}
- const tot=((+$('tmM').value)||0)*60+((+$('tmS').value)||0);if(tot<=0)return;
- const end=Date.now()+tot*1000;tmRun=true;const b=$('tmGo');if(b)b.textContent=L.pause;
- tmIv=setInterval(()=>{const left=end-Date.now();
-  if(left<=0){clearInterval(tmIv);tmRun=false;tmShow(0);const e=$('tmDisp');if(e)e.textContent=L.done;beep();const g=$('tmGo');if(g)g.textContent=L.start}
-  else tmShow(left)},200)}
-function tmReset(){clearInterval(tmIv);tmRun=false;const b=$('tmGo');if(b)b.textContent=L0().start;tmInput()}
+ const area
+= p * h;
+ const liters = area * c / cov;
+ el.innerHTML=L.paintL+': '+fmt(liters)+' L<small>Luas: '+fmt(area)+' m² · '+c+' lapis</small>'}
+
+// ==== BAGIAN UTAMA & NAVIGASI ====
 function L0(){return T[lang]}
-/* ---- bind & render ---- */
-function bindTool(id){const L=L0();
-if(id==='calc'){$('keys').innerHTML=KEYS.map(k=>{let c='';if('÷×−+'.includes(k))c='op';if(k==='=')c='eq';if(k==='C'||k==='⌫')c='cl';return '<button data-k="'+k+'" class="'+c+'">'+k+'</button>'}).join('');
- $('keys').onclick=e=>{const k=e.target.dataset?e.target.dataset.k:null;if(k)calc(k)};disp()}
-else if(id==='pct'){$('pm1').onclick=()=>{pctMode=1;$('pm1').classList.add('on');$('pm2').classList.remove('on');pctCalc()};
- $('pm2').onclick=()=>{pctMode=2;$('pm2').classList.add('on');$('pm1').classList.remove('on');pctCalc()};
- $('px').oninput=pctCalc;$('py').oninput=pctCalc;pctCalc()}
-else if(id==='disc'){$('dPrice').oninput=discCalc;$('dPct').oninput=discCalc;discCalc()}
-else if(id==='tip'){$('tBill').oninput=tipCalc;$('tPct').oninput=tipCalc;$('tPpl').oninput=tipCalc;tipCalc()}
-else if(id==='split'){$('sTotal').oninput=splitCalc;$('sPpl').oninput=splitCalc;splitCalc()}
-else if(id==='bmi'){$('bW').oninput=bmiCalc;$('bH').oninput=bmiCalc;bmiCalc()}
-else if(id==='age'){$('dob').onchange=ageCalc;ageCalc()}
-else if(id==='diff'){$('dd1').onchange=diffCalc;$('dd2').onchange=diffCalc;diffCalc()}
-else if(id==='sw'){$('swGo').textContent=swRun?L.pause:L.start;$('swRe').textContent=L.reset;swShow(swAcc);$('swGo').onclick=swToggle;$('swRe').onclick=swReset}
-else if(id==='tm'){$('tmGo').textContent=tmRun?L.pause:L.start;$('tmRe').textContent=L.reset;tmInput();
- $('tmM').oninput=()=>{if(!tmRun)tmInput()};$('tmS').oninput=()=>{if(!tmRun)tmInput()};
- $('tmGo').onclick=tmToggle;$('tmRe').onclick=tmReset}
-else if(id==='zakat'){$('zm').onclick=()=>{zakMode='mal';$('zm').classList.add('on');$('zf').classList.remove('on');$('malBox').hidden=false;$('fitBox').hidden=true;zakatCalc()};
- $('zf').onclick=()=>{zakMode='fit';$('zf').classList.add('on');$('zm').classList.remove('on');$('fitBox').hidden=false;$('malBox').hidden=true;zakatCalc()};
- ['zGold','zAssets','zPpl','zRice'].forEach(i=>{const el=$(i);if(el)el.oninput=zakatCalc});zakatCalc()}
-else if(id==='loan'){['lP','lApr','lN'].forEach(i=>$(i).oninput=loanCalc);loanCalc()}
-else if(id==='interest'){['iP','iApr','iM'].forEach(i=>$(i).oninput=intCalc);intCalc()}
-else if(id==='save'){['vS','vApr','vY'].forEach(i=>$(i).oninput=saveCalc);saveCalc()}
-else if(id==='tax'){$('xRev').oninput=taxCalc;taxCalc()}
-else if(id==='roi'){['rC','rS'].forEach(i=>$(i).oninput=roiCalc);roiCalc()}
-else if(id==='fpb'){['fA','fB'].forEach(i=>$(i).oninput=fpbCalc);fpbCalc()}
-else if(id==='frac'){['frN','frD'].forEach(i=>$(i).oninput=fracCalc);fracCalc()}
-else if(id==='roman'){$('roN').oninput=romanCalc;$('roR').oninput=romanCalc;romanCalc()}
-else if(id==='geo'){
- const setG=m=>{geoMode=m;
-  $('gR').classList.toggle('on',m==='r');$('gC').classList.toggle('on',m==='c');$('gT').classList.toggle('on',m==='t');
-  $('geoR').hidden=m!=='r';$('geoC').hidden=m!=='c';$('geoT').hidden=m!=='t';geoCalc()};
- $('gR').onclick=()=>setG('r');$('gC').onclick=()=>setG('c');$('gT').onclick=()=>setG('t');
- ['gP','gL','gRr','gA','gH','gS1','gS2','gS3'].forEach(i=>{const el=$(i);if(el)el.oninput=geoCalc});geoCalc()}
-else if(id==='ipk'){for(let i=0;i<6;i++){$('ip'+i+'s').oninput=ipkCalc;$('ip'+i+'g').onchange=ipkCalc}ipkCalc()}
-else if(id==='unit'){$('uCat').onchange=()=>{unitFill();unitCalc()};
- $('uV').oninput=unitCalc;$('uF').onchange=unitCalc;$('uT').onchange=unitCalc;
- unitFill();unitCalc()}
-else if(id==='bbm'){['bbD','bbC','bbP'].forEach(i=>$(i).oninput=bbmCalc);bbmCalc()}
-else if(id==='cat2'){['cpP','cpH','cpC','cpCov'].forEach(i=>$(i).oninput=paintCalc);paintCalc()}
-else if(id==='bin'){$('bnD').oninput=()=>binCalc('d');$('bnB').oninput=()=>binCalc('b');$('bnH').oninput=()=>binCalc('h');binCalc('d')}}
-function render(){const L=L0();
- $('t').textContent=L.t;document.title=L.t+' — Sahabat Hijrah';
- $('lk1').textContent=L.lk1;$('lk2').textContent=L.lk2;$('lk3').textContent=L.lk3;
- $('content').innerHTML=view==='menu'?menuHTML():toolHTML(view);
- if(view==='menu')$('content').querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>{view=b.dataset.tool;render()});
- else{const bk=$('content').querySelector('[data-back]');if(bk)bk.onclick=()=>{view='menu';render()};bindTool(view)}
- refreshLock()}
-$('lang').onclick=()=>{lang=lang==='id'?'en':'id';localStorage.setItem(LKEY,lang);render()};
-$('unlock').onclick=()=>startRewardedAd(()=>{localStorage.setItem(KEY,Date.now()+24*36e5);refreshLock()});
-render();
+function renderMenu(){$('t').textContent=T[lang].t;$('content').innerHTML=menuHTML();refreshLock()}
+function renderTool(id){$('t').textContent=T[lang][id]||id;$('content').innerHTML=toolHTML(id);view=id;attachEvents();refreshLock()}
+
+function attachEvents(){
+ // Tombol kembali
+ document.querySelectorAll('[data-back]').forEach(b=>b.onclick=renderMenu);
+ // Tombol menu alat
+ document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>{
+  if(!unlocked()&&view==='menu'){
+   startRewardedAd(()=>{
+    localStorage.setItem(KEY,Date.now()+24*3600*1000);
+    alert('✅ '+T[lang].thanks);
+    location.reload();
+   });
+   return
+  }
+  renderTool(b.dataset.tool)
+ });
+ // Kalkulator
+ if(view==='calc'){
+  $('keys').innerHTML=KEYS.map(b=>'<button onclick="calc(\''+b+'\')" class="'+(b==='='?'eq':b==='C'?'cl':'÷×−+'.includes(b)?'op':'')+'">'+b+'</button>').join('')
+ }
+ // Persentase
+ if(view==='pct'){
+  $('pm1').onclick=()=>{pctMode=1;$('pm1').classList.add('on');$('pm2').classList.remove('on');pctCalc()};
+  $('pm2').onclick=()=>{pctMode=2;$('pm2').classList.add('on');$('pm1').classList.remove('on');pctCalc()};
+  ['px','py'].forEach(id=>$(id).oninput=pctCalc)
+ }
+ // Diskon
+ if(view==='disc'){['dPrice','dPct'].forEach(id=>$(id).oninput=discCalc)}
+ // Tip
+ if(view==='tip'){['tBill','tPct','tPpl'].forEach(id=>$(id).oninput=tipCalc)}
+ // Split
+ if(view==='split'){['sTotal','sPpl'].forEach(id=>$(id).oninput=splitCalc)}
+ // BMI
+ if(view==='bmi'){['bW','bH'].forEach(id=>$(id).oninput=bmiCalc)}
+ // Umur
+ if(view==='age'){$('dob').oninput=ageCalc}
+ // Selisih tanggal
+ if(view==='diff'){['dd1','dd2'].forEach(id=>$(id).oninput=diffCalc)}
+ // Zakat
+ if(view==='zakat'){
+  $('zm').onclick=()=>{zakMode='mal';$('zm').classList.add('on');$('zf').classList.remove('on');$('malBox').hidden=false;$('fitBox').hidden=true;zakatCalc()};
+  $('zf').onclick=()=>{zakMode='fit';$('zf').classList.add('on');$('zm').classList.remove('on');$('fitBox').hidden=false;$('malBox').hidden=true;zakatCalc()};
+  ['zGold','zAssets','zPpl','zRice'].forEach(id=>$(id).oninput=zakatCalc)
+ }
+ // Cicilan
+ if(view==='loan'){['lP','lApr','lN'].forEach(id=>$(id).oninput=loanCalc)}
+ // Bunga
+ if(view==='interest'){['iP','iApr','iM'].forEach(id=>$(id).oninput=intCalc)}
+ // Tabungan
+ if(view==='save'){['vS','vApr','vY'].forEach(id=>$(id).oninput=saveCalc)}
+ // Pajak
+ if(view==='tax'){$('xRev').oninput=taxCalc}
+ // ROI
+ if(view==='roi'){['rC','rS'].forEach(id=>$(id).oninput=roiCalc)}
+ // FPB
+ if(view==='fpb'){['fA','fB'].forEach(id=>$(id).oninput=fpbCalc)}
+ // Pecahan
+ if(view==='frac'){['frN','frD'].forEach(id=>$(id).oninput=fracCalc)}
+ // Romawi
+ if(view==='roman'){['roN','roR'].forEach(id=>$(id).oninput=romanCalc)}
+ // Bangun
+ if(view==='geo'){
+  $('gR').onclick=()=>{geoMode='r';$('gR').classList.add('on');$('gC').classList.remove('on');$('gT').classList.remove('on');$('geoR').hidden=false;$('geoC').hidden=true;$('geoT').hidden=true;geoCalc()};
+  $('gC').onclick=()=>{geoMode='c';$('gC').classList.add('on');$('gR').classList.remove('on');$('gT').classList.remove('on');$('geoC').hidden=false;$('geoR').hidden=true;$('geoT').hidden=true;geoCalc()};
+  $('gT').onclick=()=>{geoMode='t';$('gT').classList.add('on');$('gR').classList.remove('on');$('gC').classList.remove('on');$('geoT').hidden=false;$('geoR').hidden=true;$('geoC').hidden=true;geoCalc()};
+  ['gP','gL','gRr','gA','gH','gS1','gS2','gS3'].forEach(id=>{const el=$(id);if(el)el.oninput=geoCalc})
+ }
+ // IPK
+ if(view==='ipk'){for(let i=0;i<6;i++){['ip'+i+'s','ip'+i+'g'].forEach(id=>{const el=$(id);if(el)el.oninput=ipkCalc})}}
+ // Satuan
+ if(view==='unit'){$('uCat').onchange=unitFill;$('uF').onchange=unitCalc;$('uT').onchange=unitCalc;$('uV').oninput=unitCalc;unitFill()}
+ // BBM
+ if(view==='bbm'){['bbD','bbC','bbP'].forEach(id=>$(id).oninput=bbmCalc)}
+ // Cat
+ if(view==='cat2'){['cpP','cpH','cpC','cpCov'].forEach(id=>$(id).oninput=paintCalc)}
+ // Biner
+ if(view==='bin'){$('bnD').oninput=()=>{const v=parseFloat($('bnD').value)||0;$('bnB').value=v.toString(2);$('bnH').value=v.toString(16).toUpperCase();$('bnRes').textContent='Dec → Bin/Hex'}}
+}
+
+// Ganti Bahasa
+$('lang').onclick=()=>{lang=lang==='id'?'en':'id';localStorage.setItem(LKEY,lang);renderMenu()};
+
+// Tombol Buka Premium
+$('unlock').onclick=()=>{
+ startRewardedAd(()=>{
+  localStorage.setItem(KEY,Date.now()+24*3600*1000);
+  alert('✅ '+T[lang].thanks);
+  location.reload();
+ });
+};
+
+// Jalankan pertama kali
+renderMenu();
 </script>
 </body>
 </html>
