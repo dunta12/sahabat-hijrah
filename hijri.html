@@ -25,7 +25,6 @@ h3.sec{font-size:13px;color:var(--muted);margin:4px 0 8px;font-weight:600}
 input,select{width:100%;padding:10px;border-radius:10px;border:1px solid #cfd8d3;background:#fff;font-size:14px;margin-top:8px;color:var(--text)}
 .hmRow{display:flex;gap:6px}
 #convRes{margin-top:10px;background:#e2efe8;border-radius:12px;padding:10px;font-size:14px;color:var(--green);font-weight:600;text-align:center}
-.lockbox{position:relative;margin-top:12px}
 .nav{display:flex;align-items:center;justify-content:space-between;margin:0 0 10px}
 .nav button{background:var(--green);color:#fff;border:none;border-radius:12px;width:40px;height:40px;font-size:20px}
 .nav h2{font-size:16px;color:var(--green);background:#e2efe8;border:none;border-radius:12px;padding:9px 12px;cursor:pointer}
@@ -42,16 +41,10 @@ input,select{width:100%;padding:10px;border-radius:10px;border:1px solid #cfd8d3
 .events h3{font-size:13px;color:var(--muted);margin-bottom:8px;font-weight:600}
 .events li{list-style:none;display:flex;gap:8px;font-size:14px;padding:5px 0}
 .events li b{color:var(--green);min-width:26px}
-.badge{margin-top:12px;text-align:center;font-size:12px;color:var(--green);background:#e2efe8;border-radius:10px;padding:6px}
 .note{font-size:11px;color:var(--muted);text-align:center;margin:12px 4px}
-.lock{position:absolute;inset:0;z-index:2;background:rgba(239,236,228,.78);backdrop-filter:blur(6px);border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:20px}
-.lock h3{font-size:18px}
-.lock p{font-size:13px;color:var(--muted);max-width:260px}
-.lock button{background:var(--yellow);border:none;border-radius:14px;padding:13px 18px;font-size:15px;font-weight:700;color:#21302b;box-shadow:0 2px 6px rgba(0,0,0,.15)}
 .modal{position:fixed;inset:0;z-index:9;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;padding:20px}
 .modal.show{display:flex}
 .modal .box{background:#fff;border-radius:20px;padding:26px;text-align:center;max-width:320px;width:100%}
-.modal .num{font-size:52px;font-weight:800;color:var(--green);margin:10px 0}
 .modal p{font-size:13px;color:var(--muted)}
 .modal .box button{margin-top:14px;background:var(--green);color:#fff;border:none;border-radius:12px;padding:12px 20px;font-size:15px;font-weight:600}
 </style>
@@ -85,23 +78,14 @@ input,select{width:100%;padding:10px;border-radius:10px;border:1px solid #cfd8d3
     <div id="convRes"></div>
   </div>
 
-  <div class="lockbox">
-    <div class="card">
-      <div class="nav">
-        <button id="prev">‹</button>
-        <!-- Label bulan sekarang bisa diklik untuk lompat -->
-        <h2 id="label"></h2>
-        <button id="next">›</button>
-      </div>
-      <div class="grid" id="grid"></div>
-      <div class="events"><h3 id="evTitle"></h3><ul id="evList"></ul></div>
-      <div class="badge" id="badge" hidden></div>
+  <div class="card">
+    <div class="nav">
+      <button id="prev">‹</button>
+      <h2 id="label"></h2>
+      <button id="next">›</button>
     </div>
-    <div class="lock" id="lock">
-      <h3>🔒 <span id="lk1"></span></h3>
-      <p id="lk2"></p>
-      <button id="unlock">▶️ <span id="lk3"></span></button>
-    </div>
+    <div class="grid" id="grid"></div>
+    <div class="events"><h3 id="evTitle"></h3><ul id="evList"></ul></div>
   </div>
   <p class="note" id="note"></p>
 </div>
@@ -117,19 +101,15 @@ input,select{width:100%;padding:10px;border-radius:10px;border:1px solid #cfd8d3
 
 <script>
 const $=id=>document.getElementById(id);
-const KEY='sh_premium_until',LKEY='sh_lang';
+const LKEY='sh_lang';
 let lang=localStorage.getItem(LKEY)||'id';
 let cur={hy:0,hm:0};
-let cpagripLoaded = false;
-
-// SOFT LOCK: Fitur "Lompat ke Bulan/Tahun" adalah fitur premium
-const PREMIUM_FEATURES = ['jump']; 
 
 const T={
- id:{t:'Kalender Hijriyah',lk1:'Fitur Premium',lk2:'Navigasi penuh kalender Hijriyah & konversi lanjutan. Selesaikan penawaran → buka SEMUA selama 24 jam.',lk3:'Buka Gratis — Selesaikan Penawaran',ev:'Tanggal penting bulan ini',none:'Tidak ada tanggal penting bulan ini.',badge:'✅ Akses premium aktif · %h% jam lagi',thanks:'Terima kasih! Kalender terbuka 24 jam.',conv:'Konversi Tanggal · gratis',mh:'Masehi → Hijriyah',hm2:'Hijriyah → Masehi',pick:'Lompat ke bulan/tahun',go:'Buka',note:'Mengikuti kalender Ummul Qura; dapat berbeda ±1 hari dengan penetapan resmi pemerintah.',invalid:'Tanggal tidak valid.',
+ id:{t:'Kalender Hijriyah',ev:'Tanggal penting bulan ini',none:'Tidak ada tanggal penting bulan ini.',conv:'Konversi Tanggal · gratis',mh:'Masehi → Hijriyah',hm2:'Hijriyah → Masehi',pick:'Lompat ke bulan/tahun',go:'Buka',note:'Mengikuti kalender Ummul Qura; dapat berbeda ±1 hari dengan penetapan resmi pemerintah.',invalid:'Tanggal tidak valid.',
  months:['Muharram','Safar','Rabiulawal','Rabiulakhir','Jumadilawal','Jumadilakhir','Rajab','Sya\'ban','Ramadhan','Syawal','Dzulqa\'dah','Dzulhijjah'],
  dows:['Sen','Sel','Rab','Kam','Jum','Sab','Ahd']},
- en:{t:'Hijri Calendar',lk1:'Premium Feature',lk2:'Full Hijri navigation & advanced converter. Complete offer → Unlock ALL for 24 hours.',lk3:'Unlock Free — Complete Offer',ev:'Important dates this month',none:'No important dates this month.',badge:'✅ Premium active · %h% hours left',thanks:'Thank you! Calendar unlocked for 24 hours.',conv:'Date Converter · free',mh:'Gregorian → Hijri',hm2:'Hijri → Gregorian',pick:'Jump to month/year',go:'Go',note:'Based on the Umm al-Qura calendar; may differ by ±1 day from official government announcements.',invalid:'Invalid date.',
+ en:{t:'Hijri Calendar',ev:'Important dates this month',none:'No important dates this month.',conv:'Date Converter · free',mh:'Gregorian → Hijri',hm2:'Hijri → Gregorian',pick:'Jump to month/year',go:'Go',note:'Based on the Umm al-Qura calendar; may differ by ±1 day from official government announcements.',invalid:'Invalid date.',
  months:['Muharram','Safar','Rabi al-Awwal','Rabi al-Thani','Jumada al-Awwal','Jumada al-Thani','Rajab','Sha\'ban','Ramadan','Shawwal','Dhu al-Qi\'dah','Dhu al-Hijjah'],
  dows:['Mon','Tue','Wed','Thu','Fri','Sat','Sun']}
 };
@@ -159,43 +139,6 @@ function targetFirst(hy,hm){
  return base;
 }
 function mLen(f){const c=hijri(f);let x=new Date(f),n=0;for(;;){x.setDate(x.getDate()+1);const h=hijri(x);if(h.hm!==c.hm||h.hy!==c.hy)break;n++;if(n>30)break}return n+1}
-function unlocked(){return Date.now()<(+localStorage.getItem(KEY)||0)}
-
-// FUNGSI UNTUK MEMUAT SCRIPT CPA SECARA DINAMIS
-function loadCPAGrip(callback) {
-    if (cpagripLoaded && typeof call_locker === 'function') {
-        callback();
-        return;
-    }
-    
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = 'https://optilinklock.com/script_include.php?id=1911732';
-    script.onload = () => {
-        cpagripLoaded = true;
-        window.cpagripDoneCallback = callback;
-    };
-    script.onerror = () => {
-        alert('Gagal memuat sistem verifikasi. Silakan coba lagi.');
-    };
-    document.head.appendChild(script);
-}
-
-// Fungsi ini DIPANGGIL OTOMATIS oleh CPAGrip saat pengguna berhasil menyelesaikan penawaran
-function optiLinkLockSuccess(){
-    if(typeof closeLockModal==='function') closeLockModal();
-    localStorage.setItem(KEY,Date.now()+24*3600*1000);
-    if (typeof window.cpagripDoneCallback === 'function') {
-        window.cpagripDoneCallback();
-    } else {
-        alert('✅ '+T[lang].thanks);
-        location.reload();
-    }
-}
-
-function refreshLock(){const L=T[lang];
- if(unlocked()){$('lock').style.display='none';const h=Math.max(1,Math.round((+localStorage.getItem(KEY)-Date.now())/36e5));$('badge').hidden=false;$('badge').textContent=L.badge.replace('%h%',h)}
- else{$('lock').style.display='flex';$('badge').hidden=true}}
 
 function fillMonths(sel){const L=T[lang];sel.innerHTML=L.months.map((m,i)=>'<option value="'+(i+1)+'">'+m+'</option>').join('')}
 function conv(){const L=T[lang],loc=lang==='id'?'id-ID':'en-US';
@@ -213,7 +156,6 @@ function conv(){const L=T[lang],loc=lang==='id'?'id-ID':'en-US';
 
 function render(){const L=T[lang];
  $('t').textContent=L.t;document.title=L.t+' — Sahabat Hijrah';
- $('lk1').textContent=L.lk1;$('lk2').textContent=L.lk2;$('lk3').textContent=L.lk3;
  $('evTitle').textContent=L.ev;$('note').textContent=L.note;
  $('convT').textContent=L.conv;$('bMH').textContent=L.mh;$('bHM').textContent=L.hm2;
  $('pkT').textContent=L.pick;$('pGo').textContent=L.go;
@@ -221,9 +163,7 @@ function render(){const L=T[lang];
  $('todayGreg').textContent=today.toLocaleDateString(lang==='id'?'id-ID':'en-US',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
  
  const f=targetFirst(cur.hy,cur.hm),len=mLen(f);
- // Tambahkan ikon gembok jika belum unlock
- const lockIcon = !unlocked() ? ' <span style="font-size:12px"></span>' : '';
- $('label').innerHTML=L.months[cur.hm-1]+' '+cur.hy+' H'+lockIcon;
+ $('label').innerHTML=L.months[cur.hm-1]+' '+cur.hy+' H';
  
  $('pMonth').value=cur.hm;$('pYear').value=cur.hy;
  let html=L.dows.map(d=>'<div class="dow">'+d+'</div>').join('');
@@ -240,23 +180,15 @@ function render(){const L=T[lang];
  }
  $('grid').innerHTML=html;
  $('evList').innerHTML=evs||'<li><span style="color:var(--muted)">'+L.none+'</span></li>';
- refreshLock();conv();
+ conv();
 }
 
 function shift(n){cur.hm+=n;if(cur.hm>12){cur.hm=1;cur.hy++}if(cur.hm<1){cur.hm=12;cur.hy--}render()}
 $('prev').onclick=()=>shift(-1);
 $('next').onclick=()=>shift(1);
 
-// SOFT LOCK LOGIC UNTUK LABEL BULAN (LOMPAT KE BULAN)
+// FITUR LOMPAT BULAN SEKARANG GRATIS TANPA SYARAT
 $('label').onclick=()=>{
-    if (!unlocked() && PREMIUM_FEATURES.includes('jump')) {
-        loadCPAGrip(() => {
-            if (typeof call_locker === 'function') {
-                call_locker();
-            }
-        });
-        return;
-    }
     $('pick').classList.add('show');
 };
 
@@ -265,7 +197,6 @@ $('lang').onclick=()=>{lang=lang==='id'?'en':'id';localStorage.setItem(LKEY,lang
 $('bMH').onclick=()=>{$('bMH').classList.add('on');$('bHM').classList.remove('on');$('mhBox').hidden=false;$('hmBox').hidden=true;conv()};
 $('bHM').onclick=()=>{$('bHM').classList.add('on');$('bMH').classList.remove('on');$('hmBox').hidden=false;$('mhBox').hidden=true;conv()};
 $('mDate').onchange=conv;$('dSel').onchange=conv;$('mSel').onchange=conv;$('yInp').onchange=conv;
-$('unlock').onclick=()=>loadCPAGrip(()=>call_locker());
 
 $('dSel').innerHTML=Array.from({length:30},(_,i)=>'<option value="'+(i+1)+'">'+(i+1)+'</option>').join('');
 const iso=t=>t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0');
