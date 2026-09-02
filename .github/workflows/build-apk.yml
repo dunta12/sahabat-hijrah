@@ -1,4 +1,4 @@
-name: Build Sahabat Hijrah APK
+name: Build Sahabat Hijrah APK (PWABuilder)
 
 on:
   workflow_dispatch:
@@ -19,163 +19,15 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Create Android project
-        shell: bash
-        run: |
-          mkdir -p android/app/src/main/java/com/sahabathijrah/app
-          mkdir -p android/app/src/main/res/values
-          mkdir -p android/app/src/main/assets
+      - name: Make Gradle Wrapper Executable
+        run: chmod +x ./gradlew
 
-          # settings.gradle
-          cat > android/settings.gradle <<'EOF'
-          pluginManagement {
-              repositories {
-                  google()
-                  mavenCentral()
-              }
-          }
-          dependencyResolutionManagement {
-              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-              repositories {
-                  google()
-                  mavenCentral()
-              }
-          }
-          rootProject.name = "SahabatHijrah"
-          include(":app")
-          EOF
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
 
-          # build.gradle (proyek)
-          cat > android/build.gradle <<'EOF'
-          plugins {
-              id 'com.android.application' version '8.2.0' apply false
-              id 'org.jetbrains.kotlin.android' version '1.9.20' apply false
-          }
-          EOF
-
-          # app/build.gradle
-          cat > android/app/build.gradle <<'EOF'
-          plugins {
-              id 'com.android.application'
-              id 'org.jetbrains.kotlin.android'
-          }
-          android {
-              namespace 'com.sahabathijrah.app'
-              compileSdk 34
-              defaultConfig {
-                  applicationId "com.sahabathijrah.app"
-                  minSdk 23
-                  targetSdk 34
-                  versionCode 1
-                  versionName "1.0"
-              }
-              buildTypes {
-                  release {
-                      minifyEnabled false
-                  }
-              }
-              compileOptions {
-                  sourceCompatibility JavaVersion.VERSION_17
-                  targetCompatibility JavaVersion.VERSION_17
-              }
-              kotlinOptions {
-                  jvmTarget = '17'
-              }
-          }
-          dependencies {
-              implementation 'androidx.core:core-ktx:1.12.0'
-              implementation 'androidx.appcompat:appcompat:1.6.1'
-              implementation 'androidx.webkit:webkit:1.8.0'
-          }
-          EOF
-
-          # AndroidManifest.xml
-          cat > android/app/src/main/AndroidManifest.xml <<'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-              <uses-permission android:name="android.permission.INTERNET" />
-              <application
-                  android:allowBackup="true"
-                  android:label="Sahabat Hijrah"
-                  android:theme="@style/AppTheme">
-                  <activity
-                      android:name=".MainActivity"
-                      android:exported="true">
-                      <intent-filter>
-                          <action android:name="android.intent.action.MAIN" />
-                          <category android:name="android.intent.category.LAUNCHER" />
-                      </intent-filter>
-                  </activity>
-              </application>
-          </manifest>
-          EOF
-
-          # styles.xml
-          cat > android/app/src/main/res/values/styles.xml <<'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <resources>
-              <style name="AppTheme" parent="android:style/Theme.Material.Light.NoActionBar">
-                  <item name="android:statusBarColor">#0B3D2E</item>
-              </style>
-          </resources>
-          EOF
-
-          # MainActivity.kt — LOAD WEBSITE LANGSUNG (tidak perlu file lokal)
-          cat > android/app/src/main/java/com/sahabathijrah/app/MainActivity.kt <<'EOF'
-          package com.sahabathijrah.app
-
-          import android.annotation.SuppressLint
-          import android.os.Bundle
-          import android.webkit.WebView
-          import android.webkit.WebViewClient
-          import androidx.appcompat.app.AppCompatActivity
-
-          class MainActivity : AppCompatActivity() {
-              private lateinit var webView: WebView
-
-              @SuppressLint("SetJavaScriptEnabled")
-              override fun onCreate(savedInstanceState: Bundle?) {
-                  super.onCreate(savedInstanceState)
-                  webView = WebView(this)
-                  webView.settings.apply {
-                      javaScriptEnabled = true
-                      domStorageEnabled = true
-                      allowFileAccess = true
-                      databaseEnabled = true
-                  }
-                  webView.webViewClient = WebViewClient()
-                  setContentView(webView)
-                  webView.loadUrl("https://dunta12.github.io/sahabat-hijrah/")
-              }
-
-              override fun onBackPressed() {
-                  if (webView.canGoBack()) webView.goBack()
-                  else super.onBackPressed()
-              }
-          }
-          EOF
-
-      - name: Make Gradle wrapper
-        working-directory: android
-        run: |
-          mkdir -p gradle/wrapper
-          cat > gradle/wrapper/gradle-wrapper.properties <<'EOF'
-          distributionBase=GRADLE_USER_HOME
-          distributionPath=wrapper/dists
-          distributionUrl=https\://services.gradle.org/distributions/gradle-8.3-bin.zip
-          zipStoreBase=GRADLE_USER_HOME
-          zipStorePath=wrapper/dists
-          EOF
-
-      - name: Build APK
-        working-directory: android
-        run: |
-          chmod +x gradlew 2>/dev/null || echo "#!/bin/sh" > gradlew
-          ./gradlew assembleDebug --no-daemon
-
-      - name: Upload APK
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Sahabat-Hijrah-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30
