@@ -1008,6 +1008,26 @@ document.getElementById('qDetail').addEventListener('touchend',function(e){
   if(Math.abs(dx)>60&&Math.abs(dy)<50){if(dx<0)qPage(1);else qPage(-1);}
 },{passive:true});
 isiSelect();isiTanggal();isiHikmah();isiDoa();renderTb();renderAuto();renderNotes();renderTracker();qInit();maybeWelcome();tick();setInterval(tick,1000);
+/* ========== share button for daily wisdom ========== */
+(function(){
+  const cek=setInterval(function(){
+    const card=document.getElementById('hikmahCard');
+    if(card && card.innerText.trim().length>0){
+      clearInterval(cek);
+      const isi=card.innerText.trim();
+      const btn=document.createElement('button');
+      btn.textContent='📤 Share';
+      btn.style.cssText='margin-top:10px;background:#2d6a4f;color:#fff;border:none;border-radius:20px;padding:8px 18px;font-size:13px;';
+      btn.onclick=function(){
+        const teks=isi+'\n\n— via Sahabat Hijrah 🌙\nhttps://dunta12.github.io/sahabat-hijrah';
+        if(navigator.share){navigator.share({text:teks}).catch(function(){});}
+        else if(navigator.clipboard){navigator.clipboard.writeText(teks).then(function(){alert('Copied! Paste it in WhatsApp/Instagram.');});}
+        else{prompt('Copy this text:',teks);}
+      };
+      card.appendChild(btn);
+    }
+  },300);
+})();
 </script>
 </body>
 </html>
