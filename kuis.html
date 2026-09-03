@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kuis Hijrah · Sahabat Hijrah</title>
+<style>
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#ece8df;color:#22312b}
+header{background:#1f5c46;color:#fff;padding:10px 12px;display:flex;align-items:center;gap:8px;position:sticky;top:0;z-index:5}
+header .t{font-size:17px;font-weight:700;flex:1}
+header button{background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:50%;width:38px;height:38px;font-size:16px}
+.wrap{max-width:640px;margin:0 auto;padding:12px}
+.card{background:#fff;border-radius:16px;padding:16px;margin:10px 0;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.btn{display:block;width:100%;background:#2d6a4f;color:#fff;border:none;border-radius:14px;padding:14px;font-size:16px;font-weight:600;margin:8px 0}
+.btn.gold{background:#c9a227}
+.chip{background:#e5efe9;border:1.5px solid #2d6a4f;border-radius:20px;padding:8px 12px;margin:3px;font-size:13px}
+.chip.on{background:#2d6a4f;color:#fff}
+.opt{display:block;width:100%;text-align:left;background:#f4f7f5;border:2px solid #cfd8d3;border-radius:12px;padding:12px;margin:8px 0;font-size:15px}
+.opt b{color:#2d6a4f;margin-right:6px}
+.opt.lock{background:#ffd60a;border-color:#c9a227}
+.opt.ok{background:#d8f3dc;border-color:#2d6a4f}
+.opt.no{background:#ffd7d7;border-color:#c0392b}
+.opt.off{opacity:.35}
+.ladder{font-size:12px}
+.ladder div{display:flex;justify-content:space-between;padding:2px 8px;border-radius:8px;color:#5a6a62}
+.ladder .cur{background:#ffd60a;color:#22312b;font-weight:700}
+.ladder .safe{color:#2d6a4f;font-weight:700}
+.lif{background:#1f5c46;color:#fff;border:none;border-radius:20px;padding:8px 12px;margin:3px;font-size:13px}
+.lif:disabled{opacity:.35}
+.hint{background:#fff8e1;border-radius:10px;padding:8px 10px;margin:8px 0;font-size:14px}
+h3{margin:0 0 6px}
+.muted{color:#77877e;font-size:14px}
+.ar{font-size:18px}
+.bar{height:8px;background:#dfe8e2;border-radius:4px;margin:3px 0}
+.bar i{display:block;height:100%;background:#2d6a4f;border-radius:4px}
+</style>
+</head>
+<body>
+<header>
+<button onclick="location.href='index.html'">🏠</button>
+<div class="t">🎮 <span id="hJudul">Kuis Hijrah</span></div>
+<button onclick="gantiLang()">🌐</button>
+<button id="bSnd" onclick="gantiSnd()">🔊</button>
+</header>
+<div class="wrap">
+<div id="scrHome"></div>
+<div id="scrQuiz" style="display:none"></div>
+<div id="scrEnd" style="display:none"></div>
+<div id="scrLearn" style="display:none"></div>
+</div>
+<script>
+/* ===== audio ===== */
+let AC=null,muted=localStorage.getItem('kuis_mute')==='1',drone=null,musT=null;
+function ac(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended')AC.resume();return AC;}
+function T(f,dur,type,vol,delay,slide){if(muted)return;const a=ac();if(!a)return;const t=a.currentTime+(delay||0);const o=a.createOscillator(),g=a.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+dur);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol||.06,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+dur+.05);}
+const sfx={klik:()=>T(700,.08,'triangle',.05),pilih:()=>T(500,.1,'triangle',.05),kunci:()=>{T(180,.25,'sine',.07);T(180,.25,'sine',.07,.35);T(320,.6,'sine',.04,.7,540);},benar:()=>{[523,659,784,1047].forEach((f,i)=>T(f,.35,'sine',.06,i*.09));},salah:()=>{T(220,.4,'triangle',.06,0,140);T(160,.5,'sine',.05,.15,110);},aman:()=>{T(196,1.2,'sine',.08);T(392,1,'sine',.04,.05);T(588,.8,'sine',.03,.1);},menang:()=>{[392,523,659,784,1047,1319].forEach((f,i)=>T(f,.4,'sine',.06,i*.12));T(1568,1,'sine',.04,.85);},bantu:()=>{[880,1175,1568].forEach((f,i)=>T(f,.15,'sine',.04,i*.06));}};
+function musikOn(){if(muted||drone)return;const a=ac();if(!a)return;drone={o1:a.createOscillator(),o2:a.createOscillator(),g:a.createGain()};drone.o1.frequency.value=82;drone.o2.frequency.value=123;drone.g.gain.value=.02;drone.o1.connect(drone.g);drone.o2.connect(drone.g);drone.g.connect(a.destination);drone.o1.start();drone.o2.start();const sc=[262,294,330,392,440,523];musT=setInterval(()=>{if(!muted){const f=sc[Math.floor(Math.random()*sc.length)];T(f,1.6,'sine',.03);T(f*2,1.2,'sine',.015);}},4200);}
+function musikOff(){if(drone){try{drone.o1.stop();drone.o2.stop();}catch(e){}drone=null;}if(musT){clearInterval(musT);musT=null;}}
+function gantiSnd(){muted=!muted;localStorage.setItem('kuis_mute',muted?'1':'0');document.getElementById('bSnd').textContent=muted?'🔇':'🔊';if(muted)musikOff();else if(mode==='quiz')musikOn();}
+/* ===== label ===== */
+const LBL={
+id:{judul:'Kuis Hijrah',sub:'Uji ilmumu ala "Who Wants to Be a Millionaire"!',kat:'Pilih kategori:',husna:'🌙 Asmaul Husna',panduan:'🕌 Panduan Ibadah',campur:'🎲 Campuran',mulai:'▶ Mulai Kuis',belajar:'📚 Mode Belajar',best:'🏆 Skor terbaik',soal:'Soal',ambil:'🛑 Ambil',hint:'💡 Hint',pemirsa:'👥 Pemirsa',ff:'✂️ 50:50',menu:'🏠 Menu',lagi:'🔄 Main Lagi',menang:'🏆 LUAR BIASA!',kalah:'💙 Tetap Semangat!',stop:'🤝 Anda berhenti & membawa pulang',hantar:'Anda membawa pulang',tabN:'🌙 99 Nama',tabP:'🕌 Panduan Singkat',kembali:'⬅ Kembali'},
+en:{judul:'Hijrah Quiz',sub:'Test your knowledge, "Who Wants to Be a Millionaire" style!',kat:'Choose category:',husna:'🌙 Asmaul Husna',panduan:'🕌 Worship Guide',campur:'🎲 Mixed',mulai:'▶ Start Quiz',belajar:'📚 Learn Mode',best:'🏆 Best score',soal:'Question',ambil:'🛑 Walk away',hint:'💡 Hint',pemirsa:'👥 Audience',ff:'✂️ 50:50',menu:'🏠 Menu',lagi:'🔄 Play Again',menang:'🏆 AMAZING!',kalah:'💙 Keep going!',stop:'🤝 You walked away with',hantar:'You take home',tabN:'🌙 99 Names',tabP:'🕌 Quick Guide',kembali:'⬅ Back'}
+};
+/* ===== data ===== */
+const HADIAH=[100,500,1000,5000,10000,50000,100000,250000,500000,750000,900000,1000000];
+const AMANIDX=[4,8];
+const SOAL=[
+{d:1,k:'h',id:{q:'Apa arti "Ar-Rahman"?',a:['Maha Pengasih','Maha Melihat','Maha Raja','Maha Sabar'],c:0,h:'Sering bersanding dengan Ar-Rahim.'},en:{q:'What does "Ar-Rahman" mean?',a:['The Most Gracious','The All-Seeing','The King','The Patient'],c:0,h:'Often paired with Ar-Rahim.'}},
+{d:1,k:'h',id:{q:'"Al-Malik" artinya...',a:['Maha Raja','Maha Pencipta','Maha Lembut','Maha Kaya'],c:0,h:'Pemilik seluruh kerajaan.'},en:{q:'"Al-Malik" means...',a:['The King','The Creator','The Subtle One','The Rich'],c:0,h:'Owner of all dominion.'}},
+{d:1,k:'h',id:{q:'Apa arti "As-Salam"?',a:['Maha Pemberi Kesejahteraan','Maha Perkasa','Maha Mengampuni','Maha Mendengar'],c:0,h:'Salam sejahtera berasal dari nama ini.'},en:{q:'What does "As-Salam" mean?',a:['The Source of Peace','The Almighty','The Forgiving','The Hearing'],c:0,h:'Peace comes from this name.'}},
+{d:1,k:'h',id:{q:'"Al-Khaliq" artinya...',a:['Maha Pencipta','Maha Pemberi Rezeki','Maha Mengawasi','Maha Adil'],c:0,h:'Ia yang menciptakan segala sesuatu.'},en:{q:'"Al-Khaliq" means...',a:['The Creator','The Provider','The Watchful','The Just'],c:0,h:'The One who creates everything.'}},
+{d:2,k:'h',id:{q:'Nama "Maha Pemberi Rezeki" adalah...',a:['Ar-Razzaq','Al-Fattah','Al-Wadud','Al-Bashir'],c:0,h:'Rezeki = rizqi.'},en:{q:'The name "The Provider" is...',a:['Ar-Razzaq','Al-Fattah','Al-Wadud','Al-Bashir'],c:0,h:'Rizq = provision.'}},
+{d:2,k:'h',id:{q:'"Maha Pengampun" (banyak mengampuni) adalah...',a:['Al-Ghaffar','Al-Qahhar','Al-Muqsit','Al-Warits'],c:0,h:'Ampun = ghafara.'},en:{q:'"The Most Forgiving" is...',a:['Al-Ghaffar','Al-Qahhar','Al-Muqsit','Al-Warits'],c:0,h:'To forgive = ghafara.'}},
+{d:2,k:'h',id:{q:'"Al-Bashir" artinya...',a:['Maha Melihat','Maha Mendengar','Maha Mengetahui','Maha Kuat'],c:0,h:'Tidak ada yang luput dari pandangan-Nya.'},en:{q:'"Al-Bashir" means...',a:['The All-Seeing','The All-Hearing','The All-Knowing','The Strong'],c:0,h:'Nothing escapes His sight.'}},
+{d:2,k:'h',id:{q:'"Al-Fattah" artinya...',a:['Maha Pembuka','Maha Penunda','Maha Mengumpulkan','Maha Menjaga'],c:0,h:'Pembuka pintu rezeki & kemenangan.'},en:{q:'"Al-Fattah" means...',a:['The Opener','The Delayer','The Gatherer','The Keeper'],c:0,h:'Opener of doors of provision & victory.'}},
+{d:3,k:'h',id:{q:'"Al-Wadud" artinya...',a:['Maha Pencinta','Maha Pemberi','Maha Menghitung','Maha Menyaksikan'],c:0,h:'Cinta yang penuh kasih sayang.'},en:{q:'"Al-Wadud" means...',a:['The Most Loving','The Giver','The Counter','The Witness'],c:0,h:'Loving kindness.'}},
+{d:3,k:'h',id:{q:'Nama "Maha Mewarisi" adalah...',a:['Al-Warits','Al-Wasi','Al-Wakil','Al-Waliyy'],c:0,h:'Semua kembali kepada-Nya.'},en:{q:'The name "The Inheritor" is...',a:['Al-Warits','Al-Wasi','Al-Wakil','Al-Waliyy'],c:0,h:'All returns to Him.'}},
+{d:3,k:'h',id:{q:'"Dzul Jalali wal-Ikram" artinya...',a:['Pemilik Kebesaran dan Kemuliaan','Pemilik Rezeki','Pemilik Langit','Pemilik Cahaya'],c:0,h:'Sering dibaca saat dzikir setelah sholat.'},en:{q:'"Dzul Jalali wal-Ikram" means...',a:['Lord of Majesty and Honor','Owner of Provision','Owner of the Skies','Owner of Light'],c:0,h:'Often recited after prayer.'}},
+{d:3,k:'h',id:{q:'"Al-Muqsit" artinya...',a:['Maha Adil','Maha Cepat','Maha Luas','Maha Kuat'],c:0,h:'Keadilan yang sempurna & saksama.'},en:{q:'"Al-Muqsit" means...',a:['The Equitable','The Swift','The Vast','The Strong'],c:0,h:'Perfect, precise justice.'}},
+{d:1,k:'p',id:{q:'Sholat Maghrib berjumlah...',a:['3 rakaat','2 rakaat','4 rakaat','1 rakaat'],c:0,h:'Setelah matahari terbenam.'},en:{q:'Maghrib prayer has...',a:['3 rakaat','2 rakaat','4 rakaat','1 rakaat'],c:0,h:'After sunset.'}},
+{d:1,k:'p',id:{q:'Sebelum membaca Al-Qur\'an, kita membaca...',a:['Ta\'awwudz (a\'udzu billah...)','Takbir','Salam','Tahlil'],c:0,h:'Meminta perlindungan dari setan.'},en:{q:'Before reading the Qur\'an, we recite...',a:['Ta\'awwudz (seeking refuge)','Takbir','Salam','Tahlil'],c:0,h:'Seeking refuge from Satan.'}},
+{d:1,k:'p',id:{q:'Sholat Subuh berjumlah...',a:['2 rakaat','4 rakaat','3 rakaat','5 rakaat'],c:0,h:'Paling sedikit rakaatnya.'},en:{q:'Fajr (Subh) prayer has...',a:['2 rakaat','4 rakaat','3 rakaat','5 rakaat'],c:0,h:'The fewest rakaat.'}},
+{d:1,k:'p',id:{q:'Gerakan sholat setelah ruku\' adalah...',a:['I\'tidal (berdiri tegak)','Sujud','Tasyahud','Salam'],c:0,h:'Bangkit lalu berdiri tegap.'},en:{q:'The movement after ruku\' is...',a:['I\'tidal (standing upright)','Sujud','Tashahhud','Salam'],c:0,h:'Rising to stand straight.'}},
+{d:2,k:'p',id:{q:'Jumlah rukun wudhu adalah...',a:['6','3','4','5'],c:0,h:'Termasuk niat dan tertib.'},en:{q:'The obligatory acts of wudu are...',a:['6','3','4','5'],c:0,h:'Includes intention and order.'}},
+{d:2,k:'p',id:{q:'Bacaan saat ruku\' adalah...',a:['Subhana rabbiyal \'azhimi wa bihamdih','Subhana rabbiyal a\'la wa bihamdih','Sami\'allahu liman hamidah','Rabbighfir li'],c:0,h:'"Azhim" = agung, cocok untuk ruku\'.'},en:{q:'The recitation in ruku\' is...',a:['Subhana rabbiyal \'azhimi wa bihamdih','Subhana rabbiyal a\'la wa bihamdih','Sami\'allahu liman hamidah','Rabbighfir li'],c:0,h:'"Azim" = mighty, for bowing.'}},
+{d:2,k:'p',id:{q:'Sholat yang bacaannya lirih di semua rakaat adalah...',a:['Dzuhur dan Ashar','Subuh dan Maghrib','Maghrib dan Isya','Subuh dan Isya'],c:0,h:'Dilakukan di siang hari.'},en:{q:'Prayers recited silently in all rakaat are...',a:['Dhuhr and Asr','Fajr and Maghrib','Maghrib and Isha','Fajr and Isha'],c:0,h:'Prayed in daytime.'}},
+{d:2,k:'p',id:{q:'Bersuci tanpa air (kondisi darurat) disebut...',a:['Tayammum','Istinja','Mandi wajib','Wudhu ganda'],c:0,h:'Memakai debu yang suci.'},en:{q:'Purification without water (emergency) is called...',a:['Tayammum','Istinja','Ghusl','Double wudu'],c:0,h:'Using clean dust.'}},
+{d:3,k:'p',id:{q:'"Tuma\'ninah" dalam sholat artinya...',a:['Tenang / berhenti sejenak antar gerakan','Membaca dengan keras','Bergerak cepat','Menutup aurat'],c:0,h:'Sholat tidak sah tanpanya.'},en:{q:'"Tuma\'ninah" in prayer means...',a:['Calm pause between movements','Reciting loudly','Moving quickly','Covering awrah'],c:0,h:'Prayer is invalid without it.'}},
+{d:3,k:'p',id:{q:'Sholat fardhu yang bacaannya keras di SEMUA rakaatnya adalah...',a:['Subuh','Dzuhur','Maghrib','Isya'],c:0,h:'Rakaatnya hanya dua.'},en:{q:'The fard prayer recited aloud in ALL rakaat is...',a:['Fajr','Dhuhr','Maghrib','Isha'],c:0,h:'It has only two rakaat.'}},
+{d:3,k:'p',id:{q:'Doa setelah wudhu diawali dengan...',a:['Dua kalimat syahadat','Basmalah','Istighfar','Takbir'],c:0,h:'"Asyhadu an laa ilaha illallah..."'},en:{q:'The du\'a after wudu begins with...',a:['The two testimonies of faith','Basmalah','Istighfar','Takbir'],c:0,h:'"Ash-hadu an la ilaha illallah..."'}},
+{d:3,k:'p',id:{q:'Nama posisi duduk di antara dua sujud adalah...',a:['Iftirasy','Tawarruk','Tasyahud','Qunut'],c:0,h:'Duduk "istirahat" di atas kaki kiri.'},en:{q:'The sitting position between the two sujud is called...',a:['Iftirash','Tawarruk','Tashahhud','Qunut'],c:0,h:'Resting on the left foot.'}}
+];
+const NAMA=[
+['الرحمن','Ar-Rahman','Maha Pengasih','The Most Gracious'],
+['الرحيم','Ar-Rahim','Maha Penyayang','The Most Merciful'],
+['الملك','Al-Malik','Maha Raja','The King'],
+['القدوس','Al-Quddus','Maha Suci','The Most Holy'],
+['السلام','As-Salam','Maha Pemberi Kesejahteraan','The Source of Peace'],
+['المؤمن','Al-Mu\'min','Maha Pemberi Keamanan','The Giver of Faith'],
+['المهيمن','Al-Muhaymin','Maha Pemelihara','The Protector'],
+['العزيز','Al-Aziz','Maha Perkasa','The Almighty'],
+['الجبار','Al-Jabbar','Maha Kuasa','The Compeller'],
+['المتكبر','Al-Mutakabbir','Maha Megah','The Supreme'],
+['الخالق','Al-Khaliq','Maha Pencipta','The Creator'],
+['البارئ','Al-Bari\'','Maha Mengadakan','The Evolver'],
+['المصور','Al-Mushawwir','Maha Membentuk Rupa','The Fashioner'],
+['الغفار','Al-Ghaffar','Maha Pengampun','The Ever-Forgiving'],
+['القهار','Al-Qahhar','Maha Menundukkan','The Subduer'],
+['الوهاب','Al-Wahhab','Maha Pemberi Karunia','The Bestower'],
+['الرزاق','Ar-Razzaq','Maha Pemberi Rezeki','The Provider'],
+['الفتاح','Al-Fattah','Maha Pembuka','The Opener'],
+['العليم','Al-\'Alim','Maha Mengetahui','The All-Knowing'],
+['القابض','Al-Qabidh','Maha Menyempitkan','The Constrictor'],
+['الباسط','Al-Basith','Maha Melapangkan','The Expander'],
+['الخافض','Al-Khafidh','Maha Merendahkan','The Abaser'],
+['الرافع','Ar-Rafi\'','Maha Meninggikan','The Exalter'],
+['المعز','Al-Mu\'izz','Maha Memuliakan','The Honorer'],
+['المذل','Al-Mudzill','Maha Menghinakan','The Humiliator'],
+['السميع','As-Sami\'','Maha Mendengar','The All-Hearing'],
+['البصير','Al-Bashir','Maha Melihat','The All-Seeing'],
+['الحكم','Al-Hakam','Maha Menetapkan','The Judge'],
+['العدل','Al-\'Adl','Maha Adil','The Utterly Just'],
+['اللطيف','Al-Lathif','Maha Lembut','The Subtle One'],
+['الخبير','Al-Khabir','Maha Mengenal','The All-Aware'],
+['الحليم','Al-Halim','Maha Penyantun','The Forbearing'],
+['العظيم','Al-\'Azim','Maha Agung','The Magnificent'],
+['الغفور','Al-Ghafur','Maha Pengampun','The Great Forgiver'],
+['الشكور','Ash-Shakur','Maha Mensyukuri','The Most Appreciative'],
+['العلي','Al-\'Aliy','Maha Tinggi','The Most High'],
+['الكبير','Al-Kabir','Maha Besar','The Most Great'],
+['الحفيظ','Al-Hafizh','Maha Memelihara','The Preserver'],
+['المقيت','Al-Muqit','Maha Pemberi Kecukupan','The Sustainer'],
+['الحسيب','Al-Hasib','Maha Penghitung','The Reckoner'],
+['الجليل','Al-Jalil','Maha Mulia','The Majestic'],
+['الكريم','Al-Karim','Maha Pemurah','The Generous'],
+['الرقيب','Ar-Raqib','Maha Mengawasi','The Watchful'],
+['المجيب','Al-Mujib','Maha Mengabulkan','The Responsive'],
+['الواسع','Al-Wasi\'','Maha Luas','The All-Encompassing'],
+['الحكيم','Al-Hakim','Maha Bijaksana','The Wise'],
+['الودود','Al-Wadud','Maha Pencinta','The Most Loving'],
+['المجيد','Al-Majid','Maha Terpuji','The Most Glorious'],
+['الباعث','Al-Ba\'its','Maha Membangkitkan','The Resurrector'],
+['الشهيد','Ash-Shahid','Maha Menyaksikan','The Witness'],
+['الحق','Al-Haqq','Maha Benar','The Absolute Truth'],
+['الوكيل','Al-Wakil','Maha Mewakili','The Trustee'],
+['القوي','Al-Qawiyy','Maha Kuat','The Most Strong'],
+['المتين','Al-Matin','Maha Kokoh','The Firm'],
+['الولي','Al-Waliyy','Maha Melindungi','The Protecting Friend'],
+['الحميد','Al-Hamid','Maha Terpuji','The Praiseworthy'],
+['المحصي','Al-Muhshi','Maha Menghitung','The All-Enumerating'],
+['المبدئ','Al-Mubdi\'','Maha Memulai','The Originator'],
+['المعيد','Al-Mu\'id','Maha Mengembalikan','The Restorer'],
+['المحيي','Al-Muhyi','Maha Menghidupkan','The Giver of Life'],
+['المميت','Al-Mumit','Maha Mematikan','The Bringer of Death'],
+['الحي','Al-Hayy','Maha Hidup','The Ever-Living'],
+['القيوم','Al-Qayyum','Maha Berdiri Sendiri','The Self-Subsisting'],
+['الواجد','Al-Wajid','Maha Menemukan','The Perceiver'],
+['الماجد','Al-Majid','Maha Mulia','The Noble'],
+['الواحد','Al-Wahid','Maha Esa','The One'],
+['الاحد','Al-Ahad','Maha Tunggal','The Unique'],
+['الصمد','Ash-Shamad','Maha Dibutuhkan','The Eternal Refuge'],
+['القادر','Al-Qadir','Maha Kuasa','The All-Powerful'],
+['المقتدر','Al-Muqtadir','Maha Menentukan','The All-Determining'],
+['المقدم','Al-Muqaddim','Maha Mendahulukan','The Expediter'],
+['المؤخر','Al-Mu\'akhkhir','Maha Mengakhirkan','The Delayer'],
+['الاول','Al-Awwal','Maha Awal','The First'],
+['الاخر','Al-Akhir','Maha Akhir','The Last'],
+['الظاهر','Az-Zahir','Maha Nyata','The Manifest'],
+['الباطن','Al-Batin','Maha Tersembunyi','The Hidden'],
+['الوالي','Al-Wali','Maha Menguasai','The Governor'],
+['المتعالي','Al-Muta\'ali','Maha Tinggi Derajat','The Most Exalted'],
+['البر','Al-Barr','Maha Baik','The Source of Goodness'],
+['التواب','At-Tawwab','Maha Penerima Tobat','The Acceptor of Repentance'],
+['المنتقم','Al-Muntaqim','Maha Penuntut Balas','The Avenger'],
+['العفور','Al-\'Afuww','Maha Pemaaf','The Pardoner'],
+['الرؤوف','Ar-Ra\'uf','Maha Pengasih','The Most Kind'],
+['مالك الملك','Malik-ul-Mulk','Maha Pemilik Kerajaan','Owner of the Sovereignty'],
+['ذو الجلال والاكرام','Dzul Jalali wal-Ikram','Pemilik Kebesaran & Kemuliaan','Lord of Majesty and Honor'],
+['المقسط','Al-Muqsit','Maha Adil','The Equitable'],
+['الجامع','Al-Jami\'','Maha Mengumpulkan','The Gatherer'],
+['الغني','Al-Ghaniyy','Maha Kaya','The Self-Sufficient'],
+['المغني','Al-Mughni','Maha Mengkayakan','The Enricher'],
+['المانع','Al-Mani\'','Maha Mencegah','The Preventer'],
+['الضار','Ad-Darr','Maha Pemberi Mudarat','The Distresser'],
+['النافع','An-Nafi\'','Maha Pemberi Manfaat','The Benefactor'],
+['النور','An-Nur','Maha Bercahaya','The Light'],
+['الهادي','Al-Hadi','Maha Pemberi Petunjuk','The Guide'],
+['البديع','Al-Badi\'','Maha Pencipta Unik','The Incomparable'],
+['الباقي','Al-Baqi','Maha Kekal','The Everlasting'],
+['الوارث','Al-Warits','Maha Mewarisi','The Inheritor'],
+['الرشيد','Ar-Rasyid','Maha Pandu','The Guide to the Right Path'],
+['الصبور','Ash-Shabur','Maha Sabar','The Most Patient']
+];
+const PANDUAN={
+id:'<b>🫧 Rukun Wudhu (6):</b> niat · membasuh muka · membasuh tangan sampai siku · mengusap sebagian kepala · membasuh kaki sampai mata kaki · tertib.<br><br><b>🕌 Urutan Sholat:</b> takbiratul ihram → Al-Fatihah → (surat) → ruku\' → i\'tidal → sujud → duduk di antara dua sujud → sujud → rakaat berikutnya → tasyahud → salam.<br><br><b>🤲 Niat (latin):</b><br>Subuh: Ushalli fardhas-shubhi rak\'ataini mustaqbilal qiblati ada\'an lillahi ta\'ala.<br>Dzuhur: ...fardhazh-zhuhri arba\'a raka\'atin...<br>Ashar: ...fardhal-\'ashri arba\'a raka\'atin...<br>Maghrib: ...fardhal-maghribi tsalatsa raka\'atin...<br>Isya: ...fardhal-\'isya\'i arba\'a raka\'atin...<br><br><b>Doa singkat:</b> Rabbana atina fid-dunya hasanah wa fil-akhirati hasanah wa qina \'adzaban-nar.',
+en:'<b>🫧 Wudu (6 obligatory acts):</b> intention · washing the face · washing arms to elbows · wiping part of the head · washing feet to ankles · order.<br><br><b>🕌 Prayer order:</b> takbiratul ihram → Al-Fatihah → (surah) → ruku\' → i\'tidal → sujud → sitting between sujud → sujud → next rakaat → tashahhud → salam.<br><br><b>🤲 Intention (latin):</b><br>Fajr: Ushalli fardhas-subhi rak\'ataini mustaqbilal qiblati ada\'an lillahi ta\'ala.<br>Dhuhr: ...fardhaz-zuhri arba\'a raka\'atin...<br>Asr: ...fardhal-\'asri arba\'a raka\'atin...<br>Maghrib: ...fardhal-maghribi thalatha raka\'atin...<br>Isha: ...fardhal-\'isha\'i arba\'a raka\'atin...<br><br><b>Short du\'a:</b> Rabbana atina fid-dunya hasanah wa fil-akhirati hasanah wa qina \'adhaban-nar.'
+};
+let lang=localStorage.getItem('kuis_lang')||'id',L=LBL[lang],mode='home',cat='campur',round=[],idx=0,locked=false,used={},learnTab='n',lastEnd='';
+function $(id){return document.getElementById(id);}
+function fmt(n){return n.toLocaleString(lang==='id'?'id-ID':'en-US');}
+function gantiLang(){lang=lang==='id'?'en':'id';localStorage.setItem('kuis_lang',lang);L=LBL[lang];$('hJudul').textContent=L.judul;renderNow();}
+function renderNow(){if(mode==='home')renderHome();else if(mode==='quiz')renderQ();else if(mode==='end')renderEnd(lastEnd);else renderLearn();}
+function acak(a){return a.slice().sort(function(){return Math.random()-.5});}
+function show(id){['scrHome','scrQuiz','scrEnd','scrLearn'].forEach(function(x){$(x).style.display=x===id?'block':'none';});}
+function renderHome(){mode='home';musikOff();show('scrHome');
+$('scrHome').innerHTML='<div class="card"><h3>🎮 '+L.judul+'</h3><div class="muted">'+L.sub+'</div><div style="margin-top:10px">'+L.kat+'</div><div><button class="chip'+(cat==='husna'?' on':'')+'" onclick="cat=\'husna\';renderHome()">'+L.husna+'</button><button class="chip'+(cat==='panduan'?' on':'')+'" onclick="cat=\'panduan\';renderHome()">'+L.panduan+'</button><button class="chip'+(cat==='campur'?' on':'')+'" onclick="cat=\'campur\';renderHome()">'+L.campur+'</button></div><button class="btn" onclick="mulai()">'+L.mulai+'</button><button class="btn gold" onclick="renderLearn()">'+L.belajar+'</button><div class="muted">'+L.best+': <b>'+fmt(parseInt(localStorage.getItem('kuis_best')||0))+'</b></div></div>';}
+function mulai(){sfx.klik();const pool=SOAL.filter(function(s){return cat==='campur'||s.k===(cat==='husna'?'h':'p');});round=[];[1,2,3].forEach(function(d){round=round.concat(acak(pool.filter(function(s){return s.d===d;})).slice(0,4));});idx=0;locked=false;used={ff:false,pm:false,hn:false};mode='quiz';musikOn();renderQ();}
+function renderQ(){mode='quiz';show('scrQuiz');const s=round[idx],q=s[lang];
+let lad='';for(let i=11;i>=0;i--){lad+='<div class="'+(i===idx?'cur':'')+' '+(AMANIDX.indexOf(i)>-1?'safe':'')+'"><span>'+(AMANIDX.indexOf(i)>-1?'🛡 ':'')+(i+1)+'</span><span>'+fmt(HADIAH[i])+'</span></div>';}
+$('scrQuiz').innerHTML='<div class="card" style="padding:8px"><div class="ladder">'+lad+'</div></div><div class="card"><div class="muted">'+L.soal+' '+(idx+1)+'/12 · 💰 '+fmt(idx>0?HADIAH[idx-1]:0)+'</div><h3 style="margin-top:8px">'+q.q+'</h3><div id="opts">'+q.a.map(function(o,i){return '<button class="opt" id="op'+i+'" onclick="pilih('+i+')"><b>'+'ABCD'[i]+'</b>'+o+'</button>';}).join('')+'</div><div id="extra"></div><div><button class="lif" id="lf1" onclick="pakaiFF()" '+(used.ff?'disabled':'')+'>'+L.ff+'</button><button class="lif" id="lf2" onclick="pakaiPM()" '+(used.pm?'disabled':'')+'>'+L.pemirsa+'</button><button class="lif" id="lf3" onclick="pakaiHN()" '+(used.hn?'disabled':'')+'>'+L.hint+'</button><button class="lif" style="background:#8a4b4b" onclick="berhenti()">'+L.ambil+' '+fmt(idx>0?HADIAH[idx-1]:0)+'</button></div></div>';}
+function pilih(i){if(locked)return;locked=true;sfx.pilih();$('op'+i).classList.add('lock');sfx.kunci();
+setTimeout(function(){const s=round[idx];
+if(i===s.c){$('op'+i).classList.remove('lock');$('op'+i).classList.add('ok');sfx.benar();if(AMANIDX.indexOf(idx)>-1)sfx.aman();
+if(idx===11){setTimeout(function(){selesai('menang');},1200);}else{idx++;locked=false;setTimeout(renderQ,1000);}}
+else{$('op'+i).classList.add('no');$('op'+s.c).classList.add('ok');sfx.salah();setTimeout(function(){selesai('kalah');},1800);}
+},1500);}
+function pakaiFF(){if(used.ff||locked)return;used.ff=true;sfx.bantu();const s=round[idx];const salah=acak([0,1,2,3].filter(function(i){return i!==s.c;})).slice(0,2);salah.forEach(function(i){$('op'+i).classList.add('off');$('op'+i).disabled=true;});$('lf1').disabled=true;}
+function pakaiPM(){if(used.pm||locked)return;used.pm=true;sfx.bantu();const s=round[idx];const base=[0,62,48,36][s.d]+Math.floor(Math.random()*15);let pct=[0,0,0,0];pct[s.c]=base;const o=[0,1,2,3].filter(function(i){return i!==s.c;});const w=o.map(function(){return Math.random()+.2;});const tw=w[0]+w[1]+w[2];o.forEach(function(i,j){pct[i]=Math.round((100-base)*w[j]/tw);});pct[s.c]=100-pct[o[0]]-pct[o[1]]-pct[o[2]];
+$('extra').innerHTML='<div class="hint">'+o.map(function(i){return 'ABCD'[i]+' '+pct[i]+'%';}).join(' · ')+'<br>'+[0,1,2,3].map(function(i){return '<span style="display:inline-block;width:24%">'+('ABCD'[i])+'<div class="bar"><i style="width:'+pct[i]+'%"></i></div></span>';}).join('')+'</div>';$('lf2').disabled=true;}
+function pakaiHN(){if(used.hn||locked)return;used.hn=true;sfx.bantu();$('extra').innerHTML+='<div class="hint">💡 '+round[idx][lang].h+'</div>';$('lf3').disabled=true;}
+function berhenti(){sfx.klik();selesai('stop');}
+function selesai(t){lastEnd=t;musikOff();let amt=0;
+if(t==='menang')amt=1000000;
+else if(t==='stop')amt=idx>0?HADIAH[idx-1]:0;
+else amt=idx>8?500000:(idx>4?10000:0);
+const best=parseInt(localStorage.getItem('kuis_best')||0);if(amt>best)localStorage.setItem('kuis_best',String(amt));
+if(t==='menang')sfx.menang();
+mode='end';window.lastAmt=amt;renderEnd(t);}
+function renderEnd(t){show('scrEnd');const amt=window.lastAmt||0;
+const gelar=amt>=1000000?(lang==='id'?'🏆 Sahabat Hijrah Sejati':'🏆 True Hijrah Companion'):amt>=500000?(lang==='id'?'🥇 Sahabat Berilmu':'🥇 Knowledgeable Companion'):amt>=10000?(lang==='id'?'🥈 Sahabat Pemula':'🥈 Beginner Companion'):(lang==='id'?'💪 Calon Sahabat':'💪 Aspiring Companion');
+const head=t==='menang'?L.menang:(t==='kalah'?L.kalah:'🤝');
+$('scrEnd').innerHTML='<div class="card" style="text-align:center"><h3>'+head+'</h3><div style="font-size:26px;font-weight:800;color:#2d6a4f;margin:10px 0">💰 '+fmt(amt)+'</div><div class="muted">'+(t==='stop'?L.stop:L.hantar)+': '+fmt(amt)+'</div><div class="muted">'+gelar+'</div><button class="btn" onclick="mulai()">'+L.lagi+'</button><button class="btn gold" onclick="renderHome()">'+L.menu+'</button></div>';}
+function renderLearn(){mode='learn';musikOff();show('scrLearn');
+let isi='';
+if(learnTab==='n'){isi=NAMA.map(function(n,i){return '<div style="display:flex;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid #eee"><b style="min-width:24px;color:#2d6a4f">'+(i+1)+'</b><span class="ar">'+n[0]+'</span><span style="flex:1"><b>'+n[1]+'</b><br><span class="muted">'+(lang==='id'?n[2]:n[3])+'</span></span></div>';}).join('');}
+else isi='<div style="line-height:1.6">'+PANDUAN[lang]+'</div>';
+$('scrLearn').innerHTML='<div class="card"><button class="chip" onclick="renderHome()">'+L.kembali+'</button><button class="chip'+(learnTab==='n'?' on':'')+'" onclick="learnTab=\'n\';renderLearn()">'+L.tabN+'</button><button class="chip'+(learnTab==='p'?' on':'')+'" onclick="learnTab=\'p\';renderLearn()">'+L.tabP+'</button><div style="margin-top:10px">'+isi+'</div></div>';}
+document.getElementById('bSnd').textContent=muted?'🔇':'';
+$('hJudul').textContent=L.judul;
+renderHome();
+</script>
+</body>
+</html>
