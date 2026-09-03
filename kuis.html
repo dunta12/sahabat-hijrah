@@ -421,7 +421,7 @@ header .title{
 <body>
 
 <header>
-<button class="headBtn" onclick="goHome()">🏠</button>
+<button class="headBtn" onclick="location.href=(lang==='id'?'index.html':'en.html')">🏠</button>
 
 <div class="title">
 🎮 <span id="headerTitle">Kuis Hijrah</span>
@@ -1461,7 +1461,7 @@ function renderHome(){
   <b>⏱️ 30 ${TText("seconds")}</b>
 
   <div class="muted" style="margin-top:5px">
-   12 soal · 3 tingkat kesulitan · 3 bantuan
+   ${lang==="id"?"12 soal · 3 tingkat kesulitan · 3 bantuan":"12 questions · 3 difficulty levels · 3 lifelines"}
   </div>
 
  </div>
