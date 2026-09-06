@@ -2335,6 +2335,47 @@ document.getElementById("headerTitle").textContent=
 updateSoundButton();
 
 renderHome();
+/* ============ PATCH KUIS: SEKALI TEMPEL ============ */
+(function(){
+
+ /* 1) Acak posisi jawaban setiap mulai permainan,
+    supaya jawaban benar tidak selalu A */
+ const asliStart=startGame;
+ startGame=function(){
+  QUESTIONS.forEach(q=>{
+   ["id","en"].forEach(L=>{
+    const order=shuffle([0,1,2,3]);
+    const lama=q[L].a;
+    const kunciLama=q[L].c;
+    q[L].a=order.map(i=>lama[i]);
+    q[L].c=order.indexOf(kunciLama);
+   });
+  });
+  asliStart();
+ };
+
+ /* 2) Bantuan yang sudah dipakai tetap mati
+    setelah ganti soal (menghilangkan tombol hantu) */
+ const asliRenderQuiz=renderQuiz;
+ renderQuiz=function(){
+  asliRenderQuiz();
+  const f=document.getElementById("help50");
+  const a=document.getElementById("helpAudience");
+  const h=document.getElementById("helpHint");
+  if(f)f.disabled=help.fifty;
+  if(a)a.disabled=help.audience;
+  if(h)h.disabled=help.hint;
+ };
+
+ /* 3) Ganti bahasa di momen kunci jawaban
+    tidak lagi membekukan permainan */
+ const asliLang=changeLang;
+ changeLang=function(){
+  if(answering)return;
+  asliLang();
+ };
+
+})();
 
 </script>
 
