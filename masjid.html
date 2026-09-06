@@ -90,7 +90,7 @@ function load(){
 async function fetchOverpass(){
   status("loading");
   const r=+$("#radius").value,{lat,lon}=coords;
-  const q=`[out:json][timeout:25];(node["amenity"="place_of_worship"]["religion"="muslim"](around:${r},${lat},${lon});way["amenity"="place_of_worship"]["religion"="muslim"](around:${r},${lat},${lon});relation["amenity"="place_of_worship"]["religion"="muslim"](around:${r},${lat},${lon}););out center 100;`;
+  const q=`[out:json][timeout:25];(node["amenity"="place_of_worship"]["religion"="muslim"](around:${r},${lat},${lon});way["amenity"="place_of_worship"]["religion"="muslim"](around:${r},${lat},${lon});relation["amenity"="place_of_worship"]["religion"="muslim"](around:${r},${lat},${lon}););out center 500;`;
   try{
     const res=await fetch("https://overpass-api.de/api/interpreter",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:"data="+encodeURIComponent(q)});
     const j=await res.json();
@@ -103,7 +103,7 @@ async function fetchOverpass(){
 function render(){
   if(!items.length){$("#status").textContent=t("none");$("#list").innerHTML="";return;}
   $("#status").textContent=t("found").replace("{n}",items.length);
-  $("#list").innerHTML=items.map(i=>{
+  $("#list").innerHTML=items.slice(0,50).map(i=>{
     const name=i.tags.name||i.tags["name:en"]||t("unnamed");
     const addr=[i.tags["addr:street"],i.tags["addr:city"]].filter(Boolean).join(", ");
     return `<li class="card"><div class="name">${name}<span class="dist">${fmt(i.d)}</span></div>${addr?`<div class="addr">${addr}</div>`:""}<div class="actions"><a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${i.lat},${i.lon}">${t("nav")}</a><a class="alt" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${i.lat},${i.lon}">${t("map")}</a></div></li>`;
