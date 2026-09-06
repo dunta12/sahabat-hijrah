@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cari Masjid</title>
+<style>
+:root{--bg:#f6f8f7;--card:#fff;--accent:#0b7a5e}
+*{box-sizing:border-box}
+body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;margin:0;background:var(--bg);color:#1f2937}
+header{position:sticky;top:0;display:flex;align-items:center;gap:10px;background:var(--accent);color:#fff;padding:12px 14px;z-index:5}
+header .back{color:#fff;text-decoration:none;font-size:22px;line-height:1}
+header h1{font-size:18px;margin:0;flex:1}
+.lang{background:rgba(255,255,255,.18);border:0;border-radius:10px;padding:6px 10px;font-size:16px;color:#fff}
+main{max-width:640px;margin:0 auto;padding:14px}
+.controls{display:flex;align-items:center;gap:8px;background:var(--card);border-radius:12px;padding:10px 12px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.controls label{font-size:14px;color:#4b5563}
+.controls select{flex:1;padding:8px;border:1px solid #d1d5db;border-radius:10px;background:#fff;font-size:14px}
+.controls button{border:0;background:var(--accent);color:#fff;border-radius:10px;padding:8px 12px;font-size:14px}
+.status{margin:12px 4px;font-size:14px;color:#4b5563}
+#list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.card{background:var(--card);border-radius:12px;padding:12px 14px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.name{font-weight:600}
+.dist{color:var(--accent);font-size:13px;font-weight:600;margin-left:6px}
+.addr{color:#6b7280;font-size:13px;margin-top:2px}
+.actions{display:flex;gap:8px;margin-top:10px}
+.actions a{flex:1;text-align:center;text-decoration:none;background:var(--accent);color:#fff;padding:8px 10px;border-radius:10px;font-size:14px}
+.actions a.alt{background:#e5e7eb;color:#111827}
+.fallback{margin-top:16px;text-align:center}
+.btn{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;padding:10px 16px;border-radius:12px;font-size:14px}
+.credit{margin-top:14px;text-align:center;color:#9ca3af;font-size:11px}
+footer{max-width:640px;margin:10px auto 0;padding:0 14px 30px;text-align:center;color:#6b7280;font-size:12px}
+footer a{color:#6b7280}
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="index.html">←</a>
+  <h1 id="hTitle">🕌 Cari Masjid</h1>
+  <button class="lang" id="langBtn" title="Language">🌐</button>
+</header>
+<main>
+  <div class="controls">
+    <label id="lRadius">Radius</label>
+    <select id="radius">
+      <option value="2000">2 km</option>
+      <option value="5000" selected>5 km</option>
+      <option value="10000">10 km</option>
+      <option value="20000">20 km</option>
+    </select>
+    <button id="refreshBtn">🔄</button>
+  </div>
+  <div class="status" id="status"></div>
+  <ul id="list"></ul>
+  <div class="fallback"><a class="btn" id="gmapsBtn" target="_blank" rel="noopener">🗺️ Buka di Google Maps</a></div>
+  <div class="credit" id="credit"></div>
+</main>
+<footer><a href="privacy.html" id="fPriv">Kebijakan Privasi</a> • © 2026 Sahabat Hijrah</footer>
+<script>
+const T={
+ id:{title:"🕌 Cari Masjid",radius:"Radius",locating:"📍 Mencari lokasi Anda…",loading:"🔎 Mencari masjid di sekitar…",found:"Ditemukan {n} masjid di sekitar Anda",none:"Tidak ada masjid terdata dalam radius ini. Coba perbesar radius atau pakai Google Maps.",denied:"Izin lokasi ditolak. Aktifkan izin lokasi, atau pakai tombol Google Maps di bawah.",timeout:"Lokasi tidak diperoleh. Coba lagi atau pakai Google Maps di bawah.",neterr:"Gagal menghubungi server peta. Periksa koneksi lalu coba lagi.",unnamed:"Masjid (tanpa nama)",nav:"🧭 Navigasi",map:"🗺️ Peta",gmaps:"🗺️ Buka di Google Maps",credit:"Data © kontributor OpenStreetMap",priv:"Kebijakan Privasi",q:"masjid"},
+ en:{title:"🕌 Find Mosque",radius:"Radius",locating:"📍 Getting your location…",loading:"🔎 Searching mosques nearby…",found:"Found {n} mosques near you",none:"No mosque data in this radius. Try a bigger radius or use Google Maps.",denied:"Location permission denied. Enable it, or use the Google Maps button below.",timeout:"Could not get location. Try again or use Google Maps below.",neterr:"Failed to reach map server. Check connection and retry.",unnamed:"Mosque (unnamed)",nav:"🧭 Navigate",map:"🗺️ Map",gmaps:"🗺️ Open in Google Maps",credit:"Data © OpenStreetMap contributors",priv:"Privacy Policy",q:"mosque"}
+};
+let lang=localStorage.getItem("sh-lang")||"id", coords=null, items=[];
+const $=s=>document.querySelector(s);
+const t=k=>T[lang][k];
+function applyLang(){
+  document.documentElement.lang=lang;
+  $("#hTitle").textContent=t("title"); document.title=t("title");
+  $("#lRadius").textContent=t("radius");
+  $("#gmapsBtn").textContent=t("gmaps");
+  $("#credit").textContent=t("credit");
+  $("#fPriv").textContent=t("priv");
+  if(coords) setGmaps(); 
+  if(items.length) render();
+}
+$("#langBtn").onclick=()=>{lang=lang==="id"?"en":"id";localStorage.setItem("sh-lang",lang);applyLang();};
+function setGmaps(){
+  $("#gmapsBtn").href=coords?`https://www.google.com/maps/search/${t("q")}/@${coords.lat},${coords.lon},14z`:`https://www.google.com/maps/search/${t("q")}`;
+}
+function dist(a,b,c,d){const R=6371000,r=Math.PI/180,dL=(d-b)*r,dN=(c-a)*r,s=Math.sin(dL/2)**2+Math.cos(b*r)*Math.cos(d*r)*Math.sin(dN/2);return 2*R*Math.asin(Math.sqrt(s));}
+function fmt(m){return m<1000?Math.round(m)+" m":(m/1000).toFixed(1)+" km";}
+function status(k){$("#status").textContent=t(k);}
+function load(){
+  status("locating");
+  navigator.geolocation.getCurrentPosition(p=>{
+    coords={lat:p.coords.latitude,lon:p.coords.longitude}; setGmaps(); fetchOverpass();
+  },e=>{status(e.code===1?"denied":"timeout"); setGmaps();},{enableHighAccuracy:true,timeout:10000,maximumAge:60000});
+}
+async function fetchOverpass(){
+  status("loading");
+  const r=+$("#radius").value,{lat,lon}=coords;
+  const q=`[out:json][timeout:25];(node["amenity"="place_of_worship"]["religion"="muslim"](around:${r},${lat},${lon});way["amenity"="place_of_worship"]["religion"="muslim"](around:${r},${lat},${lon});relation["amenity"="place_of_worship"]["religion"="muslim"](around:${r},${lat},${lon}););out center 100;`;
+  try{
+    const res=await fetch("https://overpass-api.de/api/interpreter",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:"data="+encodeURIComponent(q)});
+    const j=await res.json();
+    items=(j.elements||[]).map(e=>({lat:e.lat??e.center?.lat,lon:e.lon??e.center?.lon,tags:e.tags||{}})).filter(i=>i.lat!=null);
+    items.forEach(i=>i.d=dist(coords.lon,coords.lat,i.lon,i.lat));
+    items.sort((a,b)=>a.d-b.d);
+    render();
+  }catch(err){status("neterr");}
+}
+function render(){
+  if(!items.length){$("#status").textContent=t("none");$("#list").innerHTML="";return;}
+  $("#status").textContent=t("found").replace("{n}",items.length);
+  $("#list").innerHTML=items.map(i=>{
+    const name=i.tags.name||i.tags["name:en"]||t("unnamed");
+    const addr=[i.tags["addr:street"],i.tags["addr:city"]].filter(Boolean).join(", ");
+    return `<li class="card"><div class="name">${name}<span class="dist">${fmt(i.d)}</span></div>${addr?`<div class="addr">${addr}</div>`:""}<div class="actions"><a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${i.lat},${i.lon}">${t("nav")}</a><a class="alt" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${i.lat},${i.lon}">${t("map")}</a></div></li>`;
+  }).join("");
+}
+$("#refreshBtn").onclick=()=>coords?fetchOverpass():load();
+$("#radius").onchange=()=>{if(coords)fetchOverpass();};
+applyLang(); setGmaps(); load();
+</script>
+</body>
+</html>
