@@ -67,10 +67,12 @@ const t=k=>T[lang][k];
 function applyLang(){
   document.documentElement.lang=lang;
   $("#hTitle").textContent=t("title"); document.title=t("title");
+  document.querySelector(".back").href=lang==="id"?"index.html":"en.html";
   $("#lRadius").textContent=t("radius");
   $("#gmapsBtn").textContent=t("gmaps");
   $("#credit").textContent=t("credit");
   $("#fPriv").textContent=t("priv");
+  $("#fPriv").href=lang==="id"?"privacy.html":"privacy-en.html";
   if(coords) setGmaps(); 
   if(items.length) render();
 }
