@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1e5b46">
+<title>Iqro — Sahabat Hijrah</title>
+<style>
+:root{--green:#1e5b46;--yellow:#ffd200;--bg:#efece4;--card:#f8f8f6;--text:#21302b;--muted:#7d8a83}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);padding-bottom:24px}
+header{position:sticky;top:0;z-index:5;background:var(--green);color:#fff;display:flex;align-items:center;gap:10px;padding:14px 16px}
+header a{color:#fff;text-decoration:none;font-size:22px;line-height:1}
+header h1{font-size:18px;flex:1}
+header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:50%;width:38px;height:38px;font-size:17px}
+.wrap{padding:14px 16px 0}
+.card{background:var(--card);border-radius:18px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.seg{display:flex;gap:6px;margin:8px 0}
+.seg button{flex:1;padding:10px 4px;border-radius:12px;border:1px solid #cfd8d3;background:#fff;font-size:11px;color:var(--text);cursor:pointer;font-weight:600}
+.seg button.on{background:var(--green);color:#fff;border-color:var(--green)}
+.ar{font-size:64px;text-align:center;padding:26px 10px;background:#fff;border-radius:16px;direction:rtl;font-family:"Amiri","Scheherazade New","Noto Naskh Arabic",serif;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.06);line-height:1.6}
+.info{margin-top:10px;background:#e2efe8;border-radius:12px;padding:12px;text-align:center;font-weight:700;color:var(--green);min-height:22px;font-size:15px}
+.info small{display:block;font-weight:500;color:var(--muted);margin-top:4px}
+.row{display:flex;gap:8px;justify-content:center;margin-top:12px}
+.row button{border:none;border-radius:12px;padding:12px 18px;font-size:15px;font-weight:600;background:var(--green);color:#fff;cursor:pointer}
+.row button.alt{background:#e2efe8;color:var(--green)}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.opts button{border:1px solid #cfd8d3;background:#fff;border-radius:12px;padding:14px;font-size:16px;cursor:pointer;color:var(--text);font-weight:600}
+.opts button.ok{background:#d9f2e3;border-color:var(--green)}
+.opts button.no{background:#fde3e3;border-color:#c66}
+.score{text-align:center;font-size:13px;color:var(--muted);margin-top:10px;font-weight:600}
+.note{font-size:11px;color:var(--muted);line-height:1.6;background:#f3efe2;border-radius:10px;padding:10px;margin-top:12px;font-weight:500}
+</style>
+</head>
+<body>
+
+<header>
+<a href="index.html">←</a>
+<h1 id="t"></h1>
+<button id="lang">🌐</button>
+</header>
+
+<div class="wrap"><div class="card">
+<div class="seg" id="lv"></div>
+<div class="seg" id="md"></div>
+<div id="area"></div>
+<div class="note" id="dis"></div>
+</div></div>
+
+<script>
+const $=id=>document.getElementById(id);
+
+let lang=localStorage.getItem('sh_lang')||'id';
+let lv=0,md=0,i=0,rev=false;
+let score=0,total=0,qItem=null,qOpts=[];
+
+const L={
+id:{
+t:'Iqro — Belajar Baca',
+lv:['Hijaiyah','Harakat','Tanwin','Kata','Mad'],
+md:['📖 Belajar','🎯 Kuis'],
+tap:'Ketuk kartu untuk melihat nama & bacaan',
+q:'Mana bacaan yang benar?',
+score:'Skor',
+dis:'⚠️ Materi di halaman ini adalah latihan huruf Arab ASLI bergaya metode Iqro\', BUKAN salinan atau scan buku Iqro\'. Buku Iqro\' (K.H. As\'ad Humam) dilindungi hak cipta — dukung penulis dengan membeli buku aslinya.'
+},
+en:{
+t:'Iqro — Learn to Read',
+lv:['Hijaiyah','Harakat','Tanwin','Words','Madd'],
+md:['📖 Learn','🎯 Quiz'],
+tap:'Tap the card to see name & reading',
+q:'Which is the correct reading?',
+score:'Score',
+dis:'⚠️ The material here is ORIGINAL Arabic-letter practice in the style of the Iqro\' method, NOT a copy or scan of the Iqro\' book. The Iqro\' book (K.H. As\'ad Humam) is copyrighted — support the author by buying the original.'
+}
+};
+
+/* [arab, nama, bacaan, bunyi konsonan] */
+const HIJ=[
+['ا','Alif','a',''],
+['ب','Ba','ba','b'],
+['ت','Ta','ta','t'],
+['ث','Tsa','tsa','ts'],
+['ج','Jim','jim','j'],
+['ح','Ha','ha','h'],
+['خ','Kho','kho','kh'],
+['د','Dal','dal','d'],
+['ذ','Dzal','dzal','dz'],
+['ر','Ro','ro','r'],
+['ز','Zai','zai','z'],
+['س','Sin','sin','s'],
+['ش','Syin','syin','sy'],
+['ص','Shod','shod','sh'],
+['ض','Dhod','dhod','dh'],
+['ط','Tho','tho','th'],
+['ظ','Zho','zho','zh'],
+['ع','Ain','ain',''],
+['غ','Ghain','ghain','gh'],
+['ف','Fa','fa','f'],
+['ق','Qof','qof','q'],
+['ك','Kaf','kaf','k'],
+['ل','Lam','lam','l'],
+['م','Mim','mim','m'],
+['ن','Nun','nun','n'],
+['و','Wau','wau','w'],
+['هـ','Ha','ha','h'],
+['ء','Hamzah','hamzah',''],
+['ي','Ya','ya','y'],
+['لا','Lam-Alif','la','la']
+];
+
+const VOW=[['َ','a','fathah'],['ِ','i','kasrah'],['ُ','u','dhammah']];
+
+const HAR=[];
+HIJ.slice(1,11).forEach(h=>{
+VOW.forEach(v=>{
+HAR.push({
+ar:h[0]+v[0],
+lab:h[1]+' + '+v[2],
+read:h[3]+v[1]
+});
+});
+});
+
+const TAN=[
+{ar:'بٌ',lab:'ba + dhammatain',read:'bun'},
+{ar:'بٍ',lab:'ba + kasratain',read:'bin'},
+{ar:'بًا',lab:'ba + fathatain',read:'ban'},
+{ar:'أَبْ',lab:'ba sukun',read:'ab'},
+{ar:'مِنْ',lab:'nun sukun',read:'min'},
+{ar:'إِنْ',lab:'nun sukun',read:'in'},
+{ar:'قُلْ',lab:'lam sukun',read:'qul'}
+];
+
+const KATA=[
+{ar:'كَتَبَ',lab:'menulis',read:'kataba'},
+{ar:'قَرَأَ',lab:'membaca',read:'qara-a'},
+{ar:'بَيْتٌ',lab:'rumah',read:'baitun'},
+{ar:'مَسْجِدٌ',lab:'masjid',read:'masjidun'},
+{ar:'عَبْدُ',lab:'hamba',read:'abdu'},
+{ar:'رَحِيمٌ',lab:'Maha Penyayang',read:'rahiim'},
+{ar:'نَسْتَعِينُ',lab:'mohon pertolongan',read:'nasta-iin'},
+{ar:'اَلْحَمْدُ',lab:'pujian',read:'al-hamdu'}
+];
+
+const MAD=[
+{ar:'بَا',lab:'mad thabi\'i',read:'baa'},
+{ar:'بِي',lab:'mad thabi\'i',read:'bii'},
+{ar:'بُو',lab:'mad thabi\'i',read:'buu'},
+{ar:'قَا',lab:'mad thabi\'i',read:'qaa'},
+{ar:'مِي',lab:'mad thabi\'i',read:'mii'},
+{ar:'نُو',lab:'mad thabi\'i',read:'nuu'},
+{ar:'دَا',lab:'mad thabi\'i',read:'daa'},
+{ar:'سِي',lab:'mad thabi\'i',read:'sii'}
+];
+
+function items(){
+return [
+HIJ.map(h=>({ar:h[0],lab:h[1],read:h[2]})),
+HAR,TAN,KATA,MAD
+][lv];
+}
+
+function pick(a){return a[Math.floor(Math.random()*a.length)];}
+
+function opts(list,it){
+const s=new Set([it.read]);
+while(s.size<4&&s.size<list.length){
+s.add(pick(list).read);
+}
+return [...s].sort(()=>Math.random()-0.5);
+}
+
+function speak(t){
+try{
+const u=new SpeechSynthesisUtterance(t);
+u.lang='ar-SA';
+u.rate=0.7;
+speechSynthesis.cancel();
+speechSynthesis.speak(u);
+}catch(e){}
+}
+
+function learn(){
+
+const T=L[lang];
+const list=items();
+const it=list[i];
+
+$('area').innerHTML=
+'<div class="ar" id="card">'+it.ar+'</div>'+
+'<div class="info" id="inf">'+
+(rev?it.lab+'<small>'+it.read+'</small>':T.tap)+
+'</div>'+
+'<div class="row">'+
+'<button id="pv" class="alt">←</button>'+
+'<button id="sp">🔊</button>'+
+'<button id="nx">→</button>'+
+'</div>'+
+'<div class="score">'+(i+1)+' / '+list.length+'</div>';
+
+$('card').onclick=()=>{rev=!rev;learn();};
+$('sp').onclick=()=>speak(it.ar);
+$('pv').onclick=()=>{
+i=(i-1+list.length)%list.length;
+rev=false;learn();
+};
+$('nx').onclick=()=>{
+i=(i+1)%list.length;
+rev=false;learn();
+};
+}
+
+function quiz(){
+
+const T=L[lang];
+const list=items();
+
+if(!qItem){
+qItem=pick(list);
+qOpts=opts(list,qItem);
+}
+
+$('area').innerHTML=
+'<div class="ar">'+qItem.ar+'</div>'+
+'<div class="info">'+T.q+'</div>'+
+'<div class="opts" id="op">'+
+qOpts.map((o,x)=>
+'<button data-x="'+x+'">'+o+'</button>'
+).join('')+
+'</div>'+
+'<div class="score" id="sc">'+
+T.score+': '+score+' / '+total+
+'</div>';
+
+$('op').querySelectorAll('button').forEach(b=>{
+b.onclick=()=>{
+
+const ok=b.textContent===qItem.read;
+total++;
+if(ok){score++;b.classList.add('ok');}
+else{
+b.classList.add('no');
+$('op').querySelectorAll('button').forEach(x=>{
+if(x.textContent===qItem.read)x.classList.add('ok');
+});
+}
+
+$('op').querySelectorAll('button').forEach(x=>x.disabled=true);
+$('sc').textContent=T.score+': '+score+' / '+total;
+
+setTimeout(()=>{qItem=null;quiz();},900);
+};
+});
+}
+
+function render(){
+
+const T=L[lang];
+
+$('t').textContent=T.t;
+$('dis').textContent=T.dis;
+
+$('lv').innerHTML=T.lv.map((n,x)=>
+'<button data-l="'+x+'" class="'+(x===lv?'on':'')+'">'+n+'</button>'
+).join('');
+
+$('md').innerHTML=T.md.map((n,x)=>
+'<button data-m="'+x+'" class="'+(x===md?'on':'')+'">'+n+'</button>'
+).join('');
+
+$('lv').querySelectorAll('button').forEach(b=>{
+b.onclick=()=>{
+lv=+b.dataset.l;
+i=0;rev=false;
+score=0;total=0;qItem=null;
+render();
+};
+});
+
+$('md').querySelectorAll('button').forEach(b=>{
+b.onclick=()=>{
+md=+b.dataset.m;
+i=0;rev=false;
+score=0;total=0;qItem=null;
+render();
+};
+});
+
+if(md===0)learn();else quiz();
+}
+
+$('lang').onclick=()=>{
+lang=(lang==='id')?'en':'id';
+localStorage.setItem('sh_lang',lang);
+render();
+};
+
+render();
+</script>
+
+</body>
+</html>
