@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#1e5b46">
-<title>Kalkulator & Alat — Sahabat Hijrah</title>
+<title>Kalkulator & Alat</title>
 
 <style>
 :root{
@@ -279,6 +279,17 @@ select{
   background:#e2efe8;
   color:var(--green)
 }
+
+.note{
+  font-size:11px;
+  color:var(--muted);
+  line-height:1.6;
+  background:#f3efe2;
+  border-radius:10px;
+  padding:10px;
+  margin-top:12px;
+  font-weight:500
+}
 </style>
 </head>
 
@@ -309,6 +320,7 @@ const T={
 
 id:{
 t:'Kalkulator & Alat',
+back:'← Kembali',
 
 catM:'🧮 Matematika',
 catF:'💰 Keuangan',
@@ -336,6 +348,8 @@ interest:'Bunga',
 save:'Tabungan',
 tax:'Pajak',
 roi:'ROI/Margin',
+kurs:'Kurs',
+waris:'Warisan',
 fpb:'FPB & KPK',
 frac:'Pecahan',
 roman:'Romawi',
@@ -413,6 +427,34 @@ profit:'Untung/rugi',
 margin:'Margin',
 roiL:'ROI',
 
+curAmt:'Jumlah',
+curFrom:'Dari',
+curTo:'Ke',
+curManual:'Kurs manual (1 asal = ? tujuan)',
+curUpdated:'Diperbarui',
+curLoading:'Memuat kurs…',
+curFail:'Tidak bisa memuat kurs otomatis. Isi kurs manual di bawah.',
+
+wEstate:'Total harta warisan',
+wDebt:'Utang + biaya pengurusan jenazah',
+wWill:'Wasiat (maks. 1/3)',
+wSon:'Anak laki-laki',
+wDau:'Anak perempuan',
+wHusb:'Suami (0/1)',
+wWife:'Istri (0–4)',
+wFat:'Ayah (0/1)',
+wMot:'Ibu (0/1)',
+wNet:'Harta yang dibagikan',
+wHusbS:'Suami',
+wWifeS:'Istri',
+wFatS:'Ayah',
+wMotS:'Ibu',
+wSonS:'Anak laki-laki',
+wDauS:'Anak perempuan',
+wWillS:'Wasiat',
+wFill:'Isi harta & minimal satu ahli waris',
+wDis:'⚠️ Perhitungan ini memakai aturan faraid dasar (bagian suami/istri, orang tua, dan anak laki-laki : perempuan = 2 : 1) dan hanya bersifat perkiraan. Kasus khusus seperti aul, rad, kalalah, bagian saudara, dan dzawil arham tidak dihitung di sini. Untuk keputusan resmi, konsultasikan dengan ustaz ahli faraid atau Pengadilan Agama.',
+
 numA:'Angka A',
 numB:'Angka B',
 
@@ -466,9 +508,9 @@ pause:'Jeda',
 reset:'Reset',
 done:'⏰ Waktu habis!'
 },
-
 en:{
 t:'Calculator & Tools',
+back:'← Back',
 
 catM:'🧮 Math',
 catF:'💰 Finance',
@@ -496,6 +538,8 @@ interest:'Interest',
 save:'Savings',
 tax:'Tax',
 roi:'ROI/Margin',
+kurs:'Currency',
+waris:'Inheritance',
 fpb:'GCD & LCM',
 frac:'Fraction',
 roman:'Roman',
@@ -573,6 +617,34 @@ profit:'Profit/loss',
 margin:'Margin',
 roiL:'ROI',
 
+curAmt:'Amount',
+curFrom:'From',
+curTo:'To',
+curManual:'Manual rate (1 from = ? to)',
+curUpdated:'Updated',
+curLoading:'Loading rates…',
+curFail:'Cannot load live rates. Enter a manual rate below.',
+
+wEstate:'Total estate',
+wDebt:'Debts + funeral costs',
+wWill:'Bequest (max 1/3)',
+wSon:'Sons',
+wDau:'Daughters',
+wHusb:'Husband (0/1)',
+wWife:'Wives (0–4)',
+wFat:'Father (0/1)',
+wMot:'Mother (0/1)',
+wNet:'Distributable estate',
+wHusbS:'Husband',
+wWifeS:'Wife(s)',
+wFatS:'Father',
+wMotS:'Mother',
+wSonS:'Son(s)',
+wDauS:'Daughter(s)',
+wWillS:'Bequest',
+wFill:'Enter estate & at least one heir',
+wDis:'⚠️ This tool uses basic faraid rules (spouse, parents, sons:daughters = 2:1) and is only an estimate. Special cases such as awl, radd, kalalah, siblings, and distant relatives are not covered. For an official ruling, consult a qualified scholar or a religious court.',
+
 numA:'Number A',
 numB:'Number B',
 
@@ -628,6 +700,8 @@ done:"⏰ Time's up!"
 }
 };
 
+const L0=()=>T[lang];
+
 const p2=n=>String(n).padStart(2,'0');
 
 const fmt=n=>
@@ -666,6 +740,8 @@ c('disc','🏷️',L.disc)+
 c('tip','🍽️',L.tip)+
 c('split','👥',L.split)+
 c('zakat','🕌',L.zakat)+
+c('kurs','💱',L.kurs)+
+c('waris','🧕',L.waris)+
 c('loan','💳',L.loan)+
 c('interest','💹',L.interest)+
 c('save','🏦',L.save)+
@@ -694,17 +770,13 @@ c('ipk','🎓',L.ipk)+
 '<h3 class="cat">'+L.catC+'</h3>'+
 '<div class="grid2">'+
 c('unit','⚖️',L.unit)+
+c('bin','💻',L.bin)+
 '</div>'+
 
 '<h3 class="cat">'+L.catD+'</h3>'+
 '<div class="grid2">'+
 c('bbm','⛽',L.bbm)+
 c('cat2','🎨',L.cat2)+
-'</div>'+
-
-'<h3 class="cat">'+L.catK+'</h3>'+
-'<div class="grid2">'+
-c('bin','💻',L.bin)+
 '</div>'
 );
 }
@@ -796,7 +868,7 @@ return b0+
 
 if(id==='tm')
 return b0+
-'<div class="tin">'+
+'<div class="irow">'+
 '<input type="number" id="tmM" min="0" max="99" value="5">'+
 '<input type="number" id="tmS" min="0" max="59" value="0">'+
 '</div>'+
@@ -870,6 +942,46 @@ return b0+
 '<input type="number" inputmode="decimal" id="rS">'+
 '<div class="res" id="rRes">—</div>';
 
+if(id==='kurs')
+return b0+
+'<div class="lbl">'+L.curAmt+'</div>'+
+'<input type="number" inputmode="decimal" id="kAmt" value="1">'+
+'<div class="irow">'+
+'<select id="kFrom"></select>'+
+'<select id="kTo"></select>'+
+'</div>'+
+'<div id="kMan" hidden>'+
+'<div class="lbl">'+L.curManual+'</div>'+
+'<input type="number" inputmode="decimal" id="kRate">'+
+'</div>'+
+'<div class="res" id="kRes">—</div>';
+
+if(id==='waris')
+return b0+
+'<div class="lbl">'+L.wEstate+'</div>'+
+'<input type="number" inputmode="decimal" id="wEstate">'+
+'<div class="lbl">'+L.wDebt+'</div>'+
+'<input type="number" inputmode="decimal" id="wDebt" value="0">'+
+'<div class="lbl">'+L.wWill+'</div>'+
+'<input type="number" inputmode="decimal" id="wWill" value="0">'+
+'<div class="lbl">'+L.wSon+' / '+L.wDau+'</div>'+
+'<div class="irow">'+
+'<input type="number" inputmode="numeric" min="0" id="wSon" value="0">'+
+'<input type="number" inputmode="numeric" min="0" id="wDau" value="0">'+
+'</div>'+
+'<div class="lbl">'+L.wHusb+' / '+L.wWife+'</div>'+
+'<div class="irow">'+
+'<input type="number" inputmode="numeric" min="0" max="1" id="wHusb" value="0">'+
+'<input type="number" inputmode="numeric" min="0" max="4" id="wWife" value="0">'+
+'</div>'+
+'<div class="lbl">'+L.wFat+' / '+L.wMot+'</div>'+
+'<div class="irow">'+
+'<input type="number" inputmode="numeric" min="0" max="1" id="wFat" value="0">'+
+'<input type="number" inputmode="numeric" min="0" max="1" id="wMot" value="0">'+
+'</div>'+
+'<div class="res" id="wRes">—</div>'+
+'<div class="note">'+L.wDis+'</div>';
+
 if(id==='fpb')
 return b0+
 '<div class="lbl">'+L.numA+'</div>'+
@@ -915,231 +1027,419 @@ return b0+
 '<div class="lbl">'+L.base+'</div>'+
 '<input type="number" inputmode="decimal" id="gA">'+
 '<div class="lbl">'+L.hei+'</div>'+
-'<input type="number" inputmode="decimal" id="gH">'+
-'<div class="lbl">'+L.s1+'</div>'+
-'<input type="number" inputmode="decimal" id="gS1">'+
-'<div class="lbl">'+L.s2+'</div>'+
-'<input type="number" inputmode="decimal" id="gS2">'+
-'<div class="lbl">'+L.s3+'</div>'+
-'<input type="number" inputmode="decimal" id="gS3">'+
+'<input type="number" inputmode="decimal" id="gTt">'+
+'<div class="irow">'+
+'<input type="number" inputmode="decimal" id="gS1" placeholder="'+L.s1+'">'+
+'<input type="number" inputmode="decimal" id="gS2" placeholder="'+L.s2+'">'+
+'<input type="number" inputmode="decimal" id="gS3" placeholder="'+L.s3+'">'+
+'</div>'+
 '</div>'+
 '<div class="res" id="gRes">—</div>';
 
-if(id==='ipk'){
-let rows='';
-
-for(let i=0;i<6;i++){
-rows+=
-'<div class="irow">'+
-'<input type="number" inputmode="numeric" id="ip'+i+'s" placeholder="'+L.sks+'">'+
-'<select id="ip'+i+'g">'+
-'<option value="4">A</option>'+
-'<option value="3.5">A-</option>'+
-'<option value="3">B+</option>'+
-'<option value="2.5">B</option>'+
-'<option value="2">C</option>'+
-'<option value="1">D</option>'+
-'<option value="0">E</option>'+
-'</select>'+
-'</div>';
-}
-
-return b0+rows+
-'<div class="res" id="ipRes">—</div>';
-}
+if(id==='ipk')
+return b0+
+'<div id="ipkRows"></div>'+
+'<div class="row">'+
+'<button id="ipkAdd" class="alt">+ '+L.sks+'</button>'+
+'</div>'+
+'<div class="res" id="ipkRes">—</div>';
 
 if(id==='unit')
 return b0+
 '<div class="lbl">'+L.uCat+'</div>'+
-'<select id="uCat">'+
-'<option value="len">'+L.uLen+'</option>'+
-'<option value="wgt">'+L.uWgt+'</option>'+
-'<option value="tmp">'+L.uTmp+'</option>'+
-'</select>'+
+'<select id="uCat"></select>'+
 '<div class="lbl">'+L.uVal+'</div>'+
-'<input type="number" inputmode="decimal" id="uV" value="1">'+
+'<input type="number" inputmode="decimal" id="uVal" value="1">'+
 '<div class="irow">'+
-'<select id="uF"></select>'+
-'<select id="uT"></select>'+
+'<select id="uFrom"></select>'+
+'<select id="uTo"></select>'+
 '</div>'+
 '<div class="res" id="uRes">—</div>';
 
 if(id==='bbm')
 return b0+
 '<div class="lbl">'+L.dist+'</div>'+
-'<input type="number" inputmode="decimal" id="bbD">'+
+'<input type="number" inputmode="decimal" id="fDist">'+
 '<div class="lbl">'+L.cons+'</div>'+
-'<input type="number" inputmode="decimal" id="bbC" value="15">'+
+'<input type="number" inputmode="decimal" id="fCons" value="12">'+
 '<div class="lbl">'+L.fuelP+'</div>'+
-'<input type="number" inputmode="decimal" id="bbP" value="10000">'+
-'<div class="res" id="bbRes">—</div>';
+'<input type="number" inputmode="decimal" id="fPrice" value="10000">'+
+'<div class="res" id="fRes">—</div>';
 
 if(id==='cat2')
 return b0+
 '<div class="lbl">'+L.wallP+'</div>'+
-'<input type="number" inputmode="decimal" id="cpP">'+
+'<input type="number" inputmode="decimal" id="cLen">'+
 '<div class="lbl">'+L.wallH+'</div>'+
-'<input type="number" inputmode="decimal" id="cpH">'+
+'<input type="number" inputmode="decimal" id="cHei" value="3">'+
 '<div class="lbl">'+L.coats+'</div>'+
-'<input type="number" inputmode="numeric" id="cpC" value="2">'+
+'<input type="number" inputmode="numeric" id="cCoats" value="2">'+
 '<div class="lbl">'+L.cover+'</div>'+
-'<input type="number" inputmode="decimal" id="cpCov" value="10">'+
-'<div class="res" id="cpRes">—</div>';
+'<input type="number" inputmode="decimal" id="cCover" value="10">'+
+'<div class="res" id="cRes">—</div>';
 
 if(id==='bin')
 return b0+
 '<div class="lbl">'+L.decN+'</div>'+
-'<input type="number" inputmode="numeric" id="bnD">'+
+'<input type="number" inputmode="numeric" id="biDec">'+
 '<div class="lbl">'+L.binN+'</div>'+
-'<input type="text" id="bnB">'+
+'<input type="text" id="biBin" inputmode="numeric">'+
 '<div class="lbl">'+L.hexN+'</div>'+
-'<input type="text" id="bnH">'+
-'<div class="res" id="bnRes">—</div>';
+'<input type="text" id="biHex" autocapitalize="characters">'+
+'<div class="res" id="biRes">—</div>';
 
-return '';
+return b0+'<div class="res">—</div>';
 }
-
-
 /* =========================
-   KALKULATOR
+   RENDER & NAVIGASI
 ========================= */
 
-let a=null;
-let op=null;
-let cur='0';
-let fresh=false;
+let curTool='';
+let swT=null,swS=0,swR=false;
+let tmT=null,tmLeft=0,tmR=false;
 
-const rd=v=>+Number(v).toPrecision(12);
+function render(){
 
-function apply(x,o,y){
-return rd(
-o==='+'?x+y:
-o==='−'?x-y:
-o==='×'?x*y:
-y===0?NaN:x/y
-);
+$('t').textContent=T[lang].t;
+
+const c=$('content');
+
+if(view==='menu'){
+
+c.innerHTML=menuHTML();
+
+c.querySelectorAll('[data-tool]').forEach(b=>{
+b.onclick=()=>{
+curTool=b.dataset.tool;
+view='tool';
+render();
+};
+});
+
+return;
 }
 
-function setNum(r){
-cur=isFinite(r)?String(r):'Error';
+c.innerHTML=toolHTML(curTool);
+
+const bk=c.querySelector('[data-back]');
+if(bk)bk.onclick=()=>{view='menu';stopAll();render();};
+
+bindTool(curTool);
 }
 
-function disp(){
-const e=$('expr');
-const v=$('val');
-
-if(!e)return;
-
-e.textContent=
-(a!==null&&op)
-?(a+' '+op)
-:'';
-
-v.textContent=cur;
+function stopAll(){
+if(swT)clearInterval(swT);
+if(tmT)clearInterval(tmT);
+swT=null;tmT=null;
 }
 
-function calc(b){
+/* =========================
+   KALKULATOR DASAR
+========================= */
 
-if(b>='0'&&b<='9'){
+let expr='';
 
-cur=
-(cur==='0'||cur==='Error'||fresh)
-?b
-:cur+b;
+function calcDraw(){
 
-fresh=false;
+const L=L0();
 
-}
-
-else if(b==='.'){
-if(fresh||cur==='Error'){
-cur='0.';
-fresh=false;
-}
-else if(!cur.includes('.')){
-cur+='.';
-}
-}
-
-else if(b==='C'){
-cur='0';
-a=null;
-op=null;
-fresh=false;
-}
-
-else if(b==='⌫'){
-cur=
-(cur.length>1&&cur!=='Error')
-?cur.slice(0,-1)
-:'0';
-}
-
-else if(b==='±'){
-if(cur!=='0'&&cur!=='Error'){
-cur=cur.startsWith('-')
-?cur.slice(1)
-:'-'+cur;
-}
-}
-
-else if(b==='%'){
-setNum(rd(parseFloat(cur)/100));
-fresh=true;
-}
-
-else if('÷×−+'.includes(b)){
-
-if(cur==='Error')cur='0';
-
-const v=parseFloat(cur);
-
-if(a!==null&&op&&!fresh){
-setNum(apply(a,op,v));
-}
-else{
-setNum(v);
-}
-
-if(cur!=='Error'){
-a=parseFloat(cur);
-}
-
-op=b;
-fresh=true;
-
-}
-
-else if(b==='='){
-
-if(op!==null&&a!==null){
-
-setNum(
-apply(
-a,
-op,
-parseFloat(cur)
-)
-);
-
-a=null;
-op=null;
-fresh=true;
-
-}
-}
-
-disp();
-}
-
-const KEYS=[
-'C','±','%','÷',
-'7','8','9','×',
-'4','5','6','−',
-'1','2','3','+',
-'⌫','0','.','='
+const keys=[
+['C','cl'],['⌫','op'],['%','op'],['÷','op'],
+['7',''],['8',''],['9',''],['×','op'],
+['4',''],['5',''],['6',''],['−','op'],
+['1',''],['2',''],['3',''],['+','op'],
+['±','op'],['0',''],['.',''],['=','eq']
 ];
 
+$('keys').innerHTML=
+keys.map(k=>
+'<button class="'+k[1]+'" data-k="'+k[0]+'">'+
+k[0]+
+'</button>'
+).join('');
+
+$('keys').querySelectorAll('button').forEach(b=>{
+b.onclick=()=>calcKey(b.dataset.k);
+});
+
+$('expr').textContent=expr;
+$('val').textContent=expr||'0';
+}
+
+function calcEval(e){
+
+let s=e
+.replace(/×/g,'*')
+.replace(/÷/g,'/')
+.replace(/−/g,'-');
+
+try{
+const r=Function('"use strict";return('+s+')')();
+return isFinite(r)?r:null;
+}
+catch(err){
+return null;
+}
+}
+
+function calcKey(k){
+
+if(k==='C'){expr='';}
+
+else if(k==='⌫'){expr=expr.slice(0,-1);}
+
+else if(k==='='){
+const r=calcEval(expr);
+expr=(r===null)?'':String(r);
+}
+
+else if(k==='±'){
+
+if(expr&&expr[0]==='-')expr=expr.slice(1);
+else if(expr)expr='-'+expr;
+
+}
+
+else{
+
+if(k==='%')expr+='*0.01*'+
+(expr.split(/[+−×÷]/).pop()||'');
+else expr+=k;
+
+}
+
+$('expr').textContent=expr;
+$('val').textContent=expr||'0';
+}
+
+/* =========================
+   KURS MATA UANG
+========================= */
+
+const CURS=[
+'IDR','USD','EUR','GBP','JPY',
+'SGD','MYR','SAR','AUD','KRW',
+'CNY','THB','AED','INR'
+];
+
+let kRates=null;
+let kBase='';
+let kUpdated='';
+
+function kursCalc(){
+
+const el=$('kRes');
+if(!el)return;
+
+const L=L0();
+
+const amt=parseFloat($('kAmt').value)||0;
+const from=$('kFrom').value;
+const to=$('kTo').value;
+
+let rate=NaN;
+
+if(kRates&&kBase===from){
+rate=kRates[to];
+}
+else{
+rate=parseFloat($('kRate').value)||0;
+}
+
+if(!isFinite(rate)||!rate){
+el.textContent='—';
+return;
+}
+
+el.innerHTML=
+fmt(amt*rate)+' '+to+
+'<small>1 '+from+' = '+fmt(rate)+' '+to+
+(
+(kBase===from&&kUpdated)
+?' · '+L.curUpdated+': '+kUpdated
+:''
+)+
+'</small>';
+}
+
+async function kursLoad(){
+
+const el=$('kRes');
+
+if(el){
+el.textContent=L0().curLoading;
+}
+
+const from=$('kFrom').value;
+
+try{
+
+const r=await fetch(
+'https://open.er-api.com/v6/latest/'+from
+);
+
+const j=await r.json();
+
+if(j.result!=='success')throw 0;
+
+kRates=j.rates;
+kBase=from;
+kUpdated=(j.time_last_update_utc||'')
+.split(' ').slice(1,3).join(' ');
+
+$('kMan').hidden=true;
+
+kursCalc();
+
+}
+catch(e){
+
+kRates=null;
+kBase='';
+
+$('kMan').hidden=false;
+
+if(el){
+el.innerHTML=L0().curFail+'<br>—';
+}
+
+}
+}
+
+/* =========================
+   WARISAN (FARAID DASAR)
+========================= */
+
+function warisCalc(){
+
+const el=$('wRes');
+if(!el)return;
+
+const L=L0();
+
+const total=parseFloat($('wEstate').value)||0;
+const debt=parseFloat($('wDebt').value)||0;
+const willRaw=parseFloat($('wWill').value)||0;
+
+const base=Math.max(0,total-debt);
+
+/* wasiat dibatasi maksimal 1/3 */
+const will=Math.min(Math.max(0,willRaw),base/3);
+
+const N=base-will;
+
+const son=Math.max(0,parseInt($('wSon').value)||0);
+const dau=Math.max(0,parseInt($('wDau').value)||0);
+const husb=(parseInt($('wHusb').value)||0)>0?1:0;
+const wife=Math.min(4,Math.max(0,parseInt($('wWife').value)||0));
+const fat=(parseInt($('wFat').value)||0)>0?1:0;
+const mot=(parseInt($('wMot').value)||0)>0?1:0;
+
+if(N<=0||(!son&&!dau&&!husb&&!wife&&!fat&&!mot)){
+el.textContent=L.wFill;
+return;
+}
+
+const kids=son+dau;
+const out=[];
+let used=0;
+
+/* bagian suami / istri */
+if(husb){
+const s=kids?N/4:N/2;
+out.push([L.wHusbS,s]);
+used+=s;
+}
+
+if(wife){
+const s=kids?N/8:N/4;
+out.push([
+L.wWifeS+(wife>1?' ('+wife+')':''),
+s
+]);
+used+=s;
+}
+
+let rem=Math.max(0,N-used);
+
+if(kids){
+
+/* ayah & ibu masing-masing 1/6 jika ada anak */
+if(fat){
+out.push([L.wFatS,N/6]);
+rem-=N/6;
+}
+
+if(mot){
+out.push([L.wMotS,N/6]);
+rem-=N/6;
+}
+
+rem=Math.max(0,rem);
+
+/* sisa untuk anak, lk : pr = 2 : 1 */
+const parts=son*2+dau;
+
+if(son){
+out.push([
+L.wSonS+(son>1?' ('+son+')':''),
+rem*son*2/parts
+]);
+}
+
+if(dau){
+out.push([
+L.wDauS+(dau>1?' ('+dau+')':''),
+rem*dau/parts
+]);
+}
+
+}
+else{
+
+/* tidak ada anak */
+if(mot){
+/* ibu 1/3 dari sisa setelah bagian pasangan */
+const s=rem/3;
+out.push([L.wMotS,s]);
+rem-=s;
+}
+
+if(fat){
+/* ayah ashabah: mengambil seluruh sisa */
+out.push([L.wFatS,rem]);
+rem=0;
+}
+
+/* rad sederhana: sisa dikembalikan proporsional
+   jika tidak ada ayah */
+if(rem>0.005&&out.length){
+
+const tot=out.reduce((a,o)=>a+o[1],0);
+
+if(tot>0){
+out.forEach(o=>{
+o[1]+=rem*o[1]/tot;
+});
+}
+
+}
+
+}
+
+let html=L.wNet+': '+fmt(N)+'<small>';
+
+if(will>0){
+html+=L.wWillS+': '+fmt(will)+'<br>';
+}
+
+html+=
+out.map(o=>o[0]+': '+fmt(o[1]))
+.join('<br>')+
+'</small>';
+
+el.innerHTML=html;
+}
 
 /* =========================
    ALAT LAIN
@@ -1148,199 +1448,349 @@ const KEYS=[
 function pctCalc(){
 
 const el=$('pr');
-
 if(!el)return;
 
-const x=parseFloat($('px').value)||0;
-const y=parseFloat($('py').value)||0;
+const x=parseFloat($('px').value);
+const y=parseFloat($('py').value);
 
-el.textContent=
-pctMode===1
-?fmt(x/100*y)
-:fmt(y?x/y*100:NaN)+'%';
+if(!isFinite(x)||!isFinite(y)){
+el.textContent='—';return;
+}
+
+if(pctMode===1){
+el.innerHTML=fmt(x/100*y);
+}
+else{
+el.innerHTML=
+y!==0
+?fmt(x/y*100)+' %'
+:'—';
+}
 }
 
 function discCalc(){
 
 const el=$('dRes');
-
 if(!el)return;
 
 const L=L0();
-const p=parseFloat($('dPrice').value)||0;
+
+const p=parseFloat($('dPrice').value);
 const d=parseFloat($('dPct').value)||0;
 
+if(!isFinite(p)){el.textContent='—';return;}
+
+const f=p*(1-d/100);
+
 el.innerHTML=
-L.final+': '+fmt(p*(1-d/100))+
-'<small>'+L.save2+': '+fmt(p*d/100)+'</small>';
+L.final+': '+fmt(f)+
+'<small>'+L.save2+': '+fmt(p-f)+'</small>';
 }
 
 function tipCalc(){
 
 const el=$('tRes');
-
 if(!el)return;
 
 const L=L0();
 
-const b=parseFloat($('tBill').value)||0;
-const t=parseFloat($('tPct').value)||0;
-const n=Math.max(
-1,
-parseFloat($('tPpl').value)||1
-);
+const b=parseFloat($('tBill').value);
+const p=parseFloat($('tPct').value)||0;
+const n=Math.max(1,parseInt($('tPpl').value)||1);
 
-const tip=b*t/100;
+if(!isFinite(b)){el.textContent='—';return;}
+
+const tip=b*p/100;
+const tot=b+tip;
 
 el.innerHTML=
 L.tipRes+': '+fmt(tip)+
-' · '+L.totRes+': '+fmt(b+tip)+
 '<small>'+
-L.perRes+': '+fmt((b+tip)/n)+
+L.totRes+': '+fmt(tot)+'<br>'+
+L.perRes+': '+fmt(tot/n)+
 '</small>';
 }
 
 function splitCalc(){
 
 const el=$('sRes');
-
 if(!el)return;
 
-const t=parseFloat($('sTotal').value)||0;
-const n=Math.max(
-1,
-parseFloat($('sPpl').value)||1
-);
+const L=L0();
+
+const t=parseFloat($('sTotal').value);
+const n=Math.max(1,parseInt($('sPpl').value)||1);
+
+if(!isFinite(t)){el.textContent='—';return;}
 
 el.innerHTML=
-L0().perRes+': '+fmt(t/n);
+L.perRes+': '+fmt(t/n)+
+'<small>'+L.totRes+': '+fmt(t)+'</small>';
 }
 
 function bmiCalc(){
 
 const el=$('bRes');
-
 if(!el)return;
 
-const w=parseFloat($('bW').value)||0;
-const h=parseFloat($('bH').value)||0;
+const L=L0();
 
-if(!w||!h){
-el.textContent='—';
-return;
+const w=parseFloat($('bW').value);
+const h=parseFloat($('bH').value)/100;
+
+if(!isFinite(w)||!isFinite(h)||!w||!h){
+el.textContent='—';return;
 }
 
-const b=w/Math.pow(h/100,2);
+const b=w/(h*h);
 
-el.innerHTML=
-fmt(b)+' — '+
-L0().bmiCat[
+const cat=
 b<18.5?0:
 b<25?1:
-b<30?2:3
-];
+b<30?2:3;
+
+el.innerHTML=
+fmt(b)+
+'<small>BMI · '+L.bmiCat[cat]+'</small>';
 }
 
 function ageCalc(){
 
 const el=$('ageRes');
-
 if(!el)return;
 
 const L=L0();
 const v=$('dob').value;
 
-if(!v){
-el.textContent='—';
-return;
-}
+if(!v){el.textContent='—';return;}
 
-const b=new Date(v+'T12:00:00');
-const n=new Date();
+const d=new Date(v);
+const now=new Date();
 
-let y=n.getFullYear()-b.getFullYear();
-let m=n.getMonth()-b.getMonth();
-let d=n.getDate()-b.getDate();
+let y=now.getFullYear()-d.getFullYear();
+let m=now.getMonth()-d.getMonth();
+let dd=now.getDate()-d.getDate();
 
-if(d<0){
-m--;
-d+=new Date(
-n.getFullYear(),
-n.getMonth(),
-0
-).getDate();
-}
+if(dd<0){m--;}
+if(m<0){y--;m+=12;}
 
-if(m<0){
-y--;
-m+=12;
-}
+const days=Math.floor(
+(now-d)/86400000
+);
 
 let nb=new Date(
-n.getFullYear(),
-b.getMonth(),
-b.getDate(),
-12
+now.getFullYear(),
+d.getMonth(),
+d.getDate()
 );
 
-if(nb<=n){
-nb=new Date(
-n.getFullYear()+1,
-b.getMonth(),
-b.getDate(),
-12
-);
+if(nb<now){
+nb.setFullYear(nb.getFullYear()+1);
 }
 
+const nd=Math.ceil((nb-now)/86400000);
+
 el.innerHTML=
-y+' '+L.yL+' '+
-m+' '+L.mL+' '+
-d+' '+L.dL+
+y+' '+L.yL+' '+m+' '+L.mL+' '+dd+' '+L.dL+
 '<small>'+
-L.totD+': '+
-fmt(Math.floor((n-b)/864e5))+
-' · '+
-L.nb+': '+
-fmt(Math.ceil((nb-n)/864e5))+
-' '+L.dL+
+L.totD+': '+fmt(days)+
+'<br>'+L.nb+': '+nd+' '+L.dL+
 '</small>';
 }
 
 function diffCalc(){
 
 const el=$('diffRes');
-
 if(!el)return;
 
 const L=L0();
 
-const x=$('dd1').value;
-const y=$('dd2').value;
+const a=$('dd1').value;
+const b=$('dd2').value;
 
-if(!x||!y){
-el.textContent='—';
-return;
-}
+if(!a||!b){el.textContent='—';return;}
 
-const d=Math.round(
-Math.abs(
-new Date(y)-new Date(x)
-)/864e5
-);
+const d=Math.abs(
+(new Date(b))-(new Date(a))
+)/86400000;
 
 el.innerHTML=
 fmt(d)+' '+L.dL+
-'<small>≈ '+
-fmt(d/7)+' '+L.wk+
-' · ≈ '+
-fmt(d/30.44)+' '+L.mo+
+'<small>'+
+fmt(Math.floor(d/7))+' '+L.wk+
+' · '+fmt(d/30.44)+' '+L.mo+
 '</small>';
 }
 
-function zakatCalc(){
+function swFmt(ms){
+
+const h=Math.floor(ms/3600000);
+const m=Math.floor(ms%3600000/60000);
+const s=Math.floor(ms%60000/1000);
+const c=Math.floor(ms%1000/10);
+
+return p2(h)+':'+p2(m)+':'+p2(s)+'.'+p2(c);
+}
+
+function swTick(){
+$('swDisp').textContent=swFmt(Date.now()-swS);
+}
+
+function swBind(){
+
+const L=L0();
+
+$('swGo').textContent=swR?L.start:L.pause;
+$('swRe').textContent=L.reset;
+
+$('swGo').onclick=()=>{
+
+if(swR){
+swS=Date.now();
+swT=setInterval(swTick,31);
+swR=false;
+}
+else{
+clearInterval(swT);
+swT=null;
+swR=true;
+}
+
+$('swGo').textContent=swR?L.start:L.pause;
+};
+
+$('swRe').onclick=()=>{
+clearInterval(swT);
+swT=null;
+swR=true;
+$('swDisp').textContent='00:00:00.00';
+$('swGo').textContent=L.start;
+};
+}
+
+function tmFmt(ms){
+
+const m=Math.floor(ms/60000);
+const s=Math.floor(ms%60000/1000);
+
+return p2(m)+':'+p2(s);
+}
+
+function tmBind(){
+
+const L=L0();
+
+const upd=()=>{
+$('tmDisp').textContent=tmFmt(tmLeft);
+};
+
+upd();
+
+$('tmGo').textContent=tmR?L.start:L.pause;
+$('tmRe').textContent=L.reset;
+
+const setFrom=()=>{
+
+clearInterval(tmT);
+tmT=null;
+tmR=true;
+
+tmLeft=(
+(Math.max(0,parseInt($('tmM').value)||0)*60)+
+Math.max(0,parseInt($('tmS').value)||0)
+)*1000;
+
+upd();
+$('tmGo').textContent=L.start;
+};
+
+$('tmM').oninput=setFrom;
+$('tmS').oninput=setFrom;
+
+setFrom();
+
+$('tmGo').onclick=()=>{
+
+if(tmR){
+
+if(tmLeft<=0)return;
+
+tmT=setInterval(()=>{
+
+tmLeft-=250;
+
+if(tmLeft<=0){
+
+tmLeft=0;
+clearInterval(tmT);
+tmT=null;
+tmR=true;
+
+upd();
+
+alert(L.done);
+$('tmGo').textContent=L.start;
+
+if(navigator.vibrate){
+navigator.vibrate([200,100,200]);
+}
+
+return;
+}
+
+upd();
+
+},250);
+
+tmR=false;
+
+}
+else{
+
+clearInterval(tmT);
+tmT=null;
+tmR=true;
+
+}
+
+$('tmGo').textContent=tmR?L.start:L.pause;
+};
+
+$('tmRe').onclick=setFrom;
+}
+
+function zakBind(){
+
+const L=L0();
+
+const upd=()=>{
+
+const mal=zakMode==='mal';
+
+$('malBox').hidden=!mal;
+$('fitBox').hidden=mal;
+
+$('zm').classList.toggle('on',mal);
+$('zf').classList.toggle('on',!mal);
+
+zakCalc();
+};
+
+$('zm').onclick=()=>{zakMode='mal';upd();};
+$('zf').onclick=()=>{zakMode='fit';upd();};
+
+[
+'zGold','zAssets','zPpl','zRice'
+].forEach(i=>{
+if($(i))$(i).oninput=zakCalc;
+});
+
+upd();
+}
+
+function zakCalc(){
 
 const el=$('zRes');
-
 if(!el)return;
 
 const L=L0();
@@ -1348,17 +1798,19 @@ const L=L0();
 if(zakMode==='mal'){
 
 const g=parseFloat($('zGold').value)||0;
-const as=parseFloat($('zAssets').value)||0;
-const nis=g*85;
+const a=parseFloat($('zAssets').value)||0;
 
-if(nis>0&&as>=nis){
+const nisab=g*85;
+
+if(!g||!a){el.textContent='—';return;}
+
+if(a>=nisab){
 
 el.innerHTML=
 L.due+
 '<small>'+
-L.nisab+': '+fmt(nis)+
-' · '+
-L.zRes+': '+fmt(as*0.025)+
+L.nisab+': '+fmt(nisab)+
+'<br>'+L.zRes+': '+fmt(a*0.025)+
 '</small>';
 
 }
@@ -1366,27 +1818,21 @@ else{
 
 el.innerHTML=
 L.notDue+
-'<small>'+
-L.nisab+': '+fmt(nis)+
-'</small>';
+'<small>'+L.nisab+': '+fmt(nisab)+'</small>';
 
 }
 
 }
 else{
 
-const n=Math.max(
-0,
-parseFloat($('zPpl').value)||0
-);
-
+const n=Math.max(1,parseInt($('zPpl').value)||1);
 const r=parseFloat($('zRice').value)||0;
 
+if(!r){el.textContent='—';return;}
+
 el.innerHTML=
-L.kgF+': '+fmt(2.5*n)+' kg'+
-'<small>'+
-L.amtF+': '+fmt(2.5*n*r)+
-'</small>';
+L.kgF+': '+fmt(n*2.5)+' kg'+
+'<small>'+L.amtF+': '+fmt(n*2.5*r)+'</small>';
 
 }
 }
@@ -1394,113 +1840,99 @@ L.amtF+': '+fmt(2.5*n*r)+
 function loanCalc(){
 
 const el=$('lRes');
-
 if(!el)return;
 
 const L=L0();
 
-const P=parseFloat($('lP').value)||0;
-const apr=parseFloat($('lApr').value)||0;
-const n=Math.max(
-1,
-parseFloat($('lN').value)||1
-);
+const p=parseFloat($('lP').value);
+const r=(parseFloat($('lApr').value)||0)/100/12;
+const n=Math.max(1,parseInt($('lN').value)||1);
 
-const r=apr/100/12;
+if(!isFinite(p)||p<=0){el.textContent='—';return;}
 
-const m=
-r>0
-?P*r/(1-Math.pow(1+r,-n))
-:P/n;
+const m=r>0
+?p*r/(1-Math.pow(1+r,-n))
+:p/n;
 
 el.innerHTML=
 L.monthly+': '+fmt(m)+
 '<small>'+
-L.totInt+': '+fmt(m*n-P)+
+L.totInt+': '+fmt(m*n-p)+
+'<br>'+L.totRes+': '+fmt(m*n)+
 '</small>';
 }
 
-function intCalc(){
+function interestCalc(){
 
 const el=$('iRes');
-
 if(!el)return;
 
-const L=L0();
+const p=parseFloat($('iP').value);
+const r=(parseFloat($('iApr').value)||0)/100;
+const m=Math.max(1,parseInt($('iM').value)||1);
 
-const P=parseFloat($('iP').value)||0;
-const apr=parseFloat($('iApr').value)||0;
-const n=Math.max(
-1,
-parseFloat($('iM').value)||1
-);
+if(!isFinite(p)){el.textContent='—';return;}
 
-const g=P*apr/100*n/12;
-
-el.innerHTML=
-L.gain+': '+fmt(g)+
+el.innerHTML=fmt(p*Math.pow(1+r/12,m))+
 '<small>'+
-L.totRes+': '+fmt(P+g)+
+fmt(p*Math.pow(1+r,m))+
+' (1 '+L.years.toLowerCase()+')'+
 '</small>';
 }
 
 function saveCalc(){
 
 const el=$('vRes');
-
 if(!el)return;
 
 const L=L0();
 
 const s=parseFloat($('vS').value)||0;
-const apr=parseFloat($('vApr').value)||0;
-const y=Math.max(
-0,
-parseFloat($('vY').value)||0
-);
-
-const r=apr/100/12;
+const r=(parseFloat($('vApr').value)||0)/100/12;
+const y=Math.max(1,parseInt($('vY').value)||1);
 const n=y*12;
 
-const fv=
-r>0
-?s*(Math.pow(1+r,n)-1)/r
+const fv=r>0
+?s*((Math.pow(1+r,n)-1)/r)*(1+r)
 :s*n;
 
 el.innerHTML=
 L.fv+': '+fmt(fv)+
 '<small>'+
 L.gain+': '+fmt(fv-s*n)+
+'<br>'+L.totRes+': '+fmt(s*n)+
 '</small>';
 }
 
 function taxCalc(){
 
 const el=$('xRes');
-
 if(!el)return;
 
 const L=L0();
 
-const rev=parseFloat($('xRev').value)||0;
+const r=parseFloat($('xRev').value)||0;
+
+if(!r){el.textContent='—';return;}
 
 el.innerHTML=
-L.taxM+': '+fmt(rev*0.005)+
-'<small>'+
-L.taxY+': '+fmt(rev*0.005*12)+
-'</small>';
+L.taxM+': '+fmt(r*0.005)+
+'<small>'+L.taxY+': '+fmt(r*0.06)+'</small>';
 }
 
 function roiCalc(){
 
 const el=$('rRes');
-
 if(!el)return;
 
 const L=L0();
 
-const c=parseFloat($('rC').value)||0;
-const s=parseFloat($('rS').value)||0;
+const c=parseFloat($('rC').value);
+const s=parseFloat($('rS').value);
+
+if(!isFinite(c)||!isFinite(s)){
+el.textContent='—';return;
+}
 
 const p=s-c;
 
@@ -1508,1244 +1940,629 @@ el.innerHTML=
 L.profit+': '+fmt(p)+
 '<small>'+
 L.margin+': '+
-fmt(s?p/s*100:NaN)+
-'% · '+
+(s?fmt(p/s*100)+' %':'—')+
+'<br>'+
 L.roiL+': '+
-fmt(c?p/c*100:NaN)+
-'%</small>';
+(c?fmt(p/c*100)+' %':'—')+
+'</small>';
 }
 
-function gcd(x,y){
-
-x=Math.abs(x);
-y=Math.abs(y);
-
-while(y){
-const t=y;
-y=x%y;
-x=t;
-}
-
-return x;
+function gcd(a,b){
+return b?gcd(b,a%b):Math.abs(a);
 }
 
 function fpbCalc(){
 
 const el=$('fRes');
-
 if(!el)return;
 
-const a=Math.round(
-parseFloat($('fA').value)
-)||0;
+const a=Math.abs(parseInt($('fA').value)||0);
+const b=Math.abs(parseInt($('fB').value)||0);
 
-const b=Math.round(
-parseFloat($('fB').value)
-)||0;
-
-if(!a||!b){
-el.textContent='—';
-return;
-}
-
-const g=gcd(a,b);
+if(!a||!b){el.textContent='—';return;}
 
 el.innerHTML=
-'FPB: '+fmt(g)+
-' · KPK: '+fmt(a/g*b);
+'FPB: '+fmt(gcd(a,b))+
+'<small>KPK: '+fmt(a/gcd(a,b)*b)+'</small>';
 }
 
 function fracCalc(){
 
 const el=$('frRes');
-
 if(!el)return;
 
 const L=L0();
 
-const n=Math.round(
-parseFloat($('frN').value)
-)||0;
+let n=parseInt($('frN').value)||0;
+let d=parseInt($('frD').value)||0;
 
-const d=Math.round(
-parseFloat($('frD').value)
-)||0;
-
-if(!d){
-el.textContent='—';
-return;
-}
+if(!d){el.textContent='—';return;}
 
 const g=gcd(n,d)||1;
 
 el.innerHTML=
-L.simp+': '+
-(n/g)+'/'+(d/g)+
-'<small>'+
-L.dec+': '+fmt(n/d)+
-'</small>';
+L.simp+': '+(n/g)+'/'+(d/g)+
+'<small>'+L.dec+': '+fmt(n/d)+'</small>';
 }
 
-const ROM=[
-[1000,'M'],
-[900,'CM'],
-[500,'D'],
-[400,'CD'],
-[100,'C'],
-[90,'XC'],
-[50,'L'],
-[40,'XL'],
-[10,'X'],
-[9,'IX'],
-[5,'V'],
-[4,'IV'],
-[1,'I']
+const ROMV=[
+[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],
+[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],
+[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']
 ];
 
-function toRoman(n){
+function toRom(n){
 
 let s='';
 
-for(const[v,r]of ROM){
-
-while(n>=v){
-s+=r;
-n-=v;
+ROMV.forEach(v=>{
+while(n>=v[0]){
+s+=v[1];
+n-=v[0];
 }
-
-}
+});
 
 return s;
 }
 
-function fromRoman(s){
-
-s=(s||'').toUpperCase().trim();
-
-if(!s)return NaN;
-
-let t=0;
-let i=0;
-
-for(let k=0;k<ROM.length;k++){
-
-const[v,r]=ROM[k];
-
-while(s.startsWith(r,i)){
-t+=v;
-i+=r.length;
-}
-
-}
-
-return i===s.length?t:NaN;
-}
-
-function romanCalc(){
+function romCalc(){
 
 const el=$('roRes');
-
 if(!el)return;
 
-const n=Math.round(
-parseFloat($('roN').value)
-);
-
-const r=$('roR').value.trim();
-
-const out=[];
+const n=parseInt($('roN').value)||0;
+const r=$('roR').value.trim().toUpperCase();
 
 if(n>=1&&n<=3999){
-out.push(
-n+' = '+toRoman(n)
-);
+el.textContent=toRom(n);
+return;
 }
 
 if(r){
-out.push(
-r+' = '+fmt(fromRoman(r))
-);
+
+let tot=0,prev=0;
+
+for(let i=r.length-1;i>=0;i--){
+
+const v=ROMV.find(x=>x[1]===r[i]);
+
+if(!v){el.textContent='—';return;}
+
+const c=v[0];
+
+tot+=(c<prev)?-c:c;
+prev=c;
 }
 
-el.textContent=
-out.length
-?out.join(' · ')
-:'—';
+el.textContent=fmt(tot);
+return;
+}
+
+el.textContent='—';
+}
+
+function geoBind(){
+
+const upd=()=>{
+
+$('geoR').hidden=geoMode!=='r';
+$('geoC').hidden=geoMode!=='c';
+$('geoT').hidden=geoMode!=='t';
+
+$('gR').classList.toggle('on',geoMode==='r');
+$('gC').classList.toggle('on',geoMode==='c');
+$('gT').classList.toggle('on',geoMode==='t');
+
+geoCalc();
+};
+
+$('gR').onclick=()=>{geoMode='r';upd();};
+$('gC').onclick=()=>{geoMode='c';upd();};
+$('gT').onclick=()=>{geoMode='t';upd();};
+
+[
+'gP','gL','gRr','gA','gTt',
+'gS1','gS2','gS3'
+].forEach(i=>{
+if($(i))$(i).oninput=geoCalc;
+});
+
+upd();
 }
 
 function geoCalc(){
 
 const el=$('gRes');
-
 if(!el)return;
 
 const L=L0();
 
+let A=NaN,P=NaN;
+
 if(geoMode==='r'){
 
-const p=parseFloat($('gP').value)||0;
-const l=parseFloat($('gL').value)||0;
+const p=parseFloat($('gP').value);
+const l=parseFloat($('gL').value);
 
-el.innerHTML=
-L.area+': '+fmt(p*l)+
-'<small>'+
-L.peri+': '+fmt(2*(p+l))+
-'</small>';
+A=p*l;
+P=2*(p+l);
 
 }
-
 else if(geoMode==='c'){
 
-const r=parseFloat($('gRr').value)||0;
+const r=parseFloat($('gRr').value);
 
-el.innerHTML=
-L.area+': '+fmt(Math.PI*r*r)+
-'<small>'+
-L.peri+': '+fmt(2*Math.PI*r)+
-'</small>';
+A=Math.PI*r*r;
+P=2*Math.PI*r;
 
 }
-
 else{
 
-const a=parseFloat($('gA').value)||0;
-const h=parseFloat($('gH').value)||0;
+const a=parseFloat($('gA').value);
+const t=parseFloat($('gTt').value);
 
-const s1=parseFloat($('gS1').value)||0;
-const s2=parseFloat($('gS2').value)||0;
-const s3=parseFloat($('gS3').value)||0;
+A=a*t/2;
 
-const per=
-(s1&&s2&&s3)
-?s1+s2+s3
+const s=[
+parseFloat($('gS1').value),
+parseFloat($('gS2').value),
+parseFloat($('gS3').value)
+];
+
+P=s.every(x=>isFinite(x))
+?s[0]+s[1]+s[2]
 :NaN;
 
-el.innerHTML=
-L.area+': '+fmt(a*h/2)+
-'<small>'+
-L.peri+': '+fmt(per)+
-'</small>';
-
 }
+
+if(!isFinite(A)){el.textContent='—';return;}
+
+el.innerHTML=
+L.area+': '+fmt(A)+
+'<small>'+L.peri+': '+
+(isFinite(P)?fmt(P):'—')+
+'</small>';
+}
+
+function ipkDraw(){
+
+const rows=$('ipkRows');
+
+if(!rows.children.length)ipkAdd();
+
+$('ipkAdd').onclick=ipkAdd;
+
+ipkCalc();
+}
+
+function ipkAdd(){
+
+const d=document.createElement('div');
+
+d.className='irow';
+
+d.innerHTML=
+'<input type="number" inputmode="decimal" step="0.01" min="0" max="4" class="ipkV" placeholder="Nilai (0–4)">'+
+'<input type="number" inputmode="numeric" min="1" class="ipkS" placeholder="'+L0().sks+'">';
+
+d.querySelectorAll('input').forEach(i=>{
+i.oninput=ipkCalc;
+});
+
+$('ipkRows').appendChild(d);
 }
 
 function ipkCalc(){
 
-const el=$('ipRes');
-
+const el=$('ipkRes');
 if(!el)return;
 
-let ts=0;
-let tg=0;
+let tn=0,ts=0;
 
-for(let i=0;i<6;i++){
+$('ipkRows').querySelectorAll('.irow').forEach(r=>{
 
-const s=parseFloat(
-$('ip'+i+'s').value
-)||0;
+const v=parseFloat(r.querySelector('.ipkV').value);
+const s=parseFloat(r.querySelector('.ipkS').value)||0;
 
-const g=parseFloat(
-$('ip'+i+'g').value
-)||0;
-
-if(s>0){
-
+if(isFinite(v)){
+tn+=v*s;
 ts+=s;
-tg+=s*g;
-
 }
 
+});
+
+el.innerHTML=ts?fmt(tn/ts):'—';
 }
-
-el.textContent=
-ts
-?fmt(tg/ts)
-:'—';
-}
-
-
-/* =========================
-   KONVERTER & HARIAN
-========================= */
 
 const UNITS={
 
-len:{
-km:1000,
-m:1,
-cm:0.01,
-mm:0.001,
-mi:1609.344,
-ft:0.3048,
-in:0.0254
+uLen:{
+m:1,km:1000,cm:0.01,mm:0.001,
+mi:1609.34,yd:0.9144,ft:0.3048,in:0.0254
 },
 
-wgt:{
-kg:1,
-g:0.001,
-mg:0.000001,
-ton:1000,
-lb:0.45359237,
-oz:0.028349523125
-}
+uWgt:{
+kg:1,g:0.001,
+ton:1000,ons:0.1,
+lb:0.45359,oz:0.0283495
+},
 
+uTmp:{C:0,F:0,K:0},
+
+uVal:{
+IDR:1,USD:15600,EUR:17000,
+GBP:19800,SGD:11600,MYR:3300,
+JPY:105,SAR:4150,AED:4250
+}
 };
+
+let uCatCur='uLen';
+
+function unitBind(){
+
+const L=L0();
+
+$('uCat').innerHTML=
+['uLen','uWgt','uTmp','uVal']
+.map(c=>
+'<option value="'+c+'">'+L[c]+'</option>'
+).join('');
+
+$('uCat').value=uCatCur;
+
+$('uCat').onchange=()=>{
+uCatCur=$('uCat').value;
+unitFill();
+};
+
+['uVal','uFrom','uTo'].forEach(i=>{
+$(i).oninput=unitCalc;
+$(i).onchange=unitCalc;
+});
+
+unitFill();
+}
 
 function unitFill(){
 
-const c=$('uCat').value;
+const keys=Object.keys(UNITS[uCatCur]);
 
-const opts=
-c==='tmp'
-?['°C','°F','K']
-:Object.keys(UNITS[c]);
+$('uFrom').innerHTML=
+keys.map(k=>'<option>'+k+'</option>').join('');
 
-$('uF').innerHTML=
-opts.map(o=>
-'<option>'+o+'</option>'
-).join('');
+$('uTo').innerHTML=
+$('uFrom').innerHTML;
 
-$('uT').innerHTML=
-opts.map(o=>
-'<option>'+o+'</option>'
-).join('');
-
-if(opts.length>1){
-$('uT').selectedIndex=1;
+if(keys.length>1){
+$('uTo').value=keys[1];
 }
 
+unitCalc();
 }
 
 function unitCalc(){
 
 const el=$('uRes');
-
 if(!el)return;
 
-const c=$('uCat').value;
-const v=parseFloat($('uV').value)||0;
-const f=$('uF').value;
-const t=$('uT').value;
+const v=parseFloat($('uVal').value);
+const f=$('uFrom').value;
+const t=$('uTo').value;
+
+if(!isFinite(v)){el.textContent='—';return;}
 
 let r;
 
-if(c==='tmp'){
+if(uCatCur==='uTmp'){
 
-const cel=
-f==='°C'
-?v
-:f==='°F'
-?(v-32)*5/9
-:v-273.15;
+let c;
 
-r=
-t==='°C'
-?cel
-:t==='°F'
-?cel*9/5+32
-:cel+273.15;
+if(f==='C')c=v;
+else if(f==='F')c=(v-32)*5/9;
+else c=v-273.15;
+
+if(t==='C')r=c;
+else if(t==='F')r=c*9/5+32;
+else r=c+273.15;
 
 }
-
 else{
 
-r=
-v*
-UNITS[c][f]/
-UNITS[c][t];
+r=v*UNITS[uCatCur][f]/UNITS[uCatCur][t];
 
 }
 
-el.textContent=
-fmt(v)+' '+f+
-' = '+
-fmt(r)+' '+t;
+el.textContent=fmt(r)+' '+t;
 }
 
 function bbmCalc(){
 
-const el=$('bbRes');
-
+const el=$('fRes');
 if(!el)return;
 
 const L=L0();
 
-const d=parseFloat($('bbD').value)||0;
-const c=parseFloat($('bbC').value)||0;
-const p=parseFloat($('bbP').value)||0;
+const d=parseFloat($('fDist').value);
+const c=parseFloat($('fCons').value)||0;
+const p=parseFloat($('fPrice').value)||0;
 
-const l=c?d/c:NaN;
+if(!isFinite(d)||!c){el.textContent='—';return;}
+
+const l=d/c;
 
 el.innerHTML=
 L.fuelL+': '+fmt(l)+
-'<small>'+
-L.fuelC+': '+fmt(l*p)+
-'</small>';
+'<small>'+L.fuelC+': '+fmt(l*p)+'</small>';
 }
 
-function paintCalc(){
+function catCalc(){
 
-const el=$('cpRes');
-
+const el=$('cRes');
 if(!el)return;
 
 const L=L0();
 
-const p=parseFloat($('cpP').value)||0;
-const h=parseFloat($('cpH').value)||0;
+const l=parseFloat($('cLen').value);
+const h=parseFloat($('cHei').value)||0;
+const c=Math.max(1,parseInt($('cCoats').value)||1);
+const cv=parseFloat($('cCover').value)||0;
 
-const c=Math.max(
-1,
-parseFloat($('cpC').value)||1
-);
-
-const cov=parseFloat(
-$('cpCov').value
-)||0;
-
-const area=p*h;
+if(!isFinite(l)||!h||!cv){el.textContent='—';return;}
 
 el.innerHTML=
-L.paintL+': '+
-fmt(cov?area*c/cov:NaN)+
-' L'+
-'<small>'+
-L.area+': '+fmt(area)+
-' m²</small>';
+L.paintL+': '+fmt(l*h*c/cv)+' L'+
+'<small>'+L.area+': '+fmt(l*h)+' m²</small>';
 }
 
-function binCalc(src){
+function binCalc(){
 
-const el=$('bnRes');
+const el=$('biRes');
+
+const d=$('biDec');
+const b=$('biBin');
+const h=$('biHex');
 
 if(!el)return;
 
-let d=NaN;
+const sync=(src,dec)=>{
 
-if(src==='d'){
-d=Math.floor(
-parseFloat($('bnD').value)
-);
-}
-else if(src==='b'){
-d=parseInt(
-$('bnB').value.trim(),
-2
-);
-}
-else{
-d=parseInt(
-$('bnH').value.trim(),
-16
-);
+if(!isFinite(dec)||dec<0||dec>4294967295){
+el.textContent='—';
+return;
 }
 
-if(isNaN(d)||d<0){
+if(src!==d)d.value=dec;
+if(src!==b)b.value=dec.toString(2);
+if(src!==h)h.value=dec.toString(16).toUpperCase();
+
+el.textContent=dec;
+};
+
+d.oninput=()=>sync(d,parseInt(d.value)||NaN);
+
+b.oninput=()=>
+sync(b,parseInt(b.value.replace(/[^01]/g,''),2)||NaN);
+
+h.oninput=()=>
+sync(h,parseInt(h.value.replace(/[^0-9a-fA-F]/g,''),16)||NaN);
 
 el.textContent='—';
-
-return;
 }
-
-if(src!=='d'){
-$('bnD').value=d;
-}
-
-if(src!=='b'){
-$('bnB').value=d.toString(2);
-}
-
-if(src!=='h'){
-$('bnH').value=
-d.toString(16).toUpperCase();
-}
-
-el.textContent=
-d+
-' = 0b'+
-d.toString(2)+
-' = 0x'+
-d.toString(16).toUpperCase();
-}
-
 
 /* =========================
-   STOPWATCH & TIMER
-========================= */
-
-let swRun=false;
-let swAcc=0;
-let swT0=0;
-let swIv=null;
-
-let tmRun=false;
-let tmIv=null;
-
-function swShow(ms){
-
-const el=$('swDisp');
-
-if(!el)return;
-
-const s=Math.floor(ms/1000);
-
-el.textContent=
-p2(Math.floor(s/3600))+':'+
-p2(Math.floor(s/60)%60)+':'+
-p2(s%60)+'.'+
-p2(Math.floor(ms%1000/10));
-}
-
-function swToggle(){
-
-const L=L0();
-
-if(swRun){
-
-swAcc+=Date.now()-swT0;
-
-clearInterval(swIv);
-
-swRun=false;
-
-const b=$('swGo');
-
-if(b){
-b.textContent=L.start;
-}
-
-}
-else{
-
-swT0=Date.now();
-
-swRun=true;
-
-const b=$('swGo');
-
-if(b){
-b.textContent=L.pause;
-}
-
-swIv=setInterval(
-()=>{
-swShow(
-swAcc+
-Date.now()-
-swT0
-);
-},
-50
-);
-
-}
-}
-
-function swReset(){
-
-clearInterval(swIv);
-
-swRun=false;
-swAcc=0;
-
-swShow(0);
-
-const b=$('swGo');
-
-if(b){
-b.textContent=L0().start;
-}
-}
-
-function beep(){
-
-try{
-
-const C=
-new(
-window.AudioContext||
-window.webkitAudioContext
-)();
-
-for(let i=0;i<3;i++){
-
-const o=C.createOscillator();
-const g=C.createGain();
-
-o.connect(g);
-g.connect(C.destination);
-
-o.frequency.value=880;
-
-const t=
-C.currentTime+
-i*0.45;
-
-g.gain.setValueAtTime(
-0.001,
-t
-);
-
-g.gain.exponentialRampToValueAtTime(
-0.4,
-t+0.02
-);
-
-g.gain.exponentialRampToValueAtTime(
-0.001,
-t+0.35
-);
-
-o.start(t);
-o.stop(t+0.4);
-
-}
-
-}
-catch(e){}
-}
-
-function tmShow(ms){
-
-const el=$('tmDisp');
-
-if(!el)return;
-
-const s=Math.max(
-0,
-Math.ceil(ms/1000)
-);
-
-el.textContent=
-p2(Math.floor(s/60))+
-':'+
-p2(s%60);
-}
-
-function tmInput(){
-
-tmShow(
-(
-(+$('tmM').value||0)*60+
-(+$('tmS').value||0)
-)*1000
-);
-
-}
-
-function tmToggle(){
-
-const L=L0();
-
-if(tmRun){
-
-clearInterval(tmIv);
-
-tmRun=false;
-
-const b=$('tmGo');
-
-if(b){
-b.textContent=L.start;
-}
-
-return;
-}
-
-const tot=
-(+$('tmM').value||0)*60+
-(+$('tmS').value||0);
-
-if(tot<=0)return;
-
-const end=
-Date.now()+
-tot*1000;
-
-tmRun=true;
-
-const b=$('tmGo');
-
-if(b){
-b.textContent=L.pause;
-}
-
-tmIv=setInterval(
-()=>{
-
-const left=
-end-Date.now();
-
-if(left<=0){
-
-clearInterval(tmIv);
-
-tmRun=false;
-
-tmShow(0);
-
-const e=$('tmDisp');
-
-if(e){
-e.textContent=L.done;
-}
-
-beep();
-
-const g=$('tmGo');
-
-if(g){
-g.textContent=L.start;
-}
-
-}
-else{
-
-tmShow(left);
-
-}
-
-},
-200
-);
-
-}
-
-function tmReset(){
-
-clearInterval(tmIv);
-
-tmRun=false;
-
-const b=$('tmGo');
-
-if(b){
-b.textContent=L0().start;
-}
-
-tmInput();
-
-}
-
-function L0(){
-return T[lang];
-}
-
-
-/* =========================
-   BIND & RENDER
+   BIND TOOL
 ========================= */
 
 function bindTool(id){
 
-const L=L0();
-
 if(id==='calc'){
-
-$('keys').innerHTML=
-KEYS.map(k=>{
-
-let c='';
-
-if('÷×−+'.includes(k)){
-c='op';
-}
-
-if(k==='='){
-c='eq';
-}
-
-if(k==='C'||k==='⌫'){
-c='cl';
-}
-
-return(
-'<button data-k="'+k+'" class="'+c+'">'+
-k+
-'</button>'
-);
-
-}).join('');
-
-$('keys').onclick=e=>{
-
-const k=
-e.target.dataset
-?e.target.dataset.k
-:null;
-
-if(k){
-calc(k);
-}
-
-};
-
-disp();
-
+expr='';
+calcDraw();
 }
 
 else if(id==='pct'){
-
-$('pm1').onclick=()=>{
 
 pctMode=1;
 
 $('pm1').classList.add('on');
 $('pm2').classList.remove('on');
 
+$('pm1').onclick=()=>{
+pctMode=1;
+$('pm1').classList.add('on');
+$('pm2').classList.remove('on');
 pctCalc();
-
 };
 
 $('pm2').onclick=()=>{
-
 pctMode=2;
-
 $('pm2').classList.add('on');
 $('pm1').classList.remove('on');
-
 pctCalc();
-
 };
 
 $('px').oninput=pctCalc;
 $('py').oninput=pctCalc;
-
-pctCalc();
-
 }
 
 else if(id==='disc'){
-
 $('dPrice').oninput=discCalc;
 $('dPct').oninput=discCalc;
-
-discCalc();
-
 }
 
 else if(id==='tip'){
-
 $('tBill').oninput=tipCalc;
 $('tPct').oninput=tipCalc;
 $('tPpl').oninput=tipCalc;
-
-tipCalc();
-
 }
 
 else if(id==='split'){
-
 $('sTotal').oninput=splitCalc;
 $('sPpl').oninput=splitCalc;
-
-splitCalc();
-
 }
 
 else if(id==='bmi'){
-
 $('bW').oninput=bmiCalc;
 $('bH').oninput=bmiCalc;
-
-bmiCalc();
-
 }
 
 else if(id==='age'){
-
 $('dob').onchange=ageCalc;
-
-ageCalc();
-
 }
 
 else if(id==='diff'){
-
 $('dd1').onchange=diffCalc;
 $('dd2').onchange=diffCalc;
-
-diffCalc();
-
 }
 
 else if(id==='sw'){
-
-$('swGo').textContent=
-swRun?L.pause:L.start;
-
-$('swRe').textContent=L.reset;
-
-swShow(swAcc);
-
-$('swGo').onclick=swToggle;
-$('swRe').onclick=swReset;
-
+swR=true;
+swS=0;
+swBind();
 }
 
 else if(id==='tm'){
-
-$('tmGo').textContent=
-tmRun?L.pause:L.start;
-
-$('tmRe').textContent=L.reset;
-
-tmInput();
-
-$('tmM').oninput=()=>{
-if(!tmRun)tmInput();
-};
-
-$('tmS').oninput=()=>{
-if(!tmRun)tmInput();
-};
-
-$('tmGo').onclick=tmToggle;
-$('tmRe').onclick=tmReset;
-
+tmR=true;
+tmLeft=0;
+tmBind();
 }
 
 else if(id==='zakat'){
-
-$('zm').onclick=()=>{
-
-zakMode='mal';
-
-$('zm').classList.add('on');
-$('zf').classList.remove('on');
-
-$('malBox').hidden=false;
-$('fitBox').hidden=true;
-
-zakatCalc();
-
-};
-
-$('zf').onclick=()=>{
-
-zakMode='fit';
-
-$('zf').classList.add('on');
-$('zm').classList.remove('on');
-
-$('fitBox').hidden=false;
-$('malBox').hidden=true;
-
-zakatCalc();
-
-};
-
-[
-'zGold',
-'zAssets',
-'zPpl',
-'zRice'
-].forEach(i=>{
-
-const el=$(i);
-
-if(el){
-el.oninput=zakatCalc;
-}
-
-});
-
-zakatCalc();
-
+zakBind();
 }
 
 else if(id==='loan'){
-
-['lP','lApr','lN']
-.forEach(i=>
-$(i).oninput=loanCalc
-);
-
-loanCalc();
-
+$('lP').oninput=loanCalc;
+$('lApr').oninput=loanCalc;
+$('lN').oninput=loanCalc;
 }
 
 else if(id==='interest'){
-
-['iP','iApr','iM']
-.forEach(i=>
-$(i).oninput=intCalc
-);
-
-intCalc();
-
+$('iP').oninput=interestCalc;
+$('iApr').oninput=interestCalc;
+$('iM').oninput=interestCalc;
 }
 
 else if(id==='save'){
-
-['vS','vApr','vY']
-.forEach(i=>
-$(i).oninput=saveCalc
-);
-
-saveCalc();
-
+$('vS').oninput=saveCalc;
+$('vApr').oninput=saveCalc;
+$('vY').oninput=saveCalc;
 }
 
 else if(id==='tax'){
-
 $('xRev').oninput=taxCalc;
-
-taxCalc();
-
 }
 
 else if(id==='roi'){
+$('rC').oninput=roiCalc;
+$('rS').oninput=roiCalc;
+}
 
-['rC','rS']
-.forEach(i=>
-$(i).oninput=roiCalc
-);
+else if(id==='kurs'){
 
-roiCalc();
+const opts=CURS.map(c=>
+'<option>'+c+'</option>'
+).join('');
 
+$('kFrom').innerHTML=opts;
+$('kTo').innerHTML=opts;
+
+$('kFrom').value='USD';
+$('kTo').value='IDR';
+
+$('kAmt').oninput=kursCalc;
+$('kRate').oninput=kursCalc;
+$('kTo').onchange=kursCalc;
+$('kFrom').onchange=kursLoad;
+
+kursLoad();
+}
+
+else if(id==='waris'){
+
+[
+'wEstate','wDebt','wWill',
+'wSon','wDau',
+'wHusb','wWife',
+'wFat','wMot'
+].forEach(i=>{
+
+const el=$(i);
+if(el)el.oninput=warisCalc;
+
+});
+
+warisCalc();
 }
 
 else if(id==='fpb'){
-
-['fA','fB']
-.forEach(i=>
-$(i).oninput=fpbCalc
-);
-
-fpbCalc();
-
+$('fA').oninput=fpbCalc;
+$('fB').oninput=fpbCalc;
 }
 
 else if(id==='frac'){
-
-['frN','frD']
-.forEach(i=>
-$(i).oninput=fracCalc
-);
-
-fracCalc();
-
+$('frN').oninput=fracCalc;
+$('frD').oninput=fracCalc;
 }
 
 else if(id==='roman'){
 
-$('roN').oninput=romanCalc;
-$('roR').oninput=romanCalc;
+$('roN').oninput=()=>{
+$('roR').value='';
+romCalc();
+};
 
-romanCalc();
-
+$('roR').oninput=()=>{
+$('roN').value='';
+romCalc();
+};
 }
 
 else if(id==='geo'){
-
-const setG=m=>{
-
-geoMode=m;
-
-$('gR').classList.toggle(
-'on',
-m==='r'
-);
-
-$('gC').classList.toggle(
-'on',
-m==='c'
-);
-
-$('gT').classList.toggle(
-'on',
-m==='t'
-);
-
-$('geoR').hidden=m!=='r';
-$('geoC').hidden=m!=='c';
-$('geoT').hidden=m!=='t';
-
-geoCalc();
-
-};
-
-$('gR').onclick=()=>setG('r');
-$('gC').onclick=()=>setG('c');
-$('gT').onclick=()=>setG('t');
-
-[
-'gP',
-'gL',
-'gRr',
-'gA',
-'gH',
-'gS1',
-'gS2',
-'gS3'
-].forEach(i=>{
-
-const el=$(i);
-
-if(el){
-el.oninput=geoCalc;
-}
-
-});
-
-geoCalc();
-
+geoBind();
 }
 
 else if(id==='ipk'){
-
-for(let i=0;i<6;i++){
-
-$('ip'+i+'s').oninput=ipkCalc;
-$('ip'+i+'g').onchange=ipkCalc;
-
-}
-
-ipkCalc();
-
+ipkDraw();
 }
 
 else if(id==='unit'){
-
-$('uCat').onchange=()=>{
-unitFill();
-unitCalc();
-};
-
-$('uV').oninput=unitCalc;
-$('uF').onchange=unitCalc;
-$('uT').onchange=unitCalc;
-
-unitFill();
-unitCalc();
-
+unitBind();
 }
 
 else if(id==='bbm'){
-
-[
-'bbD',
-'bbC',
-'bbP'
-].forEach(i=>
-$(i).oninput=bbmCalc
-);
-
-bbmCalc();
-
+$('fDist').oninput=bbmCalc;
+$('fCons').oninput=bbmCalc;
+$('fPrice').oninput=bbmCalc;
 }
 
 else if(id==='cat2'){
-
-[
-'cpP',
-'cpH',
-'cpC',
-'cpCov'
-].forEach(i=>
-$(i).oninput=paintCalc
-);
-
-paintCalc();
-
+$('cLen').oninput=catCalc;
+$('cHei').oninput=catCalc;
+$('cCoats').oninput=catCalc;
+$('cCover').oninput=catCalc;
 }
 
 else if(id==='bin'){
-
-$('bnD').oninput=
-()=>binCalc('d');
-
-$('bnB').oninput=
-()=>binCalc('b');
-
-$('bnH').oninput=
-()=>binCalc('h');
-
-binCalc('d');
-
+binCalc();
 }
-
 }
-
-function render(){
-
-const L=L0();
-
-$('t').textContent=L.t;
-
-document.title=
-L.t+
-' — Sahabat Hijrah';
-
-$('content').innerHTML=
-view==='menu'
-?menuHTML()
-:toolHTML(view);
-
-if(view==='menu'){
-
-$('content')
-.querySelectorAll('[data-tool]')
-.forEach(b=>{
-
-b.onclick=()=>{
-view=b.dataset.tool;
-render();
-};
-
-});
-
-}
-else{
-
-const bk=
-$('content')
-.querySelector('[data-back]');
-
-if(bk){
-
-bk.onclick=()=>{
-view='menu';
-render();
-};
-
-}
-
-bindTool(view);
-
-}
-
-}
-
-
-/* =========================
-   BAHASA
-========================= */
-
-$('lang').onclick=()=>{
-
-lang=
-lang==='id'
-?'en'
-:'id';
-
-localStorage.setItem(
-LKEY,
-lang
-);
-
-render();
-
-};
-
 
 /* =========================
    MULAI
 ========================= */
 
-render();
+$('lang').onclick=()=>{
 
+lang=(lang==='id')?'en':'id';
+
+localStorage.setItem(LKEY,lang);
+
+stopAll();
+render();
+};
+
+render();
 </script>
 
 </body>
