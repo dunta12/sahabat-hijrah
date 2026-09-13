@@ -171,14 +171,35 @@ s.add(pick(list).read);
 return [...s].sort(()=>Math.random()-0.5);
 }
 
+/* suara: deteksi dukungan + pilih suara Arab + aman dari bug Chrome */
+let VOICES=[];
+function loadVoices(){try{VOICES=speechSynthesis.getVoices();}catch(e){}}
+if('speechSynthesis' in window){
+  loadVoices();
+  speechSynthesis.onvoiceschanged=loadVoices;
+}
+function arVoice(){
+  if(!VOICES.length)loadVoices();
+  return VOICES.find(v=>/^ar[-_]/i.test(v.lang))||VOICES.find(v=>/^ar/i.test(v.lang))||null;
+}
+let LASTU=null;
 function speak(t){
-try{
-const u=new SpeechSynthesisUtterance(t);
-u.lang='ar-SA';
-u.rate=0.7;
-speechSynthesis.cancel();
-speechSynthesis.speak(u);
-}catch(e){}
+  const pesan=(lang==='id')
+    ?'🔇 Tidak ada suara Arab di perangkat/browser ini. Naikkan volume media & pasang bahasa Arab di pengaturan Text-to-speech.'
+    :'🔇 No Arabic voice on this device/browser. Raise media volume & install Arabic in Text-to-speech settings.';
+  if(!('speechSynthesis' in window)||!arVoice()){
+    if($('inf'))$('inf').innerHTML=pesan;
+    return;
+  }
+  try{
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(t);
+    u.voice=arVoice();u.lang=u.voice.lang;u.rate=0.7;
+    LASTU=u;
+    setTimeout(()=>speechSynthesis.speak(u),80);
+  }catch(e){
+    if($('inf'))$('inf').innerHTML=pesan;
+  }
 }
 
 function learn(){
