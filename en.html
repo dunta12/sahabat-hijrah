@@ -120,7 +120,7 @@ nav button .ic{font-size:20px;display:block}
 .ayat .a,.surah .arab,.q-head .ar,.ayat[style]{
   font-family:'Mushaf','Scheherazade New','Noto Naskh Arabic',serif;
 }
-.ayat .a{font-size:34px;line-height:2.45;direction:rtl;}
+.ayat .a{font-size:29px;line-height:2.45;direction:rtl;}
 .surah .arab{font-size:20px;line-height:2.1;}
 .q-head .ar{font-size:20px;line-height:2;}
 .ayat[style]{line-height:2.3;}
@@ -1103,6 +1103,20 @@ isiSelect();isiTanggal();isiHikmah();isiDoa();renderTb();renderAuto();renderNote
       card.appendChild(btn);
     }
   },300);
+})();
+</script>
+<script>
+/* norma lafaz Allah: tanam fathah tegak (U+0670) setelah syadda bila belum ada */
+(function(){
+  function fix(s){return s.replace(/للَّ(?!ٰ)/g,'للّٰ');}
+  function fixEl(el){
+    el.childNodes.forEach(function(n){if(n.nodeType===3)n.nodeValue=fix(n.nodeValue);});
+  }
+  function walk(){
+    document.querySelectorAll('.ayat .a,.surah .arab,.q-head .ar,.ayat[style]').forEach(fixEl);
+  }
+  new MutationObserver(walk).observe(document.body,{childList:true,subtree:true});
+  walk();
 })();
 </script>
 </body>
