@@ -111,6 +111,19 @@ nav{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;border-t
 nav button{flex:1;padding:10px 0;background:none;border:none;color:var(--soft);font-size:11px;font-weight:700;cursor:pointer}
 nav button.on{color:var(--green)}
 nav button .ic{font-size:20px;display:block}
+/* ===== khat mushaf: tulisan tangan mushaf untuk halaman Qur'an ===== */
+@font-face{
+  font-family:'Mushaf';
+  src:url('AmiriQuran-Regular.ttf') format('truetype');
+  font-display:swap;
+}
+.ayat .a,.surah .arab,.q-head .ar,.ayat[style]{
+  font-family:'Mushaf','Scheherazade New','Noto Naskh Arabic',serif;
+}
+.ayat .a{font-size:29px;line-height:2.45;direction:rtl;}
+.surah .arab{font-size:20px;line-height:2.1;}
+.q-head .ar{font-size:20px;line-height:2;}
+.ayat[style]{line-height:2.3;}
 </style>
 </head>
 <body>
