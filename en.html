@@ -846,13 +846,29 @@ const QEN=[
 function qNama(s){const e=QEN[s.nomor-1];return e?{n:e[0],a:e[1]}:{n:s.namaLatin,a:s.arti};}
 function qArab(s){return String(s.nama||'').replace(/^سُورَةُ\s*/,'').replace(/^سورة\s*/,'');}
 function normQ(t){return String(t).toLowerCase().replace(/[^a-z0-9]/g,'');}
+/* --- normalize the Allah ligature: plant the standing fatha (U+0670) if missing --- */
+function fixAllah(s){return String(s==null?'':s).replace(/للَّ(?!ٰ)/g,'للّٰ');}
+function migrAllah(){
+  for(let i=1;i<=114;i++){
+    const k='she_q_s'+i,raw=localStorage.getItem(k);
+    if(!raw)continue;
+    try{
+      const d=JSON.parse(raw);
+      if(d&&d.ayat){
+        let ch=false;
+        d.ayat.forEach(function(a){const t=fixAllah(a.teksArab);if(t!==a.teksArab){a.teksArab=t;ch=true;}});
+        if(ch)localStorage.setItem(k,JSON.stringify(d));
+      }
+    }catch(e){}
+  }
+}
 function qCountSaved(){let c=0;for(let i=1;i<=114;i++){if(localStorage.getItem('she_q_s'+i))c++;}return c;}
 function qStatus(txt){document.getElementById('qProg').textContent=txt||('Offline: '+qCountSaved()+'/114 surahs');}
 function normListAqc(arr){return arr.map(function(s){return{nomor:s.number,namaLatin:s.englishName,nama:s.name,arti:s.englishNameTranslation,jumlahAyat:s.numberOfAyahs,tempatTurun:s.revelationType};});}
 function normAqc(d){
   const ar=d[0],tr=d[1]||d[0];
   return{src:'aqc',nomor:ar.number,namaLatin:ar.englishName,nama:ar.name,arti:ar.englishNameTranslation,jumlahAyat:ar.numberOfAyahs,tempatTurun:ar.revelationType,
-  ayat:ar.ayahs.map(function(a,i){return{nomorAyat:a.numberInSurah,teksArab:a.text,teksLatin:'',teksIndonesia:(tr.ayahs&&tr.ayahs[i])?tr.ayahs[i].text:''};})};
+  ayat:ar.ayahs.map(function(a,i){return{nomorAyat:a.numberInSurah,teksArab:fixAllah(a.text),teksLatin:'',teksIndonesia:(tr.ayahs&&tr.ayahs[i])?tr.ayahs[i].text:''};})};
 }
 async function qFetchList(){
   for(const s of QAPI){
@@ -876,7 +892,7 @@ async function qFetchDetail(n){
         const r=await fetch(s.u+'/surah/'+n);
         const j=await r.json();
         const d=j.data||j.surat;
-        if(d&&d.ayat&&d.ayat.length){d.src='eq';return d;}
+        if(d&&d.ayat&&d.ayat.length){d.ayat.forEach(function(a){a.teksArab=fixAllah(a.teksArab);});d.src='eq';return d;}
       }
     }catch(e){}
   }
@@ -892,7 +908,18 @@ function qBuildPages(s){
   if(cur.length)pages.push(cur);
   return pages;
 }
+/* --- printed-mushaf mode (look inspired by print mushafs, own implementation) --- */
+function modeMushaf(){return localStorage.getItem('she_mushaf')==='1';}
+function setModeMushaf(v){localStorage.setItem('she_mushaf',v?'1':'0');qRenderPage();}
+function warnaTajwid(s){
+  return String(s)
+   .replace(/(نْ|ً|ٍ|ٌ)(?=ب)/g,'<span class="tj-iqlab">$1</span>')
+   .replace(/(نْ|ً|ٍ|ٌ)(?=[يمْنلر])/g,'<span class="tj-idgham">$1</span>')
+   .replace(/(نْ|ً|ٍ|ٌ)(?=[تثجذزسشصضطظفقك])/g,'<span class="tj-ikhfa">$1</span>')
+   .replace(/([قطبجد])(?=ْ)/g,'<span class="tj-qalqalah">$1</span>');
+}
 async function qInit(){
+  migrAllah();
   renderQLast();
   if(qReady){qStatus();renderQList(qAll);return;}
   qAll=JSON.parse(localStorage.getItem('she_q_list')||'null')||[];
@@ -971,16 +998,33 @@ async function qBuka(n,ayat){
 }
 function qRenderPage(){
   const s=qNow;if(!s)return;
-  const nm=qNama(s),pg=qPages[qCur];
+  const nm=qNama(s),pg=qPages[qCur],M=modeMushaf();
   const tm=String(s.tempatTurun||'').toLowerCase();
   const tmp=(tm.indexOf('madan')>-1||tm.indexOf('medinan')>-1)?'Medinan':(tm?'Meccan':'');
-  let h='<div class="card" style="text-align:center"><b style="font-size:18px;color:var(--green)">'+nm.n+'</b><br><small class="soft">'+nm.a+' • '+s.jumlahAyat+' ayahs</small></div>';
-  h+='<div class="q-head"><span>'+tmp+'</span><span class="ar">'+qArab(s)+'</span><span>'+s.jumlahAyat+' Ayahs</span></div>';
-  if(qCur===0&&s.src!=='aqc'&&s.nomor!==1&&s.nomor!==9)h+='<div class="ayat" style="text-align:center;font-size:20px">بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ</div>';
-  h+=pg.map(function(a){
-    return '<div class="ayat"><div class="a">'+a.teksArab+'<span class="a-no">'+a.nomorAyat+'</span></div>'+(a.teksLatin?'<div class="l">'+a.teksLatin+'</div>':'')+'<div class="t">'+a.teksIndonesia+'</div></div>';
-  }).join('');
-  h+='<div class="soft" style="text-align:center;margin:6px 0">Ayahs '+pg[0].nomorAyat+'–'+pg[pg.length-1].nomorAyat+'</div>';
+  const rentang=pg[0].nomorAyat+'–'+pg[pg.length-1].nomorAyat;
+  const bis=(qCur===0&&s.src!=='aqc'&&s.nomor!==1&&s.nomor!==9)?
+    '<div class="'+(M?'m-bismillah':'ayat')+'" style="'+(M?'':'text-align:center;font-size:20px')+'">بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ</div>':'';
+  let h='<div style="text-align:right;margin-bottom:6px"><button class="btn small" onclick="setModeMushaf(!modeMushaf())">'+(M?'📄 Plain mode':'🕌 Mushaf mode')+'</button></div>';
+  if(M){
+    h+='<div class="mushaf"><div class="m-head">'+s.nomor+'. '+nm.n+' : '+rentang+
+       '<small>'+nm.a+' • '+tmp+' • Page '+(qCur+1)+'/'+qPages.length+'</small></div>'+bis;
+    h+=pg.map(function(a){
+      return '<div class="ayat m-ayat"><div class="col-ar">'+warnaTajwid(a.teksArab)+
+        '<span class="a-no">'+a.nomorAyat+'</span></div>'+
+        (a.teksLatin?'<div class="l">'+a.teksLatin+'</div>':'')+
+        '<div class="col-id"><b>'+s.nomor+':'+a.nomorAyat+'</b> '+a.teksIndonesia+'</div></div>';
+    }).join('');
+    h+='<div class="legenda"><span><b class="tj-ikhfa">■</b> Ikhfa</span><span><b class="tj-idgham">■</b> Idgham</span>'+
+       '<span><b class="tj-iqlab">■</b> Iqlab</span><span><b class="tj-qalqalah">■</b> Qalqalah</span></div></div>';
+  }else{
+    h+='<div class="card" style="text-align:center"><b style="font-size:18px;color:var(--green)">'+nm.n+'</b><br><small class="soft">'+nm.a+' • '+s.jumlahAyat+' ayahs</small></div>';
+    h+='<div class="q-head"><span>'+tmp+'</span><span class="ar">'+qArab(s)+'</span><span>'+s.jumlahAyat+' Ayahs</span></div>'+bis;
+    h+=pg.map(function(a){
+      return '<div class="ayat"><div class="a">'+a.teksArab+'<span class="a-no">'+a.nomorAyat+'</span></div>'+
+        (a.teksLatin?'<div class="l">'+a.teksLatin+'</div>':'')+'<div class="t">'+a.teksIndonesia+'</div></div>';
+    }).join('');
+    h+='<div class="soft" style="text-align:center;margin:6px 0">Ayahs '+rentang+'</div>';
+  }
   document.getElementById('qDetail').innerHTML=h;
   document.getElementById('qBarT').textContent=nm.n+' • Page '+(qCur+1)+'/'+qPages.length;
   document.getElementById('qPrev').disabled=(qCur===0&&s.nomor===1);
