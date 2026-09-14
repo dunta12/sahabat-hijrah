@@ -947,11 +947,20 @@ function modeMushaf(){return localStorage.getItem('sh_mushaf')==='1';}
 function setModeMushaf(v){localStorage.setItem('sh_mushaf',v?'1':'0');qRenderPage();}
 function warnaTajwid(s){
   return String(s)
+   /* nun sukun / tanwin */
+   .replace(/(نْ|ً|ٍ|ٌ)(?=[ءهعحخغ])/g,'<span class="tj-izhar">$1</span>')
+   .replace(/(نْ|ً|ٍ|ٌ)(?=[ينمو])/g,'<span class="tj-idgham">$1</span>')
+   .replace(/(نْ|ً|ٍ|ٌ)(?=[لر])/g,'<span class="tj-idgham2">$1</span>')
    .replace(/(نْ|ً|ٍ|ٌ)(?=ب)/g,'<span class="tj-iqlab">$1</span>')
-   .replace(/(نْ|ً|ٍ|ٌ)(?=[يمْنلر])/g,'<span class="tj-idgham">$1</span>')
    .replace(/(نْ|ً|ٍ|ٌ)(?=[تثجذزسشصضطظفقك])/g,'<span class="tj-ikhfa">$1</span>')
+   /* mim sukun */
+   .replace(/(مْ)(?=[^بم])/g,'<span class="tj-izhar-s">$1</span>')
+   .replace(/(مْ)(?=ب)/g,'<span class="tj-ikhfa-s">$1</span>')
+   .replace(/(مْ)(?=م)/g,'<span class="tj-idgham-s">$1</span>')
+   /* ghunnah + qalqalah */
+   .replace(/([نم]ّ)/g,'<span class="tj-ghunnah">$1</span>')
    .replace(/([قطبجد])(?=ْ)/g,'<span class="tj-qalqalah">$1</span>');
-}
+  }
 /* ===== murattal: streaming per ayat & per surah — tanpa berkas MP3 lokal ===== */
 const QORI=[
 ['Alafasy_128kbps','Mishary Alafasy (Kuwait)'],
@@ -969,7 +978,16 @@ function pad3(n){return String(n).padStart(3,'0');}
 let qAud=null,qSeq=[],qPos=0,qLoop=false,qSurahNow=0,qAutoSurah=false,qSleepEnd=0,qSleepTmr=null;
 function qSetSeq(pg){qSeq=pg;qPos=0;}
 function qAudUrl(a){return 'https://everyayah.com/data/'+qoriPilih()+'/'+pad3(qNow.nomor)+pad3(a.nomorAyat)+'.mp3';}
-function qAudUi(st){const el=document.getElementById('qAudSt');if(el)el.textContent=st;}
+function qAudUi(st){const el=document.getElementById('qAudSt');if(el)el.textContent=st;qBigLabel();}
+function qBigLabel(){const b=document.getElementById('qBigBtn');if(b)b.textContent=(qAud&&qSurahNow&&!qAud.paused)?'⏸ Jeda':'▶ Putar surah utuh';}
+function qAudToggle(){
+  if(qAud&&qSurahNow&&!qAud.paused){qAud.pause();qAudUi('⏸ Jeda. Ketuk lagi untuk melanjutkan.');return;}
+  if(qAud&&qSurahNow&&qAud.paused){qAud.play().catch(function(){});qAudUi('▶ Melanjutkan surah '+qSurahNow+'...');return;}
+  qAudSurah();
+}
+function sleepChips(){
+  return '<div class="chips">'+[15,30,60,90].map(function(m){return '<button class="chip" onclick="qSleepStart('+m+')">'+m+' mnt</button>';}).join('')+'<button class="chip" onclick="qSleepStop()">Mati</button></div>';
+}
 function qAudPlay(i){
   if(!qSeq.length||!qNow)return;
   if(typeof i==='number')qPos=i;
@@ -1056,14 +1074,13 @@ function aksiAyat(s,a,i){
 }
 function barAud(){
   return '<div class="card soft" style="text-align:center;margin-top:8px">'+qoriSelect()+
-   ' <button class="btn small" onclick="qAudNext(-1)">⏮</button>'+
-   ' <button class="btn small" onclick="qAudPlay()">▶</button>'+
-   ' <button class="btn small" onclick="qAudStop()">⏹</button>'+
-   ' <button class="btn small" onclick="qAudNext(1)">⏭</button>'+
-   ' <button class="btn small" onclick="qLoop=!qLoop;this.textContent=qLoop?\'🔂\':\'🔁\'">'+(qLoop?'🔂':'🔁')+'</button>'+
-
-   ' <button class="btn small" onclick="qAudSurah()">🎧</button> '+sleepSelect()+
-   '<div id="qAudSt" class="soft" style="margin-top:6px;font-size:12px">▶ rantai ayat • 🎧 surah utuh • 😴 timer tidur</div></div>';
+   '<button id="qBigBtn" class="btnBig" onclick="qAudToggle()">'+((qAud&&qSurahNow&&!qAud.paused)?'⏸ Jeda':'▶ Putar surah utuh')+'</button>'+
+   sleepChips()+
+   '<div><button class="ghost" onclick="qAudNext(-1)">⏮ ayat</button>'+
+   '<button class="ghost" onclick="qAudNext(1)">⏭ ayat</button>'+
+   '<button class="ghost" onclick="qAudStop()">⏹ berhenti</button>'+
+   '<button class="ghost" onclick="qLoop=!qLoop;this.textContent=qLoop?\'🔂 ulang: hidup\':\'🔁 ulang: mati\'">'+(qLoop?'🔂 ulang: hidup':'🔁 ulang: mati')+'</button></div>'+
+   '<div id="qAudSt" class="soft" style="margin-top:6px;font-size:12px">Tombol besar = surah utuh • chip = timer tidur • 🔊 per ayat tetap di tiap ayat</div></div>';
 }
 /* ===== geser kiri/kanan = pindah halaman ===== */
 (function(){let x0=null,y0=null;
@@ -1171,8 +1188,11 @@ function qRenderPage(){
         (a.teksLatin?'<div class="l">'+a.teksLatin+'</div>':'')+
         '<div class="col-id"><b>'+s.nomor+':'+a.nomorAyat+'</b> '+a.teksIndonesia+aksiAyat(s,a,i)+'</div></div>';
     }).join('');
-    h+='<div class="legenda"><span><b class="tj-ikhfa">■</b> Ikhfa</span><span><b class="tj-idgham">■</b> Idgham</span>'+
-       '<span><b class="tj-iqlab">■</b> Iqlab</span><span><b class="tj-qalqalah">■</b> Qalqalah</span></div></div>';
+        h+='<div class="legenda"><span><b class="tj-izhar">■</b> Izhar Halqi</span><span><b class="tj-idgham">■</b> Idgham Bighunnah</span>'+
+       '<span><b class="tj-idgham2">■</b> Idgham Bilaghunnah</span><span><b class="tj-iqlab">■</b> Iqlab</span>'+
+       '<span><b class="tj-ikhfa">■</b> Ikhfa Haqiqi</span><span><b class="tj-ikhfa-s">■</b> Ikhfa Shafawi</span>'+
+       '<span><b class="tj-idgham-s">■</b> Idgham Mitslain</span><span><b class="tj-izhar-s">■</b> Izhar Shafawi</span>'+
+       '<span><b class="tj-ghunnah">■</b> Ghunnah</span><span><b class="tj-qalqalah">■</b> Qalqalah</span></div></div>';
   }else{
     h+='<div class="card" style="text-align:center"><b style="font-size:18px;color:var(--green)">'+nm.n+'</b><br><small class="soft">'+nm.a+' • '+s.jumlahAyat+' ayat</small></div>';
     h+='<div class="q-head"><span>'+tmp+'</span><span class="ar">'+qArab(s)+'</span><span>'+s.jumlahAyat+' Ayat</span></div>'+bis;
