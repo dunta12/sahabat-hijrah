@@ -840,7 +840,7 @@ function renderNotes(){
   });
 }
 
-/* ========== AL-QUR'AN: 3 sumber + nama Indonesia + mode mushaf ========== */
+/* ========== AL-QUR'AN: 3 sumber + nama Indonesia + mode mushaf + audio ========== */
 const QAPI=[
 {t:'eq',u:'https://equran.id/apiv2'},
 {t:'eq',u:'https://equran.id/api/v2'},
@@ -928,7 +928,7 @@ function qBuildPages(s){
   if(cur.length)pages.push(cur);
   return pages;
 }
-/* --- mode mushaf cetak (rupa ala buku, buatan sendiri) --- */
+/* --- mode mushaf cetak --- */
 function modeMushaf(){return localStorage.getItem('sh_mushaf')==='1';}
 function setModeMushaf(v){localStorage.setItem('sh_mushaf',v?'1':'0');qRenderPage();}
 function warnaTajwid(s){
@@ -938,6 +938,67 @@ function warnaTajwid(s){
    .replace(/(نْ|ً|ٍ|ٌ)(?=[تثجذزسشصضطظفقك])/g,'<span class="tj-ikhfa">$1</span>')
    .replace(/([قطبجد])(?=ْ)/g,'<span class="tj-qalqalah">$1</span>');
 }
+/* ===== murattal: streaming per ayat dari everyayah.com — tanpa berkas MP3 lokal ===== */
+const QORI=[
+['Alafasy_128kbps','Mishary Alafasy (Kuwait)'],
+['Abdul_Basit_Murattal_192kbps','Abdul Basit Abdus-Samad (Mesir)'],
+['Husary_128kbps','Mahmoud Khalil Al-Husary (Mesir)'],
+['Hani_Rifai_192kbps','Hani Ar-Rifai (Madinah)'],
+['Nasser_Alqatami_128kbps','Nasser Al-Qatami (Saudi)'],
+['Akram_AlAlaqimy_128kbps','Akram Al-Alaqimy']
+];
+function qoriPilih(){return localStorage.getItem('sh_qori')||'Alafasy_128kbps';}
+function qoriGanti(v){localStorage.setItem('sh_qori',v);if(qAud)qAudPlay();}
+function qoriSelect(){return '<select class="btn small" onchange="qoriGanti(this.value)">'+QORI.map(function(q){return '<option value="'+q[0]+'"'+(qoriPilih()===q[0]?' selected':'')+'>'+q[1]+'</option>';}).join('')+'</select>';}
+function pad3(n){return String(n).padStart(3,'0');}
+let qAud=null,qSeq=[],qPos=0,qLoop=false;
+function qSetSeq(pg){qSeq=pg;qPos=0;}
+function qAudUrl(a){return 'https://everyayah.com/data/'+qoriPilih()+'/'+pad3(qNow.nomor)+pad3(a.nomorAyat)+'.mp3';}
+function qAudPlay(i){
+  if(!qSeq.length||!qNow)return;
+  if(typeof i==='number')qPos=i;
+  if(qAud){qAud.pause();qAud=null;}
+  qAud=new Audio(qAudUrl(qSeq[qPos]));
+  qAud.onended=function(){if(qLoop){qAud.currentTime=0;qAud.play();}else if(qPos<qSeq.length-1){qPos++;qAudPlay();}};
+  qAud.onerror=function(){alert('Audio butuh koneksi internet.');};
+  qAud.play().catch(function(){alert('Audio butuh koneksi internet.');});
+}
+function qAudNext(d){if(!qSeq.length)return;qPos=Math.min(qSeq.length-1,Math.max(0,qPos+d));qAudPlay();}
+function qAudStop(){if(qAud){qAud.pause();qAud=null;}}
+/* ===== bookmark + salin/bagikan per ayat (kunci bookmark dibagi dua bahasa) ===== */
+function bmList(){return JSON.parse(localStorage.getItem('sh_bm')||'[]');}
+function bmAda(n,a){return bmList().some(function(x){return x.n===n&&x.a===a;});}
+function bmToggle(n,a){const l=bmList();const i=l.findIndex(function(x){return x.n===n&&x.a===a;});
+  if(i>-1)l.splice(i,1);else l.push({n:n,a:a,t:Date.now()});
+  localStorage.setItem('sh_bm',JSON.stringify(l));qRenderPage();}
+function ayatKirimIdx(i){
+  const a=qSeq[i];if(!a||!qNow)return;
+  const s=qNow.nomor+':'+a.nomorAyat+'  '+a.teksArab+'\n\n'+a.teksIndonesia+'\n(QS '+qNow.nomor+':'+a.nomorAyat+')';
+  if(navigator.share){navigator.share({text:s}).catch(function(){});}
+  else if(navigator.clipboard){navigator.clipboard.writeText(s).then(function(){alert('Ayat tersalin.');});}
+}
+function aksiAyat(s,a,i){
+  return '<div style="text-align:right;margin-top:4px">'+
+    '<button class="btn small" onclick="bmToggle('+s.nomor+','+a.nomorAyat+')">'+(bmAda(s.nomor,a.nomorAyat)?'🔖':'🏷️')+'</button> '+
+    '<button class="btn small" onclick="qAudPlay('+i+')">🔊</button> '+
+    '<button class="btn small" onclick="ayatKirimIdx('+i+')">📤</button></div>';
+}
+function barAud(){
+  return '<div class="card soft" style="text-align:center;margin-top:8px">'+qoriSelect()+
+   ' <button class="btn small" onclick="qAudNext(-1)">⏮</button>'+
+   ' <button class="btn small" onclick="qAudPlay()">▶</button>'+
+   ' <button class="btn small" onclick="qAudStop()">⏹</button>'+
+   ' <button class="btn small" onclick="qAudNext(1)">⏭</button>'+
+   ' <button class="btn small" onclick="qLoop=!qLoop;this.style.opacity=qLoop?1:.5">🔁</button></div>';
+}
+/* ===== geser kiri/kanan = pindah halaman ===== */
+(function(){let x0=null,y0=null;
+  document.addEventListener('touchstart',function(e){x0=e.touches[0].clientX;y0=e.touches[0].clientY;},{passive:true});
+  document.addEventListener('touchend',function(e){
+    if(x0===null)return;const dx=e.changedTouches[0].clientX-x0,dy=e.changedTouches[0].clientY-y0;x0=null;
+    if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5&&!document.getElementById('qDetail').classList.contains('hidden'))qPage(dx<0?1:-1);
+  },{passive:true});
+})();
 async function qInit(){
   migrAllah();
   renderQLast();
@@ -993,26 +1054,34 @@ function renderQList(l){
     return '<div class="surah" onclick="qBuka('+s.nomor+')"><div class="s-num">'+s.nomor+'</div><div class="s-mid"><b>'+nm.n+'</b>'+off+'<br><small>'+nm.a+' • '+s.jumlahAyat+' ayat</small></div><div class="arab">'+qArab(s)+'</div></div>';
   }).join('');
 }
-async function qBuka(n,ayat){
-  document.getElementById('qList').classList.add('hidden');
-  document.getElementById('qCari').classList.add('hidden');
-  document.getElementById('qLast').classList.add('hidden');
-  const det=document.getElementById('qDetail');det.classList.remove('hidden');
+async function qLoad(n){
   let s=JSON.parse(localStorage.getItem('sh_q_s'+n)||'null');
   if(!s){
-    det.innerHTML='<div class="loading">Memuat surah... (butuh internet sekali, lalu tersimpan offline)</div>';
+    document.getElementById('qDetail').innerHTML='<div class="loading">Memuat surah... (butuh internet sekali, lalu tersimpan offline)</div>';
     s=await qFetchDetail(n);
-    if(!s){det.innerHTML='<div class="loading">Gagal memuat. Cek internet.<br><button class="btn small" onclick="qBuka('+n+')">🔄 Ulangi</button> <button class="btn small" onclick="qKembali()">← Daftar</button></div>';return;}
+    if(!s)return null;
     try{localStorage.setItem('sh_q_s'+n,JSON.stringify(s));}catch(e){}
     qStatus();
   }
+  return s;
+}
+async function qBuka(n,ayat){
+  qAudStop();
+  document.getElementById('qList').classList.add('hidden');
+  document.getElementById('qCari').classList.add('hidden');
+  document.getElementById('qLast').classList.add('hidden');
+  document.getElementById('qDetail').classList.remove('hidden');
+  document.getElementById('qBar').classList.remove('hidden');
+  const s=await qLoad(n);
+  if(!s){document.getElementById('qDetail').innerHTML='<div class="loading">Gagal memuat. Cek internet.<br><button class="btn small" onclick="qBuka('+n+')">🔄 Ulangi</button> <button class="btn small" onclick="qKembali()">← Daftar</button></div>';return;}
   qNow=s;qPages=qBuildPages(s);qCur=0;
   if(ayat){for(let i=0;i<qPages.length;i++){if(qPages[i][0].nomorAyat<=ayat)qCur=i;else break;}}
-  document.getElementById('qBar').classList.remove('hidden');
   qRenderPage();
 }
 function qRenderPage(){
-  const s=qNow,nm=qNama(s),pg=qPages[qCur],M=modeMushaf();
+  const s=qNow;if(!s)return;
+  const nm=qNama(s),pg=qPages[qCur],M=modeMushaf();
+  qSetSeq(pg);
   const tm=String(s.tempatTurun||'').toLowerCase();
   const tmp=(tm.indexOf('madan')>-1||tm.indexOf('medinan')>-1)?'Madaniyah':(tm?'Makkiyah':'');
   const rentang=pg[0].nomorAyat+'–'+pg[pg.length-1].nomorAyat;
@@ -1022,39 +1091,46 @@ function qRenderPage(){
   if(M){
     h+='<div class="mushaf"><div class="m-head">'+s.nomor+'. '+nm.n+' : '+rentang+
        '<small>'+nm.a+' • '+tmp+' • Hal '+(qCur+1)+'/'+qPages.length+'</small></div>'+bis;
-    h+=pg.map(function(a){
+    h+=pg.map(function(a,i){
       return '<div class="ayat m-ayat"><div class="col-ar">'+warnaTajwid(a.teksArab)+
         '<span class="a-no">'+a.nomorAyat+'</span></div>'+
         (a.teksLatin?'<div class="l">'+a.teksLatin+'</div>':'')+
-        '<div class="col-id"><b>'+s.nomor+':'+a.nomorAyat+'</b> '+a.teksIndonesia+'</div></div>';
+        '<div class="col-id"><b>'+s.nomor+':'+a.nomorAyat+'</b> '+a.teksIndonesia+aksiAyat(s,a,i)+'</div></div>';
     }).join('');
     h+='<div class="legenda"><span><b class="tj-ikhfa">■</b> Ikhfa</span><span><b class="tj-idgham">■</b> Idgham</span>'+
        '<span><b class="tj-iqlab">■</b> Iqlab</span><span><b class="tj-qalqalah">■</b> Qalqalah</span></div></div>';
   }else{
     h+='<div class="card" style="text-align:center"><b style="font-size:18px;color:var(--green)">'+nm.n+'</b><br><small class="soft">'+nm.a+' • '+s.jumlahAyat+' ayat</small></div>';
     h+='<div class="q-head"><span>'+tmp+'</span><span class="ar">'+qArab(s)+'</span><span>'+s.jumlahAyat+' Ayat</span></div>'+bis;
-    h+=pg.map(function(a){
+    h+=pg.map(function(a,i){
       return '<div class="ayat"><div class="a">'+a.teksArab+'<span class="a-no">'+a.nomorAyat+'</span></div>'+
-        (a.teksLatin?'<div class="l">'+a.teksLatin+'</div>':'')+'<div class="t">'+a.teksIndonesia+'</div></div>';
+        (a.teksLatin?'<div class="l">'+a.teksLatin+'</div>':'')+'<div class="t">'+a.teksIndonesia+'</div>'+aksiAyat(s,a,i)+'</div>';
     }).join('');
+    h+='<div class="soft" style="text-align:center;margin:6px 0">Ayat '+rentang+'</div>';
   }
+  h+=barAud();
   document.getElementById('qDetail').innerHTML=h;
   document.getElementById('qBarT').textContent=nm.n+' • Hal '+(qCur+1)+'/'+qPages.length;
-  document.getElementById('qPrev').disabled=(qCur===0);
+  document.getElementById('qPrev').disabled=(qCur===0&&s.nomor===1);
   document.getElementById('qNext').disabled=(qCur===qPages.length-1&&s.nomor===114);
   localStorage.setItem('sh_q_last',JSON.stringify({nomor:s.nomor,namaLatin:s.namaLatin,ayat:pg[0].nomorAyat,hal:qCur+1,total:qPages.length}));
   window.scrollTo(0,0);
 }
-function qPage(d){
-  if(d>0&&qCur===qPages.length-1){
-    if(qNow.nomor<114){qBuka(qNow.nomor+1);}
-    return;
+async function qPage(d){
+  if(!qNow)return;
+  if(d>0){
+    if(qCur<qPages.length-1){qCur++;sfxKlik();qRenderPage();}
+    else if(qNow.nomor<114){await qBuka(qNow.nomor+1);}
+  }else{
+    if(qCur>0){qCur--;sfxKlik();qRenderPage();}
+    else if(qNow.nomor>1){
+      const s=await qLoad(qNow.nomor-1);
+      if(s){qNow=s;qPages=qBuildPages(s);qCur=qPages.length-1;qRenderPage();}
+    }
   }
-  const nx=qCur+d;
-  if(nx<0||nx>=qPages.length)return;
-  qCur=nx;sfxKlik();qRenderPage();
 }
 function qKembali(){
+  qAudStop();
   document.getElementById('qBar').classList.add('hidden');
   document.getElementById('qDetail').classList.add('hidden');
   document.getElementById('qList').classList.remove('hidden');
