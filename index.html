@@ -840,7 +840,7 @@ function renderNotes(){
   });
 }
 
-/* ========== AL-QUR'AN: 3 sumber + nama Indonesia + mode mushaf + audio ========== */
+/* ========== AL-QUR'AN: sumber + nama Indonesia + mushaf + audio + mode tidur ========== */
 const QAPI=[
 {t:'eq',u:'https://equran.id/apiv2'},
 {t:'eq',u:'https://equran.id/api/v2'},
@@ -938,7 +938,7 @@ function warnaTajwid(s){
    .replace(/(نْ|ً|ٍ|ٌ)(?=[تثجذزسشصضطظفقك])/g,'<span class="tj-ikhfa">$1</span>')
    .replace(/([قطبجد])(?=ْ)/g,'<span class="tj-qalqalah">$1</span>');
 }
-/* ===== murattal: streaming per ayat dari everyayah.com — tanpa berkas MP3 lokal ===== */
+/* ===== murattal: streaming per ayat & per surah — tanpa berkas MP3 lokal ===== */
 const QORI=[
 ['Alafasy_128kbps','Mishary Alafasy (Kuwait)'],
 ['Abdul_Basit_Murattal_192kbps','Abdul Basit Abdus-Samad (Mesir)'],
@@ -947,24 +947,81 @@ const QORI=[
 ['Nasser_Alqatami_128kbps','Nasser Al-Qatami (Saudi)'],
 ['Akram_AlAlaqimy_128kbps','Akram Al-Alaqimy']
 ];
+const QNET={Alafasy_128kbps:'ar.alafasy',Abdul_Basit_Murattal_192kbps:'ar.abdulbasitmurattal',Husary_128kbps:'ar.husary',Hani_Rifai_192kbps:'ar.hanirifai',Nasser_Alqatami_128kbps:'ar.nasseralqatami',Akram_AlAlaqimy_128kbps:'ar.akramalalaqimy'};
 function qoriPilih(){return localStorage.getItem('sh_qori')||'Alafasy_128kbps';}
-function qoriGanti(v){localStorage.setItem('sh_qori',v);if(qAud)qAudPlay();}
+function qoriGanti(v){localStorage.setItem('sh_qori',v);if(qAud){if(qSurahNow)qAudSurah(qSurahNow);else qAudPlay();}}
 function qoriSelect(){return '<select class="btn small" onchange="qoriGanti(this.value)">'+QORI.map(function(q){return '<option value="'+q[0]+'"'+(qoriPilih()===q[0]?' selected':'')+'>'+q[1]+'</option>';}).join('')+'</select>';}
 function pad3(n){return String(n).padStart(3,'0');}
-let qAud=null,qSeq=[],qPos=0,qLoop=false;
+let qAud=null,qSeq=[],qPos=0,qLoop=false,qSurahNow=0,qAutoSurah=false,qSleepEnd=0,qSleepTmr=null;
 function qSetSeq(pg){qSeq=pg;qPos=0;}
 function qAudUrl(a){return 'https://everyayah.com/data/'+qoriPilih()+'/'+pad3(qNow.nomor)+pad3(a.nomorAyat)+'.mp3';}
+function qAudUi(st){const el=document.getElementById('qAudSt');if(el)el.textContent=st;}
 function qAudPlay(i){
   if(!qSeq.length||!qNow)return;
   if(typeof i==='number')qPos=i;
+  if(!navigator.onLine){qAudUi('⚠️ Audio ayat = streaming: butuh internet (matikan mode pesawat).');return;}
   if(qAud){qAud.pause();qAud=null;}
-  qAud=new Audio(qAudUrl(qSeq[qPos]));
-  qAud.onended=function(){if(qLoop){qAud.currentTime=0;qAud.play();}else if(qPos<qSeq.length-1){qPos++;qAudPlay();}};
-  qAud.onerror=function(){alert('Audio butuh koneksi internet.');};
-  qAud.play().catch(function(){alert('Audio butuh koneksi internet.');});
+  qSurahNow=0;
+  qAudUi('⏳ Memuat '+qNow.nomor+':'+qSeq[qPos].nomorAyat+'...');
+  qAud=new Audio(qAudUrl(qSeq[qPos]));qAud.volume=1;
+  qAud.onplaying=function(){qAudUi('🔊 Memutar '+qNow.nomor+':'+qSeq[qPos].nomorAyat);};
+  qAud.onended=function(){
+    if(qLoop){qAud.currentTime=0;qAud.play();return;}
+    if(qPos<qSeq.length-1){qPos++;qAudPlay();return;}
+    qAudUi('✅ Halaman selesai. Ketuk 🎧 untuk surah utuh.');
+  };
+  qAud.onerror=function(){qAudUi('❌ Gagal memuat audio ayat (cek internet / coba qori lain).');};
+  qAud.play().catch(function(){qAudUi('❌ Pemutaran ditolak — ketuk ▶ sekali lagi.');});
 }
 function qAudNext(d){if(!qSeq.length)return;qPos=Math.min(qSeq.length-1,Math.max(0,qPos+d));qAudPlay();}
-function qAudStop(){if(qAud){qAud.pause();qAud=null;}}
+function qAudStop(){if(qAud){qAud.pause();qAud=null;}qAudUi('⏹ Berhenti.');}
+function qAudSurah(n){
+  n=n||(qNow?qNow.nomor:1);
+  const id=QNET[qoriPilih()];
+  if(!id){qAudUi('⚠️ Qori ini tidak punya berkas surah utuh — ganti qori.');return;}
+  if(!navigator.onLine){qAudUi('⚠️ Audio surah utuh = streaming: butuh internet.');return;}
+  if(qAud){qAud.pause();qAud=null;}
+  qSurahNow=n;
+  qAudUi('⏳ Memuat surah utuh '+n+'...');
+  qAud=new Audio('https://cdn.islamic.network/quran/audio-surah/128/'+id+'/'+n+'.mp3');qAud.volume=1;
+  qAud.onplaying=function(){qAudUi('🎧 Surah '+n+' mengalir utuh, tanpa guntingan.');};
+  qAud.onended=function(){
+    if(qLoop){qAudSurah(n);return;}
+    if(qAutoSurah&&n<114){qAudSurah(n+1);return;}
+    if(qAutoSurah){qAutoSurah=false;qAudUi('✅ Sampai surah terakhir mushaf.');return;}
+    qAudUi('✅ Selesai satu surah.');
+  };
+  qAud.onerror=function(){qAudUi('❌ Gagal memuat surah '+n+' — coba qori lain.');};
+  qAud.play().catch(function(){qAudUi('❌ Ditolak — ketuk 🎧 sekali lagi.');});
+}
+/* ===== mode tidur: playlist lintas surah + volume melunak + berhenti lembut ===== */
+function qSleepStart(m){
+  qSleepEnd=Date.now()+m*60000;
+  if(qSleepTmr)clearInterval(qSleepTmr);
+  qSleepTmr=setInterval(qSleepTick,1000);
+  qAutoSurah=true;
+  qAudSurah();
+  qAudUi('😴 Mode tidur '+m+' menit: surah bersambung sendiri, volume melunak di menit terakhir.');
+}
+function qSleepTick(){
+  const sisa=qSleepEnd-Date.now();
+  if(sisa<=0){qSleepStop(true);return;}
+  if(qAud&&sisa<=60000)qAud.volume=Math.max(0.05,sisa/60000);
+  const el=document.getElementById('qAudSt');
+  if(el)el.textContent='😴 Terlelap dalam '+Math.ceil(sisa/60000)+' menit...';
+}
+function qSleepStop(lembut){
+  qSleepEnd=0;
+  if(qSleepTmr){clearInterval(qSleepTmr);qSleepTmr=null;}
+  if(qAud){qAud.volume=1;qAud.pause();qAud=null;}
+  qAutoSurah=false;
+  qAudUi(lembut?'🌙 Waktu tidur habis — audio berhenti dengan lembut.':'Mode tidur dimatikan.');
+}
+function sleepSelect(){
+  return '<select class="btn small" onchange="if(+this.value)qSleepStart(+this.value);else qSleepStop()">'+
+   '<option value="0">😴 Timer tidur</option><option value="15">15 menit</option><option value="30">30 menit</option>'+
+   '<option value="45">45 menit</option><option value="60">60 menit</option><option value="90">90 menit</option></select>';
+}
 /* ===== bookmark + salin/bagikan per ayat (kunci bookmark dibagi dua bahasa) ===== */
 function bmList(){return JSON.parse(localStorage.getItem('sh_bm')||'[]');}
 function bmAda(n,a){return bmList().some(function(x){return x.n===n&&x.a===a;});}
@@ -989,7 +1046,10 @@ function barAud(){
    ' <button class="btn small" onclick="qAudPlay()">▶</button>'+
    ' <button class="btn small" onclick="qAudStop()">⏹</button>'+
    ' <button class="btn small" onclick="qAudNext(1)">⏭</button>'+
-   ' <button class="btn small" onclick="qLoop=!qLoop;this.style.opacity=qLoop?1:.5">🔁</button></div>';
+   ' <button class="btn small" onclick="qLoop=!qLoop;this.textContent=qLoop?\'🔂\':\'🔁\'">'+(qLoop?'🔂':'🔁')+'</button>'+
+
+   ' <button class="btn small" onclick="qAudSurah()">🎧</button> '+sleepSelect()+
+   '<div id="qAudSt" class="soft" style="margin-top:6px;font-size:12px">▶ rantai ayat • 🎧 surah utuh • 😴 timer tidur</div></div>';
 }
 /* ===== geser kiri/kanan = pindah halaman ===== */
 (function(){let x0=null,y0=null;
@@ -1148,7 +1208,6 @@ function tutupWelcome(){
   qUnduh(true);
 }
 
-  
 /* ========== navigasi ========== */
 const NAVMAP={jadwal:'navJadwal',quran:'navQuran',ibadah:'navIbadah',catatan:'navCatatan',profil:'navProfil'};
 function pindahHal(h){
