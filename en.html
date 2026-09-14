@@ -821,7 +821,7 @@ function renderNotes(){
   });
 }
 
-/* ========== Qur'an: English + offline + mushaf pages + audio ========== */
+/* ========== Qur'an: English + offline + mushaf + audio + sleep mode ========== */
 const QAPI=[
 {t:'aqc',u:'https://api.alquran.cloud/v1'},
 {t:'eq',u:'https://equran.id/apiv2'},
@@ -918,7 +918,7 @@ function warnaTajwid(s){
    .replace(/(نْ|ً|ٍ|ٌ)(?=[تثجذزسشصضطظفقك])/g,'<span class="tj-ikhfa">$1</span>')
    .replace(/([قطبجد])(?=ْ)/g,'<span class="tj-qalqalah">$1</span>');
 }
-/* ===== murattal: streamed per-ayah from everyayah.com — no MP3 files owned ===== */
+/* ===== murattal: streamed per ayah & per surah — no local MP3 files ===== */
 const QORI=[
 ['Alafasy_128kbps','Mishary Alafasy (Kuwait)'],
 ['Abdul_Basit_Murattal_192kbps','Abdul Basit Abdus-Samad (Egypt)'],
@@ -927,25 +927,82 @@ const QORI=[
 ['Nasser_Alqatami_128kbps','Nasser Al-Qatami (Saudi)'],
 ['Akram_AlAlaqimy_128kbps','Akram Al-Alaqimy']
 ];
+const QNET={Alafasy_128kbps:'ar.alafasy',Abdul_Basit_Murattal_192kbps:'ar.abdulbasitmurattal',Husary_128kbps:'ar.husary',Hani_Rifai_192kbps:'ar.hanirifai',Nasser_Alqatami_128kbps:'ar.nasseralqatami',Akram_AlAlaqimy_128kbps:'ar.akramalalaqimy'};
 function qoriPilih(){return localStorage.getItem('she_qori')||'Alafasy_128kbps';}
-function qoriGanti(v){localStorage.setItem('she_qori',v);if(qAud)qAudPlay();}
+function qoriGanti(v){localStorage.setItem('she_qori',v);if(qAud){if(qSurahNow)qAudSurah(qSurahNow);else qAudPlay();}}
 function qoriSelect(){return '<select class="btn small" onchange="qoriGanti(this.value)">'+QORI.map(function(q){return '<option value="'+q[0]+'"'+(qoriPilih()===q[0]?' selected':'')+'>'+q[1]+'</option>';}).join('')+'</select>';}
 function pad3(n){return String(n).padStart(3,'0');}
-let qAud=null,qSeq=[],qPos=0,qLoop=false;
+let qAud=null,qSeq=[],qPos=0,qLoop=false,qSurahNow=0,qAutoSurah=false,qSleepEnd=0,qSleepTmr=null;
 function qSetSeq(pg){qSeq=pg;qPos=0;}
 function qAudUrl(a){return 'https://everyayah.com/data/'+qoriPilih()+'/'+pad3(qNow.nomor)+pad3(a.nomorAyat)+'.mp3';}
+function qAudUi(st){const el=document.getElementById('qAudSt');if(el)el.textContent=st;}
 function qAudPlay(i){
   if(!qSeq.length||!qNow)return;
   if(typeof i==='number')qPos=i;
+  if(!navigator.onLine){qAudUi('⚠️ Ayah audio is streamed: internet needed (turn off airplane mode).');return;}
   if(qAud){qAud.pause();qAud=null;}
-  qAud=new Audio(qAudUrl(qSeq[qPos]));
-  qAud.onended=function(){if(qLoop){qAud.currentTime=0;qAud.play();}else if(qPos<qSeq.length-1){qPos++;qAudPlay();}};
-  qAud.onerror=function(){alert('Audio needs an internet connection.');};
-  qAud.play().catch(function(){alert('Audio needs an internet connection.');});
+  qSurahNow=0;
+  qAudUi('⏳ Loading '+qNow.nomor+':'+qSeq[qPos].nomorAyat+'...');
+  qAud=new Audio(qAudUrl(qSeq[qPos]));qAud.volume=1;
+  qAud.onplaying=function(){qAudUi('🔊 Playing '+qNow.nomor+':'+qSeq[qPos].nomorAyat);};
+  qAud.onended=function(){
+    if(qLoop){qAud.currentTime=0;qAud.play();return;}
+    if(qPos<qSeq.length-1){qPos++;qAudPlay();return;}
+    qAudUi('✅ Page finished. Tap 🎧 for the full surah.');
+  };
+  qAud.onerror=function(){qAudUi('❌ Failed to load ayah audio (check internet / try another reciter).');};
+  qAud.play().catch(function(){qAudUi('❌ Playback blocked — tap ▶ again.');});
 }
 function qAudNext(d){if(!qSeq.length)return;qPos=Math.min(qSeq.length-1,Math.max(0,qPos+d));qAudPlay();}
-function qAudStop(){if(qAud){qAud.pause();qAud=null;}}
-/* ===== bookmarks + copy/share per ayah (shared key across languages) ===== */
+function qAudStop(){if(qAud){qAud.pause();qAud=null;}qAudUi('⏹ Stopped.');}
+function qAudSurah(n){
+  n=n||(qNow?qNow.nomor:1);
+  const id=QNET[qoriPilih()];
+  if(!id){qAudUi('⚠️ This reciter has no full-surah file — choose another.');return;}
+  if(!navigator.onLine){qAudUi('⚠️ Full-surah audio is streamed: internet needed.');return;}
+  if(qAud){qAud.pause();qAud=null;}
+  qSurahNow=n;
+  qAudUi('⏳ Loading full surah '+n+'...');
+  qAud=new Audio('https://cdn.islamic.network/quran/audio-surah/128/'+id+'/'+n+'.mp3');qAud.volume=1;
+  qAud.onplaying=function(){qAudUi('🎧 Surah '+n+' flowing in full, uncut.');};
+  qAud.onended=function(){
+    if(qLoop){qAudSurah(n);return;}
+    if(qAutoSurah&&n<114){qAudSurah(n+1);return;}
+    if(qAutoSurah){qAutoSurah=false;qAudUi('✅ Reached the last surah.');return;}
+    qAudUi('✅ One surah finished.');
+  };
+  qAud.onerror=function(){qAudUi('❌ Failed to load surah '+n+' — try another reciter.');};
+  qAud.play().catch(function(){qAudUi('❌ Blocked — tap 🎧 again.');});
+}
+/* ===== sleep mode: cross-surah playlist + fading volume + gentle stop ===== */
+function qSleepStart(m){
+  qSleepEnd=Date.now()+m*60000;
+  if(qSleepTmr)clearInterval(qSleepTmr);
+  qSleepTmr=setInterval(qSleepTick,1000);
+  qAutoSurah=true;
+  qAudSurah();
+  qAudUi('😴 Sleep mode '+m+' min: surahs chain automatically, volume fades in the last minute.');
+}
+function qSleepTick(){
+  const sisa=qSleepEnd-Date.now();
+  if(sisa<=0){qSleepStop(true);return;}
+  if(qAud&&sisa<=60000)qAud.volume=Math.max(0.05,sisa/60000);
+  const el=document.getElementById('qAudSt');
+  if(el)el.textContent='😴 Asleep in '+Math.ceil(sisa/60000)+' min...';
+}
+function qSleepStop(lembut){
+  qSleepEnd=0;
+  if(qSleepTmr){clearInterval(qSleepTmr);qSleepTmr=null;}
+  if(qAud){qAud.volume=1;qAud.pause();qAud=null;}
+  qAutoSurah=false;
+  qAudUi(lembut?'🌙 Sleep time is up — audio stops gently.':'Sleep mode off.');
+}
+function sleepSelect(){
+  return '<select class="btn small" onchange="if(+this.value)qSleepStart(+this.value);else qSleepStop()">'+
+   '<option value="0">😴 Sleep timer</option><option value="15">15 minutes</option><option value="30">30 minutes</option>'+
+   '<option value="45">45 minutes</option><option value="60">60 minutes</option><option value="90">90 minutes</option></select>';
+}
+/* ===== bookmarks + copy/share per ayah (bookmark key shared across languages) ===== */
 function bmList(){return JSON.parse(localStorage.getItem('sh_bm')||'[]');}
 function bmAda(n,a){return bmList().some(function(x){return x.n===n&&x.a===a;});}
 function bmToggle(n,a){const l=bmList();const i=l.findIndex(function(x){return x.n===n&&x.a===a;});
@@ -969,7 +1026,9 @@ function barAud(){
    ' <button class="btn small" onclick="qAudPlay()">▶</button>'+
    ' <button class="btn small" onclick="qAudStop()">⏹</button>'+
    ' <button class="btn small" onclick="qAudNext(1)">⏭</button>'+
-   ' <button class="btn small" onclick="qLoop=!qLoop;this.style.opacity=qLoop?1:.5">🔁</button></div>';
+   ' <button class="btn small" onclick="qLoop=!qLoop;this.textContent=qLoop?\'🔂\':\'🔁\'">'+(qLoop?'🔂':'🔁')+'</button>'+
+   ' <button class="btn small" onclick="qAudSurah()">🎧</button> '+sleepSelect()+
+   '<div id="qAudSt" class="soft" style="margin-top:6px;font-size:12px">▶ ayah chain • 🎧 full surah • 😴 sleep timer</div></div>';
 }
 /* ===== swipe left/right = change page ===== */
 (function(){let x0=null,y0=null;
@@ -1127,7 +1186,7 @@ function tutupWelcome(){
   document.getElementById('welcomeBox').classList.add('hidden');
   qUnduh(true);
 }
-
+  
 /* ========== navigation ========== */
 const NAVMAP={jadwal:'navJadwal',quran:'navQuran',ibadah:'navIbadah',catatan:'navCatatan',profil:'navProfil'};
 function pindahHal(h){
