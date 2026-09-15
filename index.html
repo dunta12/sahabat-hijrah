@@ -1319,7 +1319,7 @@ function isiTanggal(){
 
 /* ========== update aplikasi ========== */
 async function updateApp(){
-  if(!confirm('Cek versi terbaru & muat ulang aplikasi?'))return;
+  if(!await tanya('Cek versi terbaru & muat ulang aplikasi?'))return;
   try{const regs=await navigator.serviceWorker.getRegistrations();for(const r of regs)await r.unregister();}catch(e){}
   try{const ks=await caches.keys();for(const k of ks)await caches.delete(k);}catch(e){}
   const u=location.href+(location.href.indexOf('?')>-1?'&':'?')+'upd='+Date.now();
