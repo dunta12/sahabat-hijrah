@@ -1363,7 +1363,7 @@ isiSelect();isiTanggal();isiHikmah();isiDoa();renderTb();renderAuto();renderNote
         const teks=isi+'\n\n— via Sahabat Hijrah 🌙\nhttps://dunta12.github.io/sahabat-hijrah';
         if(navigator.share){navigator.share({text:teks}).catch(function(){});}
         else if(navigator.clipboard){navigator.clipboard.writeText(teks).then(function(){alert('Tersalin! Tempel di WhatsApp/Instagram.');});}
-        else{prompt('Salin teks ini:',teks);}
+        else{salinTeks(teks);}
       };
       card.appendChild(btn);
     }
