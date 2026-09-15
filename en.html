@@ -1299,7 +1299,7 @@ function isiTanggal(){
 
 /* ========== app update ========== */
 async function updateApp(){
-  if(!confirm('Check for the latest version & reload the app?'))return;
+  if(!await tanya('Check for the latest version & reload the app?'))return;
   try{const regs=await navigator.serviceWorker.getRegistrations();for(const r of regs)await r.unregister();}catch(e){}
   try{const ks=await caches.keys();for(const k of ks)await caches.delete(k);}catch(e){}
   const u=location.href+(location.href.indexOf('?')>-1?'&':'?')+'upd='+Date.now();
