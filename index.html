@@ -868,7 +868,7 @@ function simpanEditor(){
   document.getElementById('edTitle').value='';document.getElementById('edText').value='';
   tutupEditor();renderNotes();sfxWin();
 }
-function delNote(i){if(!confirm('Hapus catatan ini?'))return;const arr=getNotes();arr.splice(i,1);localStorage.setItem('sh_notes',JSON.stringify(arr));renderNotes();}
+async function delNote(i){if(!await tanya('Hapus catatan ini?'))return;const arr=getNotes();arr.splice(i,1);localStorage.setItem('sh_notes',JSON.stringify(arr));renderNotes();}
 function renderNotes(){
   const w=document.getElementById('noteWrap');w.innerHTML='';
   const arr=getNotes();
