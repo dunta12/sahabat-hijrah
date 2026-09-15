@@ -1,6 +1,4 @@
-# 🌙 Sahabat Hijrah
-
-**English** · **Bahasa Indonesia**
+# 🌙 Sahabat Hijrah (English) 
 
 A free worship companion app for the hijrah journey: 
 prayer times, offline Qur'an, daily verse & hadith,
@@ -18,7 +16,7 @@ du'a, tasbih, qibla compass, Hijri calendar & ibadah tracker.
 - 🧭 Qibla compass
 - 🗓️ Hijri calendar & important Islamic dates
 - ✅ Daily ibadah tracker
-- 🧮 25 calculators & tools (incl. zakat)
+- 🧮 27 calculators & tools (incl. zakat)
 - 📝 Personal notes
 
 ## 🔒 Privacy
@@ -30,7 +28,7 @@ in the Profile menu.
 
 ---
 
-# 🌙 Sahabat Hijrah (Bahasa Indonesia)
+# 🌙 Sahabat Hijrah (Indonesia)
 
 Aplikasi pendamping ibadah gratis untuk sahabat hijrah: 
 jadwal sholat, Al-Qur'an offline, ayat & hadits harian,
@@ -45,7 +43,7 @@ doa, tasbih, kiblat, kalender hijriah & tracker ibadah.
 - 🧭 Kompas kiblat
 - 🗓️ Kalender hijriah & tanggal penting Islam
 - ✅ Tracker ibadah harian
-- 🧮 25 kalkulator & tools (termasuk zakat)
+- 🧮 27 kalkulator & tools (termasuk zakat)
 - 📝 Catatan pribadi
 
 ## 🔒 Privasi
