@@ -718,8 +718,8 @@ function tbTap(){
   renderTb();
 }
 function tbReset(){tbCount=0;seqIdx=0;localStorage.setItem('she_tb',0);renderTb();}
-function resetTotal(){
-  if(confirm('Reset total dhikr to 0?')){tbTotal=0;localStorage.setItem('she_tbt',0);renderTb();}
+async function resetTotal(){
+  if(await tanya('Reset total dhikr to 0?')){tbTotal=0;localStorage.setItem('she_tbt',0);renderTb();}
 }
 function renderTb(){
   document.getElementById('tbCount').textContent=tbCount;
