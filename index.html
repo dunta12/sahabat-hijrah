@@ -154,6 +154,11 @@ nav button .ic{font-size:20px;display:block}
 /* warna tambahan untuk 10 hukum (menyala setelah langkah 3) */
 .tj-izhar{color:#6a1b9a}.tj-idgham2{color:#7cb342}.tj-ikhfa-s{color:#ef6c00}
 .tj-idgham-s{color:#8d6e63}.tj-izhar-s{color:#00acc1}.tj-ghunnah{color:#ad1457}
+/* ==== perisai layar: nav ramping di semua HP ==== */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+nav{height:70px;height:calc(70px + env(safe-area-inset-bottom,0px));padding-bottom:0;padding-bottom:env(safe-area-inset-bottom,0px);overflow:hidden}
+nav button{display:flex;flex-direction:column;justify-content:center;align-items:center}
+.qbar{bottom:70px;bottom:calc(70px + env(safe-area-inset-bottom,0px))}
 </style>
 <script src="dlg.js"></script>
 </head>
