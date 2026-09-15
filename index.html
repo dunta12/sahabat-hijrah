@@ -734,8 +734,8 @@ function tbTap(){
   renderTb();
 }
 function tbReset(){tbCount=0;seqIdx=0;localStorage.setItem('sh_tb',0);renderTb();}
-function resetTotal(){
-  if(confirm('Hapus total dzikir menjadi 0?')){tbTotal=0;localStorage.setItem('sh_tbt',0);renderTb();}
+async function resetTotal(){
+  if(await tanya('Hapus total dzikir menjadi 0?')){tbTotal=0;localStorage.setItem('sh_tbt',0);renderTb();}
 }
 function renderTb(){
   document.getElementById('tbCount').textContent=tbCount;
