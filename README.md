@@ -22,10 +22,6 @@ du'a, tasbih, qibla compass, Hijri calendar & ibadah tracker.
 ## 🔒 Privacy
 All data is stored only on your device. No account needed.
 
-## 🤲 Support
-This app is free. Voluntary donation (QRIS) is available
-in the Profile menu.
-
 ---
 
 # 🌙 Sahabat Hijrah (Indonesia)
@@ -48,10 +44,6 @@ doa, tasbih, kiblat, kalender hijriah & tracker ibadah.
 
 ## 🔒 Privasi
 Semua data tersimpan hanya di perangkat Anda. Tanpa akun.
-
-## 🤲 Dukungan
-Aplikasi ini gratis. Donasi sukarela (QRIS) tersedia
-di menu Profil.
 
 ---
 © 2026 Dunta - dibuat sepenuhnya dari HP 📱 / built entirely from a phone 📱
