@@ -894,7 +894,7 @@ function qNama(s){const e=QEN[s.nomor-1];return e?{n:e[0],a:e[1]}:{n:s.namaLatin
 function qArab(s){return String(s.nama||'').replace(/^سُورَةُ\s*/,'').replace(/^سورة\s*/,'');}
 function normQ(t){return String(t).toLowerCase().replace(/[^a-z0-9]/g,'');}
 /* --- normalize the Allah ligature: plant the standing fatha (U+0670) if missing --- */
-function fixAllah(s){return String(s==null?'':s).replace(/للَّ(?!ٰ)/g,'للّٰ');}
+function fixAllah(s){return String(s==null?'':s).replace(/\u0644\u0644\u0670\u0651/g,'\u0644\u0644\u0651\u0670').replace(/\u0644\u0644\u0651(?!\u0670)/g,'\u0644\u0644\u0651\u0670');}(function(){var ob=qBuildPages;qBuildPages=function(s){if(s&&s.ayat)for(var i=0;i<s.ayat.length;i++)s.ayat[i].teksArab=fixAllah(s.ayat[i].teksArab);return ob(s);};})();
 function migrAllah(){
   for(let i=1;i<=114;i++){
     const k='she_q_s'+i,raw=localStorage.getItem(k);
