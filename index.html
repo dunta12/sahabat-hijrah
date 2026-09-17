@@ -1105,7 +1105,7 @@ function aksiAyat(s,a,i){
     '<button class="btn small" onclick="ayatKirimIdx('+i+')">📤</button></div>';
 }
 function barAud(){
-  return '<div class="card soft" style="text-align:center;margin-top:8px">'+qoriSelect()+
+  return '<div class="card soft" style="font-size:12px;line-height:1.7;color:#5b6b63">📖 <b>Catatan bacaan:</b> lafaz Allah — dalam bentuk apa pun: <i>Allah, lillah, billah, Allahumma</i>, dan setiap kata yang memuatnya — <b>selalu dibaca dengan "la" yang panjang</b> (mad ± 2 harakat), baik tanda fathah tegak (\u0670) tampak maupun tidak tampak di layar. Tanda hanyalah bantu mata, hukum bacaannya dibawa oleh tajwid yang kamu terima dari guru. <br><b>Sumber teks Arab & terjemahan:</b> Mushaf Standar Indonesia — data Kemenag RI via equran.id.</div>'+'<div class="card soft" style="text-align:center;margin-top:8px">'+qoriSelect()+
    '<button id="qBigBtn" class="btnBig" onclick="qAudToggle()">'+((qAud&&qSurahNow&&!qAud.paused)?'⏸ Jeda':'▶ Putar surah utuh')+'</button>'+
    sleepChips()+
    '<div><button class="ghost" onclick="qAudNext(-1)">⏮ ayat</button>'+
