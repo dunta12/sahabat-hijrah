@@ -1216,8 +1216,8 @@ h+='<div class="mushaf"><div class="m-head">'+s.nomor+'. '+nm.n+' : '+rentang+' 
   }else{
     h+='<div class="card" style="text-align:center"><b style="font-size:18px;color:var(--green)">'+nm.n+'</b><br><small class="soft">'+nm.a+' • '+s.jumlahAyat+' ayat</small></div>';
     h+='<div class="q-head"><span>'+tmp+'</span><span class="ar">'+qArab(s)+'</span><span>'+s.jumlahAyat+' Ayat</span></div>'+bis;
-    h+=pg.map(function(a,i){
-      return '<div class="ayat"><div class="a">'+a.teksArab+'<span class="a-no">'+a.nomorAyat+'</span></div>'+
+    h+=((qCur===0&&s.nomor!==1&&s.nomor!==9)?'<div class="ayat" style="text-align:center;font-size:20px">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>':'')+pg.map(function(a,i){
+      return '<div class="ayat"><div class="a">'+(function(t){var w=t.split(' ');if(a.nomorAyat===1&&s.nomor!==1&&s.nomor!==9&&w.length>4){var b=function(x){return x.replace(/[\u0640\u064B-\u065F\u0670\u06D6-\u06ED]/g,'').replace(/[ٱآأإٲٳ]/g,'ا');};if(b(w[0])==='بسم'&&b(w[1])==='الله'&&b(w[2])==='الرحمن'&&b(w[3])==='الرحيم'){t=w.slice(4).join(' ');}}return t;})(a.teksArab)+'<span class="a-no">'+a.nomorAyat+'</span></div>'+
         (a.teksLatin?'<div class="l">'+a.teksLatin+'</div>':'')+'<div class="t">'+a.teksIndonesia+'</div>'+aksiAyat(s,a,i)+'</div>';
     }).join('');
     h+='<div class="soft" style="text-align:center;margin:6px 0">Ayat '+rentang+'</div>';
