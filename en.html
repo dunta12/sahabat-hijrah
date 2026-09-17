@@ -10,6 +10,8 @@
 <meta name="theme-color" content="#1b4d3e">
 <link rel="icon" href="icon-192.png" type="image/png">
 <style>
+@font-face{font-family:'Amiri Quran';src:url('AmiriQuran-Regular.ttf');font-display:swap;}
+@font-face{font-family:'Scheherazade New';src:url('ScheherazadeNew-Regular.ttf');font-display:swap;}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{--bg:#f2efe6;--card:#ffffff;--card2:#e6efe9;--green:#1b4d3e;--green2:#2d6a4f;--gold:#ffd700;--gold2:#c9a227;--text:#20302a;--soft:#66786d;--line:#e3e0d5}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px}
@@ -1191,20 +1193,8 @@ function qRenderPage(){
     '<div class="'+(M?'m-bismillah':'ayat')+'" style="'+(M?'':'text-align:center;font-size:20px')+'">بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ</div>':'';
   let h='<div style="text-align:right;margin-bottom:6px"><button class="btn small" onclick="setModeMushaf(!modeMushaf())">'+(M?'📄 Plain mode':'🕌 Mushaf mode')+'</button></div>';
   if(M){
-    h+='<div class="mushaf"><div class="m-head">'+s.nomor+'. '+nm.n+' : '+rentang+
-       '<small>'+nm.a+' • '+tmp+' • Page '+(qCur+1)+'/'+qPages.length+'</small></div>'+bis;
-    h+=pg.map(function(a,i){
-      return '<div class="ayat m-ayat"><div class="col-ar">'+warnaTajwid(a.teksArab)+
-        '<span class="a-no">'+a.nomorAyat+'</span></div>'+
-        (a.teksLatin?'<div class="l">'+a.teksLatin+'</div>':'')+
-        '<div class="col-id"><b>'+s.nomor+':'+a.nomorAyat+'</b> '+a.teksIndonesia+aksiAyat(s,a,i)+'</div></div>';
-    }).join('');
-        h+='<div class="legenda"><span><b class="tj-izhar">■</b> Izhar Halqi</span><span><b class="tj-idgham">■</b> Idgham Bighunnah</span>'+
-       '<span><b class="tj-idgham2">■</b> Idgham Bilaghunnah</span><span><b class="tj-iqlab">■</b> Iqlab</span>'+
-       '<span><b class="tj-ikhfa">■</b> Ikhfa Haqiqi</span><span><b class="tj-ikhfa-s">■</b> Ikhfa Shafawi</span>'+
-       '<span><b class="tj-idgham-s">■</b> Idgham Mitslain</span><span><b class="tj-izhar-s">■</b> Izhar Shafawi</span>'+
-       '<span><b class="tj-ghunnah">■</b> Ghunnah</span><span><b class="tj-qalqalah">■</b> Qalqalah</span></div></div>';
-  }else{
+h+='<div class="mushaf"><div class="m-head">'+s.nomor+'. '+nm.n+' : '+rentang+' <small>'+nm.a+' · '+tmp+' · Page '+(qCur+1)+'/'+qPages.length+'</small></div>'+bis+'<div style="direction:rtl;text-align:center;font-family:Amiri Quran,Scheherazade New,serif;font-size:27px;line-height:2.3">'+pg.map(function(a){return a.teksArab+' <span style="color:#b8860b;font-size:.8em">﴿'+String(a.nomorAyat).replace(/\d/g,function(d){return '٠١٢٣٤٥٦٧٨٩'[d];})+'﴾</span>';}).join(' ')+'</div></div>';
+}else{
     h+='<div class="card" style="text-align:center"><b style="font-size:18px;color:var(--green)">'+nm.n+'</b><br><small class="soft">'+nm.a+' • '+s.jumlahAyat+' ayahs</small></div>';
     h+='<div class="q-head"><span>'+tmp+'</span><span class="ar">'+qArab(s)+'</span><span>'+s.jumlahAyat+' Ayahs</span></div>'+bis;
     h+=pg.map(function(a,i){
