@@ -1086,7 +1086,7 @@ function aksiAyat(s,a,i){
     '<button class="btn small" onclick="ayatKirimIdx('+i+')">📤</button></div>';
 }
 function barAud(){
-  return '<div class="card soft" style="text-align:center;margin-top:8px">'+qoriSelect()+
+  return '<div class="card soft" style="font-size:12px;line-height:1.7;color:#5b6b63">📖 <b>Recitation note:</b> the name Allah — in every form: <i>Allah, lillah, billah, Allahumma</i>, and any word containing it — is <b>always recited with a long "la"</b> (mad, ± 2 counts), whether or not the standing-fathah mark (\u0670) is visible on screen. The mark only aids the eye, the rule of recitation is carried by the tajwid received from a teacher. <br><b>Arabic text & translation source:</b> Indonesian Standard Mushaf — data from Kemenag RI via equran.id.</div>'+'<div class="card soft" style="text-align:center;margin-top:8px">'+qoriSelect()+
    '<button id="qBigBtn" class="btnBig" onclick="qAudToggle()">'+((qAud&&qSurahNow&&!qAud.paused)?'⏸ Pause':'▶ Play full surah')+'</button>'+
    sleepChips()+
    '<div><button class="ghost" onclick="qAudNext(-1)">⏮ ayah</button>'+
