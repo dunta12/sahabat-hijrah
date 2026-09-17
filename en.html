@@ -1041,7 +1041,72 @@ function qAudSurah(n){
   qAud.play().catch(function(){qAudUi('❌ Blocked — tap 🎧 again.');});
 }
 /* ===== sleep mode: cross-surah playlist + fading volume + gentle stop ===== */
-function qSleepStart(m){
+/* ===== ONE ENGINE: qari collection + full surah + per-ayah stitching + sleep mode ===== */
+let qSeqNo=1,qKeepSurah=false;
+QORI.length=0;
+[
+['Alafasy_128kbps','Mishary Alafasy (Kuwait)'],
+['Abdul_Basit_Murattal_192kbps','Abdul Basit Abdus-Samad (Egypt)'],
+['Husary_128kbps','Mahmoud Khalil Al-Husary (Egypt)'],
+['Hani_Rifai_192kbps','Hani Ar-Rifai (Madinah)'],
+['Nasser_Alqatami_128kbps','Nasser Al-Qatami (Saudi)'],
+['Akram_AlAlaqimy_128kbps','Akram Al-Alaqimy'],
+['MaherAlMuaiqly128kbps','Maher Al Muaiqly (Makkah)'],
+['Minshawy_Murattal_128kbps','Al-Minshawy Murattal (Egypt)'],
+['Muhammad_Ayyoub_128kbps','Muhammad Ayyoub (Madinah)'],
+['Ahmad_Saud','Ahmad Saud (Saudi) — full surah'],
+['Yasser_Ad-Dussary_128kbps','Yasser Ad-Dussary (Saudi)'],
+['Sahl_Yassin_128kbps','Sahl Yassin (Yemen)'],
+['Fares_Abbad_64kbps','Fares Abbad (Yemen)'],
+['Ahmed_Neana_128kbps','Ahmed Neana (Syria)'],
+['Abdullah_Basfar_192kbps','Abdullah Basfar (Saudi)'],
+['Abu_Bakr_Ash-Shaatree_128kbps','Abu Bakr Ash-Shaatree (Yemen)'],
+['Muhammad_Jibreel_128kbps','Muhammad Jibreel (Egypt)']
+].forEach(function(q){QORI.push(q);});
+const QALT={Ahmad_Saud:function(n){return 'https://server11.mp3quran.net/saud/'+pad3(n)+'.mp3';}};
+function qSetSeq(pg){qSeq=pg;qPos=0;qSeqNo=qNow?qNow.nomor:1;qKeepSurah=false;}
+function qAudUrl(a){return 'https://everyayah.com/data/'+qoriPilih()+'/'+pad3(qSeqNo)+pad3(a.nomorAyat)+'.mp3';}
+function qAudPlay(i){
+if(!qSeq.length||!qNow)return;
+if(typeof i==='number')qPos=i;
+if(!navigator.onLine){qAudUi('⚠️ Ayah audio = streaming: internet needed (turn off airplane mode).');return;}
+if(qAud){qAud.pause();qAud=null;}
+if(!qKeepSurah)qSurahNow=0;
+qAudUi('⏳ Loading '+qSeqNo+':'+qSeq[qPos].nomorAyat+'...');
+qAud=new Audio(qAudUrl(qSeq[qPos]));qAud.volume=1;
+qAud.onplaying=function(){qAudUi('🔊 Playing '+qSeqNo+':'+qSeq[qPos].nomorAyat);};
+qAud.onended=function(){
+if(qLoop){qAud.currentTime=0;qAud.play();return;}
+if(qPos<qSeq.length-1){qPos++;qAudPlay();return;}
+if(qAutoSurah&&qSeqNo<114){qAudUi('😴 Sleep mode: continuing to the next surah...');qLanjut(qSeqNo+1);return;}
+if(qAutoSurah){qAutoSurah=false;qAudUi('✅ Reached the last surah of the mushaf.');return;}
+qAudUi('✅ Page finished. Tap 🎧 for the full surah.');
+};
+qAud.onerror=function(){qAudUi('❌ Failed to load ayah audio (check internet / try another qari).');};
+qAud.play().catch(function(){qAudUi('❌ Playback refused — tap ▶ once more.');});
+}
+function qLanjut(n){qFetchDetail(n).then(function(d){if(d&&d.ayat&&d.ayat.length){qSeq=d.ayat;qPos=0;qSeqNo=n;qKeepSurah=true;qAudPlay(0);}else{qAutoSurah=false;qAudUi('✅ Reached the last surah of the mushaf.');}});}
+function qRangkai(n){
+qAudUi('🎧 This qari has no full-surah file on the server — stitching ayah by ayah...');
+qSeqNo=n;qKeepSurah=true;qSurahNow=n;
+if(qNow&&qNow.nomor===n&&qNow.ayat&&qNow.ayat.length){qSeq=qNow.ayat;qPos=0;qAudPlay(0);return;}
+qFetchDetail(n).then(function(d){if(d&&d.ayat&&d.ayat.length){qSeq=d.ayat;qPos=0;qAudPlay(0);}else{qAudUi('❌ Failed to load surah '+n+' — try another qari.');}});
+}
+function qAudSurah(n){
+n=n||(qNow?qNow.nomor:1);
+if(!navigator.onLine){qAudUi('⚠️ Full-surah audio = streaming: internet needed.');return;}
+if(qAud){qAud.pause();qAud=null;}
+qKeepSurah=false;qSurahNow=n;
+var alt=QALT[qoriPilih()],id=QNET[qoriPilih()];
+function selesai(){if(qLoop){qAudSurah(n);return;}if(qAutoSurah&&n<114){qAudSurah(n+1);return;}if(qAutoSurah){qAutoSurah=false;qAudUi('✅ Reached the last surah of the mushaf.');return;}qAudUi('✅ One surah finished.');}
+qAudUi('⏳ Loading full surah '+n+'...');
+qAud=new Audio(alt?alt(n):('https://cdn.islamic.network/quran/audio-surah/128/'+id+'/'+n+'.mp3'));qAud.volume=1;
+qAud.onplaying=function(){qAudUi('🎧 Surah '+n+' flowing whole, uncut.');};
+qAud.onended=selesai;
+qAud.onerror=function(){if(alt){qAudUi('❌ Failed to load surah '+n+'.');return;}qRangkai(n);};
+qAud.play().catch(function(){if(alt){qAudUi('❌ Failed to load surah '+n+'.');return;}qRangkai(n);});
+   }
+  function qSleepStart(m){
   qSleepEnd=Date.now()+m*60000;
   if(qSleepTmr)clearInterval(qSleepTmr);
   qSleepTmr=setInterval(qSleepTick,1000);
