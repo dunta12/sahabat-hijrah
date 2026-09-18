@@ -1,0 +1,43 @@
+name: gen-suara-iqro
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  buat-suara:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Pasang edge-tts
+        run: pip install edge-tts
+      - name: Rekam 83 mp3
+        run: |
+          python - <<'PY'
+          import asyncio, os, edge_tts
+          VOICE = "ar-SA-HamedNeural"
+          ITEMS = {
+            "h": ["ا","ب","ت","ث","ج","ح","خ","د","ذ","ر","ز","س","ش","ص","ض","ط","ظ","ع","غ","ف","ق","ك","ل","م","ن","و","هـ","ء","ي","لا"],
+            "r": ["بَ","بِ","بُ","تَ","تِ","تُ","ثَ","ثِ","ثُ","جَ","جِ","جُ","حَ","حِ","حُ","خَ","خِ","خُ","دَ","دِ","دُ","ذَ","ذِ","ذُ","رَ","رِ","رُ","زَ","زِ","زُ"],
+            "t": ["بٌ","بٍ","بًا","أَبْ","مِنْ","إِنْ","قُلْ"],
+            "k": ["كَتَبَ","قَرَأَ","بَيْتٌ","مَسْجِدٌ","عَبْدُ","رَحِيمٌ","نَسْتَعِينُ","اَلْحَمْدُ"],
+            "m": ["بَا","بِي","بُو","قَا","مِي","نُو","دَا","سِي"],
+          }
+          os.makedirs("suara-iqro", exist_ok=True)
+          async def main():
+              for pre, lst in ITEMS.items():
+                  for n, txt in enumerate(lst, 1):
+                      out = f"suara-iqro/{pre}{n:02d}.mp3"
+                      await edge_tts.Communicate(txt, VOICE, rate="-15%").save(out)
+                      print("jadi:", out)
+          asyncio.run(main())
+          PY
+      - name: Commit ke repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add suara-iqro
+          git commit -m "suara-iqro: 83 mp3 dari edge-tts" || echo "tidak ada yang baru"
+          git push
