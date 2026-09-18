@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tanya - Sahabat Hijrah</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,sans-serif}
+body{background:#ece9e2;height:100dvh;display:flex;flex-direction:column}
+header{background:#1a5c44;color:#fff;padding:14px 16px;display:flex;align-items:center;gap:12px}
+header a{color:#fff;text-decoration:none;font-size:20px}
+header h1{font-size:19px}
+#chat{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.p{max-width:82%;padding:10px 14px;border-radius:14px;font-size:15px;line-height:1.5;white-space:pre-line}
+.bot{background:#fff;color:#222;align-self:flex-start;border-bottom-left-radius:4px}
+.me{background:#1a5c44;color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.src{display:block;margin-top:6px;font-size:12px;color:#5a8a72}
+#chips{display:flex;gap:8px;overflow-x:auto;padding:8px 12px}
+#chips button{flex:0 0 auto;background:#fff;border:1px solid #cfe0d6;border-radius:999px;padding:8px 12px;font-size:13px;color:#1a5c44}
+form{display:flex;gap:8px;padding:10px 12px;background:#fff;border-top:1px solid #e3ded2}
+input{flex:1;border:1px solid #cfe0d6;border-radius:12px;padding:12px;font-size:15px;outline:none}
+button.kirim{background:#1a5c44;border:0;border-radius:12px;color:#fff;width:52px;font-size:18px}
+</style>
+</head>
+<body>
+<header><a href="index.html">←</a><h1>Tanya - Teman Diskusi</h1></header>
+<div id="chat"></div>
+<div id="chips"></div>
+<form id="frm"><input id="inp" placeholder="Tulis pertanyaanmu di sini..." autocomplete="off"><button class="kirim">➤</button></form>
+<script>
+/* POTONG 2: isi alamat Cloudflare Worker di sini, contoh: 'https://xxx.workers.dev/tanya' */
+const URL_OTAK='';
+
+const PUSTAKA=[
+{k:['sholat wajib','rakaat sholat','shalat wajib'],
+ j:'Sholat wajib ada lima waktu dalam sehari semalam: Subuh 2 rakaat, Zuhur 4, Asar 4, Magrib 3, Isya 4 — total 17 rakaat. Kewajibannya ditetapkan saat Isra Mikraj.',
+ s:'HR. Bukhari no. 349 & Muslim no. 162'},
+{k:['puasa ramadhan','hukum puasa'],
+ j:'Puasa Ramadhan hukumnya wajib bagi setiap muslim yang baligh, berakal, dan mampu.\n"Dihwajibkan atas kamu berpuasa, sebagaimana diwajibkan atas orang-orang sebelum kamu, agar kamu bertakwa."',
+ s:'QS. Al-Baqarah: 183'},
+{k:['zakat fitrah'],
+ j:'Zakat fitrah dikeluarkan sebelum sholat Idulfitri, berupa makanan pokok sekitar 2,5 kg (atau 3,5 liter) beras per jiwa, bagi yang mampu maupun yang ditanggung.',
+ s:'HR. Bukhari no. 1503 & Muslim no. 984'},
+{k:['batal wudhu','membatalkan wudhu'],
+ j:'Yang membatalkan wudhu: keluar sesuatu dari dua jalan, tidur nyenyak tanpa sisa kesadaran, hilang akal, dan menyentuh kemaluan dengan telapak tangan menurut sebagian ulama.',
+ s:'QS. Al-Maidah: 6; HR. Tirmidzi no. 75'},
+{k:['tahajud'],
+ j:'Sholat tahajud dikerjakan setelah bangun tidur di waktu malam, utamanya sepertiga malam terakhir; rakaatnya berpasangan, minimal 2 rakaat.',
+ s:'QS. Al-Isra: 79; HR. Bukhari no. 1130'},
+{k:['sedekah'],
+ j:'Sedekah adalah pemberian sukarela tanpa kadar dan waktu tertentu; ia tidak menggugurkan zakat yang wajib, tetapi melipatgandakan pahala dan membersihkan hati.',
+ s:'QS. Al-Baqarah: 261'},
+{k:['musik'],
+ j:'Soal musik termasuk perkara yang ulama berbeda pendapat: sebagian mengharamkan alat musik tertentu berdasar hadits tentang ma\'azif, sebagian lain membolehkan selama liriknya baik dan tidak melalaikan.\nKarena khilaf, pilihlah sikap yang paling menenangkan hatimu dan hormati pilihan saudaramu. Wallahu a\'lam.',
+ s:'HR. Bukhari no. 5590 (muallaq)'},
+{k:['niat'],
+ j:'Amal tergantung niatnya: sahnya ibadah ditentukan niat di hati; melafalkannya cukup dalam hati, tidak wajib diucapkan keras.',
+ s:'HR. Bukhari no. 1 & Muslim no. 1907'}
+];
+
+const CHAT=document.getElementById('chat');
+function tulis(siapa,teks,sumber){
+ const d=document.createElement('div');
+ d.className='p '+(siapa==='me'?'me':'bot');
+ d.textContent=teks;
+ if(sumber){const s=document.createElement('span');s.className='src';s.textContent='📖 '+sumber;d.appendChild(s);}
+ CHAT.appendChild(d);CHAT.scrollTop=CHAT.scrollHeight;
+}
+function cari(q){
+ q=q.toLowerCase();
+ for(const e of PUSTAKA){if(e.k.some(k=>q.includes(k)))return e;}
+ return null;
+}
+async function kirim(){
+ const inp=document.getElementById('inp');
+ const q=inp.value.trim();if(!q)return;
+ inp.value='';tulis('me',q);
+ const e=cari(q);
+ if(e){tulis('bot',e.j,e.s);return;}
+ if(URL_OTAK){
+   try{
+     const r=await fetch(URL_OTAK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q})});
+     const d=await r.json();tulis('bot',d.jawaban,d.sumber||'');
+   }catch(err){tulis('bot','Maaf, sambunganku ke otak sedang terputus. Coba lagi sebentar lagi ya.');}
+   return;
+ }
+ tulis('bot','Pustaka offline-ku belum menyimpan jawaban itu. Sementara ini aku paham soal: sholat wajib, puasa Ramadhan, zakat fitrah, batal wudhu, tahajud, sedekah, musik, dan niat. Otak AI menyusul di potong berikutnya, insyaAllah.');
+}
+document.getElementById('frm').addEventListener('submit',ev=>{ev.preventDefault();kirim();});
+const CHIPS=['Berapa rakaat sholat wajib?','Apa yang membatalkan wudhu?','Hukum puasa Ramadhan?','Kapan waktu tahajud?'];
+const cb=document.getElementById('chips');
+CHIPS.forEach(c=>{const b=document.createElement('button');b.textContent=c;b.onclick=()=>{document.getElementById('inp').value=c;kirim();};cb.appendChild(b);});
+tulis('bot','Assalamu\'alaikum 🌿 Aku teman diskusi Sahabat Hijrah. Versi pertamaku bekerja offline dari pustaka kecil; tanya aku soal ibadah sehari-hari, dan aku jawab bersama sumbernya. Wallahu a\'lam bish-shawab.');
+</script>
+</body>
+</html>
