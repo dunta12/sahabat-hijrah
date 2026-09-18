@@ -184,7 +184,7 @@ function arVoice(){
 }
 let LASTU=null;
 let INFO0='';
-const PAKAI_MP3=false; /* ganti true setelah folder suara-iqro/ terisi mp3 */
+const PAKAI_MP3=true; /* ganti true setelah folder suara-iqro/ terisi mp3 */
 function senyap(){if($('inf')&&$('inf').dataset.warn==='1'){$('inf').innerHTML=INFO0;delete $('inf').dataset.warn;}}
 setInterval(()=>{if(VOICES.length&&$('inf')&&$('inf').dataset.warn==='1')senyap();},3000);
 function bunyi(it,idx){
