@@ -67,7 +67,7 @@ dis:'⚠️ Materi di halaman ini adalah latihan huruf Arab ASLI bergaya metode 
 en:{
 t:'Iqro - Learn to Read',
 lv:['Hijaiyah','Harakat','Tanwin','Words','Madd'],
-md:['📖 Learn','🎯 Quiz'],
+md:['📖 Learn',' Quiz'],
 tap:'Tap the card to see name & reading',
 q:'Which is the correct reading?',
 score:'Score',
@@ -183,22 +183,37 @@ function arVoice(){
   return VOICES.find(v=>/^ar[-_]/i.test(v.lang))||VOICES.find(v=>/^ar/i.test(v.lang))||null;
 }
 let LASTU=null;
+let INFO0='';
+const PAKAI_MP3=false; /* ganti true setelah folder suara-iqro/ terisi mp3 */
+function senyap(){if($('inf')&&$('inf').dataset.warn==='1'){$('inf').innerHTML=INFO0;delete $('inf').dataset.warn;}}
+setInterval(()=>{if(VOICES.length&&$('inf')&&$('inf').dataset.warn==='1')senyap();},3000);
+function bunyi(it,idx){
+  if(PAKAI_MP3){
+    const pre=['h','r','t','k','m'][lv];
+    const a=new Audio('suara-iqro/'+pre+String(idx+1).padStart(2,'0')+'.mp3');
+    a.play().then(senyap).catch(()=>speak(it.ar));
+    return;
+  }
+  speak(it.ar);
+}
 function speak(t){
   const pesan=(lang==='id')
     ?'🔇 Tidak ada suara Arab di perangkat/browser ini. Naikkan volume media & pasang bahasa Arab di pengaturan Text-to-speech.'
     :'🔇 No Arabic voice on this device/browser. Raise media volume & install Arabic in Text-to-speech settings.';
-  if(!('speechSynthesis' in window)||!arVoice()){
-    if($('inf'))$('inf').innerHTML=pesan;
+  const v=arVoice();
+  if(!('speechSynthesis' in window)||!v){
+    if($('inf')){$('inf').innerHTML=pesan+' <small>('+((('speechSynthesis' in window)&&VOICES.length)?('suara terdeteksi: '+VOICES.length+', tiada kode "ar"'):'daftar suara masih kosong')+')</small>';$('inf').dataset.warn='1';}
     return;
   }
   try{
     speechSynthesis.cancel();
     const u=new SpeechSynthesisUtterance(t);
-    u.voice=arVoice();u.lang=u.voice.lang;u.rate=0.7;
+    u.voice=v;u.lang=v.lang;u.rate=0.7;
     LASTU=u;
+    senyap();
     setTimeout(()=>speechSynthesis.speak(u),80);
   }catch(e){
-    if($('inf'))$('inf').innerHTML=pesan;
+    if($('inf')){$('inf').innerHTML=pesan;$('inf').dataset.warn='1';}
   }
 }
 
@@ -220,8 +235,9 @@ $('area').innerHTML=
 '</div>'+
 '<div class="score">'+(i+1)+' / '+list.length+'</div>';
 
+if($('inf')){INFO0=$('inf').innerHTML;delete $('inf').dataset.warn;}
 $('card').onclick=()=>{rev=!rev;learn();};
-$('sp').onclick=()=>speak(it.ar);
+$('sp').onclick=()=>bunyi(it,i);
 $('pv').onclick=()=>{
 i=(i-1+list.length)%list.length;
 rev=false;learn();
