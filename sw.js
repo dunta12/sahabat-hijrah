@@ -1,5 +1,5 @@
-const CACHE='sh-v29';
-const ASSETS=['./','./index.html','./en.html','./dlg.js','./iqro.html','.tanya.html','./manifest.json','./adhan.mp3','./icon-192.png','./icon-512.png','./ScheherazadeNew-Regular.ttf'];
+const CACHE='sh-v30';
+const ASSETS=['./','./index.html','./en.html','./dlg.js','./iqro.html','./tanya.html','./manifest.json','./adhan.mp3','./icon-192.png','./icon-512.png','./ScheherazadeNew-Regular.ttf'];
 
 self.addEventListener('install',e=>{
   e.waitUntil(caches.open(CACHE).then(c=>Promise.all(ASSETS.map(u=>c.add(u).catch(()=>{})))));
