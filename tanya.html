@@ -155,7 +155,8 @@ function tulis(siapa,t,s){
  if(s){const sp=document.createElement('span');sp.className='src';sp.textContent='📖 '+s;d.appendChild(sp);}
  CHAT.appendChild(d);CHAT.scrollTop=CHAT.scrollHeight;
 }
-const norm=s=>s.toLowerCase().replace(/[^a-z0-9\s]/g,' ').trim();
+function titik(){const d=document.createElement('div');d.className='p bot typing';d.innerHTML='<span></span><span></span><span></span>';CHAT.appendChild(d);CHAT.scrollTop=CHAT.scrollHeight;return d;}
+ const norm=s=>s.toLowerCase().replace(/[^a-z0-9\s]/g,' ').trim();
 function cari(q){
  q=norm(q);if(!q)return null;
  const toks=q.split(/\s+/);let best=null,bs=0;
