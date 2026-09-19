@@ -181,7 +181,7 @@ if(URL_OTAK){
 const tp=titik();
 try{
 const r=await fetch(URL_OTAK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q})});
-const d=await r.json();tp.remove();tulis('bot',d.jawaban,d.sumber||'');
+const d=await r.json();tp.remove();tulis('bot',(d.jawaban||'').replace(/\*/g,''),d.sumber||'');
 }catch(err){tp.remove();tulis('bot',UI[bah].err);}
 return;
    }
