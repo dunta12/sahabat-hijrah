@@ -2,27 +2,28 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Tanya - Sahabat Hijrah</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,sans-serif}
-body{background:#ece9e2;height:100dvh;display:flex;flex-direction:column}
-header{background:#1a5c44;color:#fff;padding:14px 16px;display:flex;align-items:center;gap:12px}
+html{height:100%}
+body{background:#ece9e2;height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+header{background:#1a5c44;color:#fff;padding:calc(12px + env(safe-area-inset-top)) 16px 12px;display:flex;align-items:center;gap:12px;flex:0 0 auto}
 header a{color:#fff;text-decoration:none;font-size:20px}
-header h1{font-size:18px;flex:1}
+header h1{font-size:17px;flex:1;line-height:1.2}
 .lang{display:flex;gap:4px}
 .lang button{border:1px solid rgba(255,255,255,.5);background:none;color:#fff;border-radius:10px;padding:6px 10px;font-size:12px;font-weight:700}
 .lang button.on{background:#fff;color:#1a5c44}
-#chat{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
-.p{max-width:82%;padding:10px 14px;border-radius:14px;font-size:15px;line-height:1.5;white-space:pre-line}
+#chat{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:14px;display:flex;flex-direction:column;gap:10px}
+.p{max-width:82%;padding:10px 14px;border-radius:14px;font-size:15px;line-height:1.5;white-space:pre-line;word-wrap:break-word}
 .bot{background:#fff;color:#222;align-self:flex-start;border-bottom-left-radius:4px}
 .me{background:#1a5c44;color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
 .src{display:block;margin-top:6px;font-size:12px;color:#5a8a72}
-#chips{display:flex;gap:8px;overflow-x:auto;padding:8px 12px}
+#chips{flex:0 0 auto;display:flex;gap:8px;overflow-x:auto;padding:8px 12px}
 #chips button{flex:0 0 auto;background:#fff;border:1px solid #cfe0d6;border-radius:999px;padding:8px 12px;font-size:13px;color:#1a5c44}
-form{display:flex;gap:8px;padding:10px 12px;background:#fff;border-top:1px solid #e3ded2}
-input{flex:1;border:1px solid #cfe0d6;border-radius:12px;padding:12px;font-size:15px;outline:none}
-button.kirim{background:#1a5c44;border:0;border-radius:12px;color:#fff;width:52px;font-size:18px}
+form{flex:0 0 auto;display:flex;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid #e3ded2}
+input{flex:1;min-width:0;border:1px solid #cfe0d6;border-radius:12px;padding:12px;font-size:16px;outline:none}
+button.kirim{background:#1a5c44;border:0;border-radius:12px;color:#fff;width:52px;font-size:18px;flex:0 0 auto}
 </style>
 </head>
 <body>
@@ -32,128 +33,108 @@ button.kirim{background:#1a5c44;border:0;border-radius:12px;color:#fff;width:52p
 <div id="chips"></div>
 <form id="frm"><input id="inp" autocomplete="off"><button class="kirim">➤</button></form>
 <script>
-/* POTONG 2: isi alamat Cloudflare Worker di sini, contoh: 'https://xxx.workers.dev/tanya' */
+/* POTONG 2: isi alamat Cloudflare Worker di sini bila otak AI sudah siap, contoh: 'https://xxx.workers.dev/tanya' */
 const URL_OTAK='';
 
 const UI={
 id:{judul:'Tanya - Teman Diskusi',ph:'Tulis pertanyaanmu di sini...',back:'index.html',
-salam:'Assalamu\'alaikum 🌿 Aku teman diskusi Sahabat Hijrah. Aku bekerja offline dari pustaka rumah ini: tanya soal ibadah sehari-hari, doa harian, atau ayat hikmah — aku jawab bersama sumbernya. Wallahu a\'lam bish-shawab.',
-kosong:'Pustaka offline-ku belum menyimpan jawaban itu. Sementara ini aku paham soal: sholat wajib, puasa, zakat fitrah, wudhu, tahajud, sedekah, musik, niat, 10 doa harian, dan 10 ayat hikmah. Otak AI menyusul insyaAllah.',
+salam:'Assalamu\'alaikum 🌿 Aku teman diskusi Sahabat Hijrah. Aku bekerja offline dari pustaka rumah ini: tanya soal ibadah sehari-hari, doa harian, ayat hikmah, atau fitur aplikasi — aku jawab bersama sumbernya. Wallahu a\'lam bish-shawab.',
+kosong:'Pustaka offline-ku belum menyimpan jawaban itu. Aku paham soal: sholat (wajib, Jumat, jamaah, witir, dhuha, rawatib, tahajud), puasa (Ramadhan, Senin-Kamis, Syawal), zakat (fitrah & mal), wudhu & tayamum, mandi wajib, qurban, haji, riba, sedekah, musik, niat, ilmu, lisan, orang tua, istikharah, dzikir, 12 doa harian, 10 ayat hikmah, dan fitur aplikasi. Otak AI menyusul insyaAllah.',
 err:'Maaf, sambunganku ke otak sedang terputus. Coba lagi sebentar lagi ya.',
-chips:['Berapa rakaat sholat wajib?','Apa yang membatalkan wudhu?','Hukum puasa Ramadhan?','Doa sebelum makan?','Ayat tentang sabar?']},
+chips:['Berapa rakaat sholat wajib?','Apa yang membatalkan wudhu?','Doa sebelum makan?','Ayat tentang sabar?','Apa saja fitur aplikasi ini?']},
 en:{judul:'Ask - Discussion Companion',ph:'Type your question here...',back:'en.html',
-salam:'Assalamu\'alaikum 🌿 I am the discussion companion of Sahabat Hijrah. I work offline from this home library: ask about daily worship, daily du\'as, or verses of wisdom — I answer with sources. Wallahu a\'lam bish-shawab.',
-kosong:'My offline library does not hold that answer yet. For now I know about: obligatory prayer, fasting, zakat al-fitr, wudhu, tahajjud, sadaqah, music, intention, the 10 daily du\'as, and 10 verses of wisdom. The AI brain will follow, in sha Allah.',
+salam:'Assalamu\'alaikum 🌿 I am the discussion companion of Sahabat Hijrah. I work offline from this home library: ask about daily worship, daily du\'as, verses of wisdom, or app features — I answer with sources. Wallahu a\'lam bish-shawab.',
+kosong:'My offline library does not hold that answer yet. I know about: prayer (obligatory, Friday, congregation, witr, duha, rawatib, tahajjud), fasting (Ramadan, Mon-Thu, Shawwal), zakat (fitr & wealth), wudhu & tayammum, ghusl, qurban, hajj, riba, sadaqah, music, intention, knowledge, speech, parents, istikharah, dhikr, 12 daily du\'as, 10 verses of wisdom, and app features. The AI brain will follow, in sha Allah.',
 err:'Sorry, my link to the brain is down. Please try again in a moment.',
-chips:['How many rakahs are obligatory prayers?','What invalidates wudhu?','Ruling of Ramadan fasting?','Du\'a before eating?','Verse about patience?']}
+chips:['How many rakahs are obligatory prayers?','What invalidates wudhu?','Du\'a before eating?','Verse about patience?','What features does this app have?']}
 };
 
-/* PUSTAKA: 8 fiqih + 10 doa + 10 hikmah, diambil dari index.html & en.html repo ini */
+/* PUSTAKA 59 butir: fiqih + doa + hikmah + fitur, dwibahasa */
 const P=[
-{k:['sholat wajib','rakaat sholat','shalat wajib'],ke:['obligatory prayer','rakah','how many rakah'],
- J:{id:'Sholat wajib ada lima waktu dalam sehari semalam: Subuh 2 rakaat, Zuhur 4, Asar 4, Magrib 3, Isya 4 — total 17 rakaat. Kewajibannya ditetapkan saat Isra Mikraj.',
-    en:'The obligatory prayers are five per day and night: Fajr 2 rakahs, Dhuhr 4, Asr 4, Maghrib 3, Isha 4 — 17 rakahs in total. They were made obligatory at the Isra\' and Mi\'raj.'},
- S:{id:'HR. Bukhari no. 349 & Muslim no. 162',en:'Bukhari no. 349 & Muslim no. 162'}},
-{k:['puasa ramadhan','hukum puasa'],ke:['ramadan fasting','fasting ruling','ramadhan'],
- J:{id:'Puasa Ramadhan hukumnya wajib bagi setiap muslim yang baligh, berakal, dan mampu.\n"Dihwajibkan atas kamu berpuasa, sebagaimana diwajibkan atas orang-orang sebelum kamu, agar kamu bertakwa."',
-    en:'Fasting in Ramadan is obligatory upon every Muslim who is adult, sane, and able.\n"O you who have believed, decreed upon you is fasting as it was decreed upon those before you that you may become righteous."'},
- S:{id:'QS. Al-Baqarah: 183',en:'Qur\'an 2:183'}},
-{k:['zakat fitrah'],ke:['zakat al-fitr','fitrah','sadaqat al-fitr'],
- J:{id:'Zakat fitrah dikeluarkan sebelum sholat Idulfitri, berupa makanan pokok sekitar 2,5 kg (atau 3,5 liter) beras per jiwa, bagi yang mampu maupun yang ditanggung.',
-    en:'Zakat al-fitr is paid before the Eid prayer, in the form of staple food of about 2.5 kg (or 3.5 litres) of rice per person, for those who are able and those they support.'},
- S:{id:'HR. Bukhari no. 1503 & Muslim no. 984',en:'Bukhari no. 1503 & Muslim no. 984'}},
-{k:['batal wudhu','membatalkan wudhu'],ke:['invalidates wudhu','nullifies wudu','wudhu','wudu'],
- J:{id:'Yang membatalkan wudhu: keluar sesuatu dari dua jalan, tidur nyenyak tanpa sisa kesadaran, hilang akal, dan menyentuh kemaluan dengan telapak tangan menurut sebagian ulama.',
-    en:'What nullifies wudhu: anything exiting from the two private passages, deep sleep without awareness, loss of sanity, and touching the private parts with the palm according to some scholars.'},
- S:{id:'QS. Al-Maidah: 6; HR. Tirmidzi no. 75',en:'Qur\'an 5:6; Tirmidhi no. 75'}},
-{k:['tahajud'],ke:['tahajjud','night prayer'],
- J:{id:'Sholat tahajud dikerjakan setelah bangun tidur di waktu malam, utamanya sepertiga malam terakhir; rakaatnya berpasangan, minimal 2 rakaat.',
-    en:'Tahajjud is prayed after waking from sleep at night, best in the last third of the night; its rakahs are in pairs, minimum 2.'},
- S:{id:'QS. Al-Isra: 79; HR. Bukhari no. 1130',en:'Qur\'an 17:79; Bukhari no. 1130'}},
-{k:['sedekah'],ke:['sadaqah','charity','sedekah'],
- J:{id:'Sedekah adalah pemberian sukarela tanpa kadar dan waktu tertentu; ia tidak menggugurkan zakat yang wajib, tetapi melipatgandakan pahala dan membersihkan hati.',
-    en:'Sadaqah is voluntary giving with no fixed amount or time; it does not replace obligatory zakat, but multiplies reward and purifies the heart.'},
- S:{id:'QS. Al-Baqarah: 261',en:'Qur\'an 2:261'}},
-{k:['musik'],ke:['music','instruments','maazif'],
- J:{id:'Soal musik termasuk perkara yang ulama berbeda pendapat: sebagian mengharamkan alat musik tertentu berdasar hadits tentang ma\'azif, sebagian lain membolehkan selama liriknya baik dan tidak melalaikan.\nKarena khilaf, pilihlah sikap yang paling menenangkan hatimu dan hormati pilihan saudaramu. Wallahu a\'lam.',
-    en:'Music is a matter where scholars differ: some prohibit certain instruments based on the hadith on ma\'azif, others permit it as long as the lyrics are good and it does not distract from worship.\nSince opinions differ, choose what settles your heart and respect your brother\'s choice. Wallahu a\'lam.'},
- S:{id:'HR. Bukhari no. 5590 (muallaq)',en:'Bukhari no. 5590 (muallaq)'}},
-{k:['niat'],ke:['intention','niyyah','niat'],
- J:{id:'Amal tergantung niatnya: sahnya ibadah ditentukan niat di hati; melafalkannya cukup dalam hati, tidak wajib diucapkan keras.',
-    en:'Deeds are by intentions: the validity of worship is determined by the intention in the heart; keeping it in the heart suffices, it need not be spoken aloud.'},
- S:{id:'HR. Bukhari no. 1 & Muslim no. 1907',en:'Bukhari no. 1 & Muslim no. 1907'}},
-/* --- 10 doa harian (ID+EN dari repo) --- */
-{k:['doa sebelum makan','doa makan'],ke:['before eating','eating','food','meal'],
- D:{t:'Sebelum Makan',te:'Before Eating',a:'اللَّهُمَّ بَارِكْ لَنَا فِيمَا رَزَقْتَنَا وَقِنَا عَذَابَ النَّارِ',l:'Allahumma barik lana fima razaqtana wa qina adzaban nar',
-    m:'Ya Allah, berkahilah rezeki kami dan peliharalah kami dari siksa neraka.',me:'O Allah, bless us in what You have provided for us and protect us from the punishment of the Fire.'},
- S:{id:'Sahabat Hijrah • Doa Harian',en:'Sahabat Hijrah • Daily Du\'as'}},
-{k:['doa sesudah makan','doa setelah makan'],ke:['after eating','finished eating'],
- D:{t:'Sesudah Makan',te:'After Eating',a:'الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنَا وَسَقَانَا وَجَعَلَنَا مُسْلِمِينَ',l:'Alhamdulillahilladzi ath\'amana wa saqana wa ja\'alana muslimin',
-    m:'Segala puji bagi Allah yang memberi kami makan dan minum serta menjadikan kami muslim.',me:'All praise is for Allah who fed us, gave us drink, and made us Muslims.'},
- S:{id:'Sahabat Hijrah • Doa Harian',en:'Sahabat Hijrah • Daily Du\'as'}},
-{k:['doa sebelum tidur','doa tidur'],ke:['before sleeping','sleep','bedtime'],
- D:{t:'Sebelum Tidur',te:'Before Sleeping',a:'بِاسْمِكَ اللَّهُمَّ أَحْيَا وَأَمُوتُ',l:'Bismikallahumma ahya wa amut',
-    m:'Dengan nama-Mu ya Allah aku hidup dan aku mati.',me:'In Your name, O Allah, I live and I die.'},
- S:{id:'Sahabat Hijrah • Doa Harian',en:'Sahabat Hijrah • Daily Du\'as'}},
-{k:['doa bangun tidur'],ke:['waking up','wake up','morning dua'],
- D:{t:'Bangun Tidur',te:'Waking Up',a:'الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ',l:'Alhamdulillahilladzi ahyaana ba\'da maa amaatana wa ilaihin nusyur',
-    m:'Segala puji bagi Allah yang menghidupkan kami setelah mematikan kami, dan kepada-Nya kami dibangkitkan.',me:'All praise is for Allah who gave us life after death, and to Him is the resurrection.'},
- S:{id:'Sahabat Hijrah • Doa Harian',en:'Sahabat Hijrah • Daily Du\'as'}},
-{k:['doa masuk kamar mandi','kamar mandi','toilet'],ke:['entering toilet','bathroom','toilet'],
- D:{t:'Masuk Kamar Mandi',te:'Entering the Toilet',a:'اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْخُبُثِ وَالْخَبَائِثِ',l:'Allahumma inni a\'udzu bika minal khubutsi wal khaba\'its',
-    m:'Ya Allah, aku berlindung kepada-Mu dari godaan setan laki-laki dan perempuan.',me:'O Allah, I seek refuge in You from the male and female devils.'},
- S:{id:'Sahabat Hijrah • Doa Harian',en:'Sahabat Hijrah • Daily Du\'as'}},
-{k:['doa keluar kamar mandi'],ke:['leaving toilet','after bathroom'],
- D:{t:'Keluar Kamar Mandi',te:'Leaving the Toilet',a:'غُفْرَانَكَ',l:'Ghufranaka',
-    m:'Aku mohon ampunan-Mu.',me:'I seek Your forgiveness.'},
- S:{id:'Sahabat Hijrah • Doa Harian',en:'Sahabat Hijrah • Daily Du\'as'}},
-{k:['doa keluar rumah','keluar rumah'],ke:['leaving home','leave the house'],
- D:{t:'Keluar Rumah',te:'Leaving Home',a:'بِسْمِ اللَّهِ تَوَكَّلْتُ عَلَى اللَّهِ وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ',l:'Bismillahi tawakkaltu \'alallahi wa laa hawla wa laa quwwata illa billah',
-    m:'Dengan nama Allah, aku bertawakal kepada Allah; tiada daya dan kekuatan kecuali dengan Allah.',me:'In the name of Allah, I place my trust in Allah; there is no might nor power except with Allah.'},
- S:{id:'Sahabat Hijrah • Doa Harian',en:'Sahabat Hijrah • Daily Du\'as'}},
-{k:['doa masuk masjid','masjid'],ke:['entering mosque','mosque'],
- D:{t:'Masuk Masjid',te:'Entering the Mosque',a:'اللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ',l:'Allahummaftah li abwaba rahmatik',
-    m:'Ya Allah, bukakanlah untukku pintu-pintu rahmat-Mu.',me:'O Allah, open for me the doors of Your mercy.'},
- S:{id:'Sahabat Hijrah • Doa Harian',en:'Sahabat Hijrah • Daily Du\'as'}},
-{k:['doa orang tua','doa untuk orang tua'],ke:['parents','dua for parents'],
- D:{t:'Untuk Orang Tua',te:'For Parents',a:'رَبِّ اغْفِرْ لِي وَلِوَالِدَيَّ وَارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا',l:'Rabbighfir li wa li walidayya warhamhuma kama rabbayani shaghira',
-    m:'Ya Tuhanku, ampunilah aku dan kedua orang tuaku, sayangilah mereka sebagaimana mereka merawatku waktu kecil.',me:'My Lord, forgive me and my parents, and have mercy on them as they raised me when I was small.'},
- S:{id:'Sahabat Hijrah • Doa Harian',en:'Sahabat Hijrah • Daily Du\'as'}},
-{k:['doa kebaikan dunia akhirat','rabbana atina'],ke:['good in this world','rabbana atina'],
- D:{t:'Kebaikan Dunia-Akhirat',te:'Good in This World & Hereafter',a:'رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ',l:'Rabbana atina fid-dunya hasanah wa fil-akhirati hasanah wa qina adzaban nar',
-    m:'Ya Tuhan kami, berikanlah kebaikan di dunia dan di akhirat, dan peliharalah kami dari siksa neraka.',me:'Our Lord, give us good in this world and good in the Hereafter, and protect us from the punishment of the Fire.'},
- S:{id:'Sahabat Hijrah • Doa Harian',en:'Sahabat Hijrah • Daily Du\'as'}},
-/* --- 10 ayat hikmah (ID+EN dari repo) --- */
-{k:['mengubah keadaan','usaha','ikhtiar'],ke:['change','effort','strive'],
- H:{id:'Sesungguhnya Allah tidak akan mengubah keadaan suatu kaum sebelum mereka mengubah keadaan diri mereka sendiri.',en:'Indeed, Allah will not change the condition of a people until they change what is in themselves.'},
- S:{id:'QS. Ar-Ra\'d: 11',en:'Qur\'an 13:11'}},
-{k:['kesulitan','kemudahan','ujian'],ke:['hardship','ease','difficulty'],
- H:{id:'Maka sesungguhnya bersama kesulitan ada kemudahan.',en:'For indeed, with hardship [will be] ease.'},
- S:{id:'QS. Asy-Syarh: 5',en:'Qur\'an 94:5'}},
-{k:['sabar'],ke:['patience','patient'],
- H:{id:'Dan Allah bersama orang-orang yang sabar.',en:'And Allah is with the patient.'},
- S:{id:'QS. Al-Anfal: 46',en:'Qur\'an 8:46'}},
-{k:['sholat mencegah','manfaat sholat'],ke:['prayer restrains','benefit of prayer'],
- H:{id:'Sesungguhnya sholat itu mencegah dari perbuatan keji dan mungkar.',en:'Indeed, prayer restrains from immorality and wrongdoing.'},
- S:{id:'QS. Al-Ankabut: 45',en:'Qur\'an 29:45'}},
-{k:['dzikir','ingat allah'],ke:['remembrance','dhikr','remember allah'],
- H:{id:'Karena itu, ingatlah kamu kepada-Ku niscaya Aku ingat (pula) kepadamu.',en:'So remember Me; I will remember you.'},
- S:{id:'QS. Al-Baqarah: 152',en:'Qur\'an 2:152'}},
-{k:['pertolongan','mohon pertolongan'],ke:['help','seek help'],
- H:{id:'Dan mintalah pertolongan (kepada Allah) dengan sabar dan sholat.',en:'And seek help through patience and prayer.'},
- S:{id:'QS. Al-Baqarah: 45',en:'Qur\'an 2:45'}},
-{k:['tujuan diciptakan','tujuan hidup'],ke:['purpose of creation','purpose of life'],
- H:{id:'Aku tidak menciptakan jin dan manusia melainkan agar mereka beribadah kepada-Ku.',en:'I did not create jinn and mankind except to worship Me.'},
- S:{id:'QS. Adz-Dzariyat: 56',en:'Qur\'an 51:56'}},
-{k:['tawakal','tawakkal'],ke:['tawakkul','rely on allah'],
- H:{id:'Barangsiapa bertawakal kepada Allah, niscaya Dia akan mencukupkan (keperluan)nya.',en:'And whoever relies upon Allah – then He is sufficient for him.'},
- S:{id:'QS. Ath-Thalaq: 3',en:'Qur\'an 65:3'}},
-{k:['hati tenang','tenang','gelisah'],ke:['peace of heart','rest','anxiety','calm'],
- H:{id:'Ingatlah, hanya dengan mengingati Allah hati menjadi tenteram.',en:'Verily, in the remembrance of Allah do hearts find rest.'},
- S:{id:'QS. Ar-Ra\'d: 28',en:'Qur\'an 13:28'}},
-{k:['menyucikan diri','bersih diri'],ke:['purify','cleanse','success'],
- H:{id:'Sesungguhnya beruntunglah orang-orang yang membersihkan dirinya (dengan beriman).',en:'He has certainly succeeded who purifies himself.'},
- S:{id:'QS. Al-A\'la: 14',en:'Qur\'an 87:14'}}
+{k:['sholat wajib','rakaat sholat','shalat wajib'],ke:['obligatory prayer','rakah','how many rakah'],J:{id:'Sholat wajib ada lima waktu dalam sehari semalam: Subuh 2 rakaat, Zuhur 4, Asar 4, Magrib 3, Isya 4 — total 17 rakaat. Kewajibannya ditetapkan saat Isra Mikraj.',en:'The obligatory prayers are five per day and night: Fajr 2 rakahs, Dhuhr 4, Asr 4, Maghrib 3, Isha 4 — 17 rakahs in total. They were made obligatory at the Isra\' and Mi\'raj.'},S:{id:'HR. Bukhari no. 349 & Muslim no. 162',en:'Bukhari no. 349 & Muslim no. 162'}},
+{k:['sholat jumat','jumatan'],ke:['friday prayer','jumuah','jummah'],J:{id:'Sholat Jumat wajib bagi laki-laki muslim yang baligh, berakal, dan menetap; dua rakaat berjamaah menggantikan Zuhur, didahului dua khutbah.',en:'Friday prayer is obligatory upon Muslim men who are adult, sane, and resident; two rakahs in congregation replacing Dhuhr, preceded by two sermons.'},S:{id:'QS. Al-Jumu\'ah: 9',en:'Qur\'an 62:9'}},
+{k:['sholat berjamaah','jamaah'],ke:['congregation','jamaah prayer'],J:{id:'Sholat berjamaah melebihi sholat sendirian sebanyak 27 derajat.',en:'Prayer in congregation surpasses praying alone by 27 degrees.'},S:{id:'HR. Bukhari no. 645 & Muslim no. 650',en:'Bukhari no. 645 & Muslim no. 650'}},
+{k:['witir','sholat witir'],ke:['witr','witr prayer'],J:{id:'Sholat witir menutup sholat malam dengan rakaat ganjil (1, 3, atau lebih); waktunya setelah Isya hingga menjelang Subuh.',en:'Witr closes the night prayer with an odd number of rakahs (1, 3, or more); its time is after Isha until just before Fajr.'},S:{id:'HR. Bukhari no. 998 & Muslim no. 751',en:'Bukhari no. 998 & Muslim no. 751'}},
+{k:['dhuha','sholat dhuha'],ke:['duha','ishraq'],J:{id:'Sholat dhuha dikerjakan saat matahari meninggi hingga menjelang Zuhur; minimal 2 rakaat, wasiat Nabi untuk dijaga.',en:'Duha prayer is prayed from mid-morning until just before Dhuhr; minimum 2 rakahs, a practice the Prophet urged to keep.'},S:{id:'HR. Muslim no. 720',en:'Muslim no. 720'}},
+{k:['rawatib','sunnah rawatib'],ke:['rawatib','sunnah before prayer'],J:{id:'Sunnah rawatib mengiringi sholat wajib; dua belas rakaat sehari semalam dibangunkan rumah di surga: 4 sebelum Zuhur, 2 sesudahnya, 2 sesudah Magrib, 2 sesudah Isya, 2 sebelum Subuh.',en:'Rawatib sunnah surrounds the obligatory prayers; twelve rakahs a day build a house in Paradise: 4 before Dhuhr, 2 after, 2 after Maghrib, 2 after Isha, 2 before Fajr.'},S:{id:'HR. Muslim no. 728 & Tirmidzi no. 414',en:'Muslim no. 728 & Tirmidhi no. 414'}},
+{k:['tahajud'],ke:['tahajjud','night prayer'],J:{id:'Sholat tahajud dikerjakan setelah bangun tidur di waktu malam, utamanya sepertiga malam terakhir; rakaatnya berpasangan, minimal 2 rakaat.',en:'Tahajjud is prayed after waking from sleep at night, best in the last third of the night; its rakahs are in pairs, minimum 2.'},S:{id:'QS. Al-Isra: 79; HR. Bukhari no. 1130',en:'Qur\'an 17:79; Bukhari no. 1130'}},
+{k:['puasa ramadhan','hukum puasa'],ke:['ramadan fasting','fasting ruling','ramadhan'],J:{id:'Puasa Ramadhan hukumnya wajib bagi setiap muslim yang baligh, berakal, dan mampu.\n"Dihwajibkan atas kamu berpuasa, sebagaimana diwajibkan atas orang-orang sebelum kamu, agar kamu bertakwa."',en:'Fasting in Ramadan is obligatory upon every Muslim who is adult, sane, and able.\n"O you who have believed, decreed upon you is fasting as it was decreed upon those before you that you may become righteous."'},S:{id:'QS. Al-Baqarah: 183',en:'Qur\'an 2:183'}},
+{k:['puasa senin kamis','senin kamis'],ke:['monday thursday','fast monday'],J:{id:'Puasa sunnah Senin dan Kamis dianjurkan; amal dilaporkan pada dua hari itu dan Nabi senang berpuasa saat amalnya dilaporkan.',en:'Fasting Mondays and Thursdays is recommended; deeds are presented on those two days and the Prophet loved to fast when his deeds were presented.'},S:{id:'HR. Tirmidzi no. 745',en:'Tirmidhi no. 745'}},
+{k:['puasa syawal','syawal'],ke:['shawwal fasting','six days'],J:{id:'Puasa enam hari di bulan Syawal setelah Ramadhan pahalanya seperti puasa setahun penuh.',en:'Fasting six days of Shawwal after Ramadan is rewarded like fasting a whole year.'},S:{id:'HR. Muslim no. 1164',en:'Muslim no. 1164'}},
+{k:['lailatul qadar'],ke:['laylatul qadr','night of decree'],J:{id:'Lailatul qadar lebih baik dari seribu bulan; carilah di malam-malam ganjil sepuluh terakhir Ramadhan.',en:'The Night of Decree is better than a thousand months; seek it in the odd nights of the last ten of Ramadan.'},S:{id:'QS. Al-Qadr: 3; HR. Bukhari no. 2017',en:'Qur\'an 97:3; Bukhari no. 2017'}},
+{k:['zakat fitrah'],ke:['zakat al-fitr','fitrah'],J:{id:'Zakat fitrah dikeluarkan sebelum sholat Idulfitri, berupa makanan pokok sekitar 2,5 kg (atau 3,5 liter) beras per jiwa, bagi yang mampu maupun yang ditanggung.',en:'Zakat al-fitr is paid before the Eid prayer, in staple food of about 2.5 kg (or 3.5 litres) of rice per person, for those able and those they support.'},S:{id:'HR. Bukhari no. 1503 & Muslim no. 984',en:'Bukhari no. 1503 & Muslim no. 984'}},
+{k:['zakat mal','zakat harta','nisab'],ke:['zakat on wealth','nisab','zakat mal'],J:{id:'Zakat mal wajib atas harta yang mencapai nisab dan haul; kadarnya 2,5% untuk emas, perak, dan uang simpanan.',en:'Zakat on wealth is due when savings reach nisab and one lunar year; 2.5% for gold, silver, and saved money.'},S:{id:'QS. At-Taubah: 103',en:'Qur\'an 9:103'}},
+{k:['batal wudhu','membatalkan wudhu'],ke:['invalidates wudhu','nullifies wudu','wudhu','wudu'],J:{id:'Yang membatalkan wudhu: keluar sesuatu dari dua jalan, tidur nyenyak tanpa sisa kesadaran, hilang akal, dan menyentuh kemaluan dengan telapak tangan menurut sebagian ulama.',en:'What nullifies wudhu: anything exiting from the two private passages, deep sleep without awareness, loss of sanity, and touching the private parts with the palm according to some scholars.'},S:{id:'QS. Al-Maidah: 6; HR. Tirmidzi no. 75',en:'Qur\'an 5:6; Tirmidhi no. 75'}},
+{k:['tayamum'],ke:['tayammum','no water'],J:{id:'Bila tidak ada air atau berhalangan memakainya, bersuci diganti tayamum: usap wajah dan dua tangan dengan debu yang suci.',en:'When water is absent or cannot be used, purification is replaced by tayammum: wipe the face and both hands with pure dust.'},S:{id:'QS. Al-Maidah: 6',en:'Qur\'an 5:6'}},
+{k:['mandi wajib','mandi junub','junub'],ke:['ghusl','major impurity','janabah'],J:{id:'Mandi wajib menghilangkan hadas besar: niat, lalu meratakan air ke seluruh tubuh termasuk rambut dan kulit.',en:'Ghusl removes major impurity: intention, then letting water reach the whole body including hair and skin.'},S:{id:'QS. Al-Maidah: 6; QS. An-Nisa: 43',en:'Qur\'an 5:6; 4:43'}},
+{k:['qurban','kurban'],ke:['qurban','udhiyah','sacrifice'],J:{id:'Qurban disyariatkan bagi yang mampu pada 10-13 Zulhijah; satu kambing untuk satu orang, sapi untuk tujuh orang.',en:'Qurban is prescribed for those able on 10-13 Dhul-Hijjah; one sheep for one person, a cow for seven.'},S:{id:'QS. Al-Kautsar: 2',en:'Qur\'an 108:2'}},
+{k:['haji','umrah'],ke:['hajj','umrah','pilgrimage'],J:{id:'Haji wajib sekali seumur hidup bagi yang mampu secara biaya, fisik, dan keamanan perjalanan; umrah adalah kunjungan sunnah ke Baitullah.',en:'Hajj is obligatory once in a lifetime for those able in cost, body, and safe travel; umrah is a voluntary visit to the House of Allah.'},S:{id:'QS. Ali Imran: 97',en:'Qur\'an 3:97'}},
+{k:['riba','bunga'],ke:['riba','interest','usury'],J:{id:'Riba diharamkan dalam segala bentuk penambahan yang disyaratkan pada utang-piutang; jual beli dihalalkan, riba diharamkan.',en:'Riba is forbidden in every form of stipulated increase on loans; trade is made lawful and riba unlawful.'},S:{id:'QS. Al-Baqarah: 275',en:'Qur\'an 2:275'}},
+{k:['sedekah'],ke:['sadaqah','charity','sedekah'],J:{id:'Sedekah adalah pemberian sukarela tanpa kadar dan waktu tertentu; ia tidak menggugurkan zakat yang wajib, tetapi melipatgandakan pahala dan membersihkan hati.',en:'Sadaqah is voluntary giving with no fixed amount or time; it does not replace obligatory zakat, but multiplies reward and purifies the heart.'},S:{id:'QS. Al-Baqarah: 261',en:'Qur\'an 2:261'}},
+{k:['musik'],ke:['music','instruments','maazif'],J:{id:'Soal musik termasuk perkara yang ulama berbeda pendapat: sebagian mengharamkan alat musik tertentu berdasar hadits tentang ma\'azif, sebagian lain membolehkan selama liriknya baik dan tidak melalaikan.\nKarena khilaf, pilihlah sikap yang paling menenangkan hatimu dan hormati pilihan saudaramu. Wallahu a\'lam.',en:'Music is a matter where scholars differ: some prohibit certain instruments based on the hadith on ma\'azif, others permit it as long as the lyrics are good and it does not distract from worship.\nSince opinions differ, choose what settles your heart and respect your brother\'s choice. Wallahu a\'lam.'},S:{id:'HR. Bukhari no. 5590 (muallaq)',en:'Bukhari no. 5590 (muallaq)'}},
+{k:['niat'],ke:['intention','niyyah','niat'],J:{id:'Amal tergantung niatnya: sahnya ibadah ditentukan niat di hati; melafalkannya cukup dalam hati, tidak wajib diucapkan keras.',en:'Deeds are by intentions: the validity of worship is determined by the intention in the heart; keeping it in the heart suffices, it need not be spoken aloud.'},S:{id:'HR. Bukhari no. 1 & Muslim no. 1907',en:'Bukhari no. 1 & Muslim no. 1907'}},
+{k:['menuntut ilmu','belajar'],ke:['seeking knowledge','knowledge','study'],J:{id:'Menuntut ilmu wajib bagi setiap muslim; jalan mencari ilmu dimudahkan Allah menuju surga.',en:'Seeking knowledge is obligatory upon every Muslim; the path of seeking knowledge is eased by Allah toward Paradise.'},S:{id:'HR. Ibnu Majah no. 224',en:'Ibn Majah no. 224'}},
+{k:['menjaga lisan','lisan','berkata'],ke:['tongue','speech','speak good'],J:{id:'Barangsiapa beriman kepada Allah dan hari akhir, hendaklah ia berkata baik atau diam.',en:'Whoever believes in Allah and the Last Day should speak good or remain silent.'},S:{id:'HR. Bukhari no. 6018 & Muslim no. 47',en:'Bukhari no. 6018 & Muslim no. 47'}},
+{k:['orang tua','birrul walidain','bakti'],ke:['parents','honour parents','birr'],J:{id:'Berbakti kepada kedua orang tua adalah amal utama setelah sholat tepat waktu; ucapkanlah kata-kata mulia kepada keduanya.',en:'Honouring both parents is a chief deed after prayer on time; speak noble words to them.'},S:{id:'QS. Al-Isra: 23-24',en:'Qur\'an 17:23-24'}},
+{k:['istikharah'],ke:['istikharah','guidance prayer'],J:{id:'Sholat istikharah dua rakaat memohon kepada Allah pilihan terbaik dalam urusan yang membingungkan.',en:'Two rakahs of istikharah ask Allah for the best choice in a confusing matter.'},S:{id:'HR. Bukhari no. 6382',en:'Bukhari no. 6382'}},
+{k:['dzikir pagi petang','dzikir pagi','dzikir petang'],ke:['morning dhikr','evening adhkar'],J:{id:'Dzikir pagi dan petang menjaga hari dan malam seorang muslim; perbanyaklah mengingat Allah hingga matahari terbit dan terbenam.',en:'Morning and evening dhikr guard a Muslim\'s day and night; remember Allah much until sunrise and sunset.'},S:{id:'QS. Al-Ahzab: 41-42',en:'Qur\'an 33:41-42'}},
+{k:['dzikir setelah sholat','dzikir sholat'],ke:['dhikr after prayer','tasbih after salah'],J:{id:'Setelah sholat wajib: 33 subhanallah, 33 alhamdulillah, 33 allahu akbar, ditutup la ilaha illallah; mengampuni dosa meski sebanyak buih lautan.',en:'After obligatory prayer: 33 subhanallah, 33 alhamdulillah, 33 allahu akbar, closed with la ilaha illallah; it forgives sins even like the foam of the sea.'},S:{id:'HR. Muslim no. 595',en:'Muslim no. 595'}},
+{k:['tartil','membaca quran','cara baca quran'],ke:['tartil','recite quran','recitation'],J:{id:'Membaca Al-Quran dianjurkan tartil dan perlahan agar maknanya meresap di hati.',en:'Reciting the Qur\'an is recommended slowly and measured so its meaning settles in the heart.'},S:{id:'QS. Al-Muzzammil: 4',en:'Qur\'an 73:4'}},
+{k:['doa sebelum makan','doa makan'],ke:['before eating','eating','food','meal'],D:{t:'Sebelum Makan',te:'Before Eating',a:'اللَّهُمَّ بَارِكْ لَنَا فِيمَا رَزَقْتَنَا وَقِنَا عَذَابَ النَّارِ',l:'Allahumma barik lana fima razaqtana wa qina adzaban nar',m:'Ya Allah, berkahilah rezeki kami dan peliharalah kami dari siksa neraka.',me:'O Allah, bless us in what You have provided for us and protect us from the punishment of the Fire.'},S:{id:'Sahabat Hijrah • Doa Harian',en:'Sahabat Hijrah • Daily Du\'as'}},
+{k:['doa sesudah makan','doa setelah makan'],ke:['after eating','finished eating'],D:{t:'Sesudah Makan',te:'After Eating',a:'الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنَا وَسَقَانَا وَجَعَلَنَا مُسْلِمِينَ',l:'Alhamdulillahilladzi ath\'amana wa saqana wa ja\'alana muslimin',m:'Segala puji bagi Allah yang memberi kami makan dan minum serta menjadikan kami muslim.',me:'All praise is for Allah who fed us, gave us drink, and made us Muslims.'},S:{id:'Sahabat Hijrah • Doa Harian',en:'Sahabat Hijrah • Daily Du\'as'}},
+{k:['doa sebelum tidur','doa tidur'],ke:['before sleeping','sleep','bedtime'],D:{t:'Sebelum Tidur',te:'Before Sleeping',a:'بِاسْمِكَ اللَّهُمَّ أَحْيَا وَأَمُوتُ',l:'Bismikallahumma ahya wa amut',m:'Dengan nama-Mu ya Allah aku hidup dan aku mati.',me:'In Your name, O Allah, I live and I die.'},S:{id:'Sahabat Hijrah • Doa Harian',en:'Sahabat Hijrah • Daily Du\'as'}},
+{k:['doa bangun tidur'],ke:['waking up','wake up','morning dua'],D:{t:'Bangun Tidur',te:'Waking Up',a:'الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ',l:'Alhamdulillahilladzi ahyaana ba\'da maa amaatana wa ilaihin nusyur',m:'Segala puji bagi Allah yang menghidupkan kami setelah mematikan kami, dan kepada-Nya kami dibangkitkan.',me:'All praise is for Allah who gave us life after death, and to Him is the resurrection.'},S:{id:'Sahabat Hijrah • Doa Harian',en:'Sahabat Hijrah • Daily Du\'as'}},
+{k:['doa masuk kamar mandi','kamar mandi','toilet'],ke:['entering toilet','bathroom','toilet'],D:{t:'Masuk Kamar Mandi',te:'Entering the Toilet',a:'اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْخُبُثِ وَالْخَبَائِثِ',l:'Allahumma inni a\'udzu bika minal khubutsi wal khaba\'its',m:'Ya Allah, aku berlindung kepada-Mu dari godaan setan laki-laki dan perempuan.',me:'O Allah, I seek refuge in You from the male and female devils.'},S:{id:'Sahabat Hijrah • Doa Harian',en:'Sahabat Hijrah • Daily Du\'as'}},
+{k:['doa keluar kamar mandi'],ke:['leaving toilet','after bathroom'],D:{t:'Keluar Kamar Mandi',te:'Leaving the Toilet',a:'غُفْرَانَكَ',l:'Ghufranaka',m:'Aku mohon ampunan-Mu.',me:'I seek Your forgiveness.'},S:{id:'Sahabat Hijrah • Doa Harian',en:'Sahabat Hijrah • Daily Du\'as'}},
+{k:['doa keluar rumah','keluar rumah'],ke:['leaving home','leave the house'],D:{t:'Keluar Rumah',te:'Leaving Home',a:'بِسْمِ اللَّهِ تَوَكَّلْتُ عَلَى اللَّهِ وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ',l:'Bismillahi tawakkaltu \'alallahi wa laa hawla wa laa quwwata illa billah',m:'Dengan nama Allah, aku bertawakal kepada Allah; tiada daya dan kekuatan kecuali dengan Allah.',me:'In the name of Allah, I place my trust in Allah; there is no might nor power except with Allah.'},S:{id:'Sahabat Hijrah • Doa Harian',en:'Sahabat Hijrah • Daily Du\'as'}},
+{k:['doa masuk masjid','masjid'],ke:['entering mosque','mosque'],D:{t:'Masuk Masjid',te:'Entering the Mosque',a:'اللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ',l:'Allahummaftah li abwaba rahmatik',m:'Ya Allah, bukakanlah untukku pintu-pintu rahmat-Mu.',me:'O Allah, open for me the doors of Your mercy.'},S:{id:'Sahabat Hijrah • Doa Harian',en:'Sahabat Hijrah • Daily Du\'as'}},
+{k:['doa orang tua','doa untuk orang tua'],ke:['parents','dua for parents'],D:{t:'Untuk Orang Tua',te:'For Parents',a:'رَبِّ اغْفِرْ لِي وَلِوَالِدَيَّ وَارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا',l:'Rabbighfir li wa li walidayya warhamhuma kama rabbayani shaghira',m:'Ya Tuhanku, ampunilah aku dan kedua orang tuaku, sayangilah mereka sebagaimana mereka merawatku waktu kecil.',me:'My Lord, forgive me and my parents, and have mercy on them as they raised me when I was small.'},S:{id:'Sahabat Hijrah • Doa Harian',en:'Sahabat Hijrah • Daily Du\'as'}},
+{k:['doa kebaikan dunia akhirat','rabbana atina'],ke:['good in this world','rabbana atina'],D:{t:'Kebaikan Dunia-Akhirat',te:'Good in This World & Hereafter',a:'رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ',l:'Rabbana atina fid-dunya hasanah wa fil-akhirati hasanah wa qina adzaban nar',m:'Ya Tuhan kami, berikanlah kebaikan di dunia dan di akhirat, dan peliharalah kami dari siksa neraka.',me:'Our Lord, give us good in this world and good in the Hereafter, and protect us from the punishment of the Fire.'},S:{id:'Sahabat Hijrah • Doa Harian',en:'Sahabat Hijrah • Daily Du\'as'}},
+{k:['doa hujan','hujan'],ke:['rain','when it rains'],D:{t:'Ketika Hujan',te:'When It Rains',a:'اللَّهُمَّ صَيِّبًا نَافِعًا',l:'Allahumma shayyiban nafi\'an',m:'Ya Allah, turunkanlah hujan yang bermanfaat.',me:'O Allah, send a beneficial rain.'},S:{id:'HR. Bukhari no. 1032',en:'Bukhari no. 1032'}},
+{k:['doa safar','doa perjalanan','safar'],ke:['travel dua','journey','safar'],D:{t:'Safar / Perjalanan',te:'Travel',a:'سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ',l:'Subhanalladzi sakhkhara lana hadza wa ma kunna lahu muqrinin',m:'Mahasuci Allah yang menundukkan semua ini bagi kami, padahal kami tidak mampu menguasainya.',me:'Glory to Him who subjected this to us, and we could never have it by our efforts.'},S:{id:'QS. Az-Zukhruf: 13-14',en:'Qur\'an 43:13-14'}},
+{k:['mengubah keadaan','usaha','ikhtiar'],ke:['change','effort','strive'],H:{id:'Sesungguhnya Allah tidak akan mengubah keadaan suatu kaum sebelum mereka mengubah keadaan diri mereka sendiri.',en:'Indeed, Allah will not change the condition of a people until they change what is in themselves.'},S:{id:'QS. Ar-Ra\'d: 11',en:'Qur\'an 13:11'}},
+{k:['kesulitan','kemudahan'],ke:['hardship','ease'],H:{id:'Maka sesungguhnya bersama kesulitan ada kemudahan.',en:'For indeed, with hardship [will be] ease.'},S:{id:'QS. Asy-Syarh: 5',en:'Qur\'an 94:5'}},
+{k:['sabar'],ke:['patience','patient'],H:{id:'Dan Allah bersama orang-orang yang sabar.',en:'And Allah is with the patient.'},S:{id:'QS. Al-Anfal: 46',en:'Qur\'an 8:46'}},
+{k:['sholat mencegah','manfaat sholat'],ke:['prayer restrains','benefit of prayer'],H:{id:'Sesungguhnya sholat itu mencegah dari perbuatan keji dan mungkar.',en:'Indeed, prayer restrains from immorality and wrongdoing.'},S:{id:'QS. Al-Ankabut: 45',en:'Qur\'an 29:45'}},
+{k:['dzikir','ingat allah'],ke:['remembrance','dhikr','remember allah'],H:{id:'Karena itu, ingatlah kamu kepada-Ku niscaya Aku ingat (pula) kepadamu.',en:'So remember Me; I will remember you.'},S:{id:'QS. Al-Baqarah: 152',en:'Qur\'an 2:152'}},
+{k:['pertolongan','mohon pertolongan'],ke:['help','seek help'],H:{id:'Dan mintalah pertolongan (kepada Allah) dengan sabar dan sholat.',en:'And seek help through patience and prayer.'},S:{id:'QS. Al-Baqarah: 45',en:'Qur\'an 2:45'}},
+{k:['tujuan diciptakan','tujuan hidup'],ke:['purpose of creation','purpose of life'],H:{id:'Aku tidak menciptakan jin dan manusia melainkan agar mereka beribadah kepada-Ku.',en:'I did not create jinn and mankind except to worship Me.'},S:{id:'QS. Adz-Dzariyat: 56',en:'Qur\'an 51:56'}},
+{k:['tawakal','tawakkal'],ke:['tawakkul','rely on allah'],H:{id:'Barangsiapa bertawakal kepada Allah, niscaya Dia akan mencukupkan (keperluan)nya.',en:'And whoever relies upon Allah – then He is sufficient for him.'},S:{id:'QS. Ath-Thalaq: 3',en:'Qur\'an 65:3'}},
+{k:['hati tenang','tenang','gelisah'],ke:['peace of heart','rest','anxiety','calm'],H:{id:'Ingatlah, hanya dengan mengingati Allah hati menjadi tenteram.',en:'Verily, in the remembrance of Allah do hearts find rest.'},S:{id:'QS. Ar-Ra\'d: 28',en:'Qur\'an 13:28'}},
+{k:['beban','kesanggupan'],ke:['burden','capacity'],H:{id:'Allah tidak membebani seseorang melainkan sesuai kesanggupannya.',en:'Allah does not burden a soul beyond that it can bear.'},S:{id:'QS. Al-Baqarah: 286',en:'Qur\'an 2:286'}},
+/* --- 8 fitur aplikasi (dari README repo) --- */
+{k:['fitur aplikasi','fitur','fungsi aplikasi','apa saja fitur'],ke:['app features','features','what features'],
+ J:{id:'Sahabat Hijrah adalah teman ibadah yang bekerja offline: (1) jadwal sholat & imsak seluruh dunia, (2) Al-Qur\'an offline per halaman mushaf, (3) ayat & hadits harian, (4) kumpulan doa harian, (5) tasbih digital, (6) kompas kiblat, (7) kalender Hijriah, (8) pencatat ibadah. Semuanya tanpa internet.',
+    en:'Sahabat Hijrah is a worship companion that works offline: (1) prayer & imsak times worldwide, (2) offline Qur\'an page by page, (3) daily verse & hadith, (4) daily du\'as, (5) digital tasbih, (6) qibla compass, (7) Hijri calendar, (8) ibadah tracker. All without internet.'},
+ S:{id:'Sahabat Hijrah • Fitur Aplikasi',en:'Sahabat Hijrah • App Features'}},
+{k:['jadwal sholat','waktu sholat','imsak'],ke:['prayer times','imsak','prayer schedule'],
+ J:{id:'Jadwal sholat & imsak tersedia untuk seluruh dunia: halaman utama menghitung otomatis dari lokasimu, lengkap dengan penanda waktu berikutnya.',
+    en:'Prayer & imsak times are available worldwide: the home page calculates automatically from your location, complete with a marker for the next prayer time.'},
+ S:{id:'Sahabat Hijrah • Fitur Aplikasi',en:'Sahabat Hijrah • App Features'}},
+{k:['quran offline','mushaf','baca quran'],ke:['offline quran','mushaf','read quran'],
+ J:{id:'Al-Qur\'an offline tampil per halaman mushaf dengan font Amiri & Scheherazade, terbaca penuh tanpa internet sama sekali.',
+    en:'The offline Qur\'an displays page by page like the mushaf with Amiri & Scheherazade fonts, fully readable with no internet at all.'},
+ S:{id:'Sahabat Hijrah • Fitur Aplikasi',en:'Sahabat Hijrah • App Features'}},
+{k:['ayat harian','hadits harian'],ke:['daily verse','daily hadith'],
+ J:{id:'Setiap hari halaman utama menyajikan satu ayat dan satu hadits pilihan untuk renungan pagimu.',
+    en:'Every day the home page serves one chosen verse and one hadith for your morning reflection.'},
+ S:{id:'Sahabat Hijrah • Fitur Aplikasi',en:'Sahabat Hijrah • App Features'}},
+{k:['tasbih','dzikir digital','counter dzikir'],ke:['tasbih','dhikr counter','counter'],
+ J:{id:'Tasbih digital menghitung dzikir dengan ketukan ringan; jumlahnya tersimpan di perangkat, aman walau aplikasi ditutup.',
+    en:'The digital tasbih counts dhikr with light taps; the count is saved on the device, safe even when the app is closed.'},
+ S:{id:'Sahabat Hijrah • Fitur Aplikasi',en:'Sahabat Hijrah • App Features'}},
+{k:['kiblat','arah kiblat'],ke:['qibla','qiblah','compass'],
+ J:{id:'Kompas kiblat menunjuk arah Ka\'bah dari posisi mana pun kamu berdiri, memakai sensor ponselmu.',
+    en:'The qibla compass points to the Ka\'bah from wherever you stand, using your phone\'s sensors.'},
+ S:{id:'Sahabat Hijrah • Fitur Aplikasi',en:'Sahabat Hijrah • App Features'}},
+{k:['kalender hijriah','tanggal hijriah','tanggal islam'],ke:['hijri calendar','islamic calendar','hijri date'],
+ J:{id:'Kalender Hijriah menampilkan tanggal Islam hari ini beserta konversinya ke tanggal Masehi.',
+    en:'The Hijri calendar shows today\'s Islamic date along with its Gregorian conversion.'},
+ S:{id:'Sahabat Hijrah • Fitur Aplikasi',en:'Sahabat Hijrah • App Features'}},
+{k:['tracker ibadah','catatan ibadah','pencatat ibadah'],ke:['ibadah tracker','worship tracker','habit tracker'],
+ J:{id:'Pencatat ibadah membantumu menandai sholat, puasa, dan amal harian agar kebiasaan hijrah terjaga hari demi hari.',
+    en:'The ibadah tracker lets you mark prayers, fasting, and daily deeds so your hijrah habits stay guarded day by day.'},
+ S:{id:'Sahabat Hijrah • Fitur Aplikasi',en:'Sahabat Hijrah • App Features'}}
 ];
 
 const CHAT=document.getElementById('chat');
@@ -210,10 +191,11 @@ function setBah(b){
  document.getElementById('bEN').classList.toggle('on',b==='en');
  const cb=document.getElementById('chips');cb.innerHTML='';
  u.chips.forEach(c=>{const bt=document.createElement('button');bt.textContent=c;bt.onclick=()=>{document.getElementById('inp').value=c;kirim();};cb.appendChild(bt);});
+ CHAT.innerHTML='';
+ tulis('bot',u.salam);
 }
 document.getElementById('frm').addEventListener('submit',ev=>{ev.preventDefault();kirim();});
 setBah(bah);
-tulis('bot',UI[bah].salam);
 </script>
 </body>
 </html>
