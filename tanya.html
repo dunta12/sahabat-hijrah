@@ -177,13 +177,14 @@ async function kirim(){
  inp.value='';tulis('me',q);
  const e=cari(q);
  if(e){tulis('bot',teks(e),e.S[bah]||e.S.id);return;}
- if(URL_OTAK){
-  try{
-   const r=await fetch(URL_OTAK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q})});
-   const d=await r.json();tulis('bot',d.jawaban,d.sumber||'');
-  }catch(err){tulis('bot',UI[bah].err);}
-  return;
- }
+if(URL_OTAK){
+const tp=titik();
+try{
+const r=await fetch(URL_OTAK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q})});
+const d=await r.json();tp.remove();tulis('bot',d.jawaban,d.sumber||'');
+}catch(err){tp.remove();tulis('bot',UI[bah].err);}
+return;
+   }
  tulis('bot',UI[bah].kosong);
 }
 function setBah(b){
