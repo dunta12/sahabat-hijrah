@@ -183,11 +183,13 @@ bt.onclick=()=>{bt.disabled=true;bt.textContent='Memuat iklan...';try{Android.mi
 d.appendChild(bt);CHAT.appendChild(d);CHAT.scrollTop=CHAT.scrollHeight;
 }
 window.onRewardSelesai=async()=>{
+const bt=CHAT.querySelector('.kadoBtn');
 try{
 const r=await fetch(URL_KADO,{method:'POST'});
 const h=await r.json();
-tulis('bot',h.ok?('🎁 Kado diterima! Sisa jatahmu hari ini: '+h.sisa+' pertanyaan.'):(h.alasan||'Kado gagal, coba lagi nanti.'));
-}catch(e){tulis('bot','Kado gagal dikirim, coba lagi nanti.');}
+if(h.ok){if(bt){bt.closest('.p').remove();}tulis('bot','🎁 Kado diterima! Sisa jatahmu hari ini: '+h.sisa+' pertanyaan.');}
+else{if(bt){bt.disabled=false;bt.textContent='🎁 Tonton iklan • +5 pertanyaan';}tulis('bot',h.alasan||'Kado gagal, coba lagi nanti.');}
+}catch(e){if(bt){bt.disabled=false;bt.textContent='🎁 Tonton iklan • +5 pertanyaan';}tulis('bot','Kado gagal dikirim, coba lagi nanti.');}
 };
  async function kirim(){
  const inp=document.getElementById('inp');const q=inp.value.trim();if(!q)return;
