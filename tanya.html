@@ -188,7 +188,7 @@ const bt=CHAT.querySelector('.kadoBtn');
 try{
 const r=await fetch(URL_KADO,{method:'POST'});
 const h=await r.json();
-if(h.ok){if(bt){bt.closest('p').remove();}if(typeof h.berlian==='number')setBerlian(h.berlian);tulis('bot','🎁 Kado diterima! Sisa jatahmu hari ini: '+h.sisa+' pertanyaan.');}
+if(h.ok){if(bt){bt.closest('p').remove();}if(typeof h.berlian==='number'){localStorage.setItem('berlian',String(h.berlian));setBerlian(h.berlian);}else{const nb=(parseInt(localStorage.getItem('berlian')||'100',10))+50;localStorage.setItem('berlian',String(nb));setBerlian(nb);}tulis('bot','🎁 Kado diterima! Sisa jatahmu hari ini: '+h.sisa+' pertanyaan.');}
 else{if(bt){bt.disabled=false;bt.textContent=teksKado();}tulis('bot',h.alasan||'Kado gagal, coba lagi nanti.');}
 }catch(e){if(bt){bt.disabled=false;bt.textContent=teksKado();}tulis('bot','Kado gagal dikirim, coba lagi nanti.');}
 };
@@ -235,7 +235,7 @@ function setBah(b){
  tulis('bot',u.salam);
 }
 document.getElementById('frm').addEventListener('submit',ev=>{ev.preventDefault();kirim();});
-setBah(bah);setBerlian(100);
+setBah(bah);setBerlian(parseInt(localStorage.getItem('berlian')||'100',10));
 </script>
 </body>
 </html>
