@@ -62,7 +62,7 @@ const HADITS=[
     w.style.cssText='border-left:4px solid #d4a017;margin-top:10px;padding:10px 12px;text-align:center';
     w.innerHTML='<div dir="rtl" style="font-size:17px;line-height:1.7;color:#1a5c44;font-weight:600">'+h.a+'</div>'+
       '<div style="font-size:13px;line-height:1.5;margin-top:4px">'+(en?h.e:h.i)+'</div>'+
-      '<div style="font-size:11px;color:#5b6b63;margin-top:4px">'+h.th+' · '+h.r+'</div>';
+      '<div style="font-size:11px;color:#5b6b63;margin-top:4px">'+(h.r||'Arbain Nawawi')+'</div>';
     kartu.parentNode.insertBefore(w,kartu.nextSibling);
   }
   pasang();
