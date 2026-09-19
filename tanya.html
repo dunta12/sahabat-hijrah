@@ -43,12 +43,12 @@ const URL_OTAK='https://hakim-hijrah.duniabercerita-info.workers.dev/tanya';
 
 const UI={
 id:{judul:'Tanya - Teman Diskusi',ph:'Tulis pertanyaanmu di sini...',back:'index.html',
-salam:'Assalamu\'alaikum 🌿 Aku teman diskusi Sahabat Hijrah. Aku bekerja offline dari pustaka rumah ini: tanya soal ibadah sehari-hari, doa harian, ayat hikmah, atau fitur aplikasi — aku jawab bersama sumbernya. Wallahu a\'lam bish-shawab.',
+salam:'Assalamu\'alaikum 🌿 Aku teman diskusi Sahabat Hijrah. Bagaimana perasaanmu hari ini?',
 kosong:'Pustaka offline-ku belum menyimpan jawaban itu. Aku paham soal: sholat (wajib, Jumat, jamaah, witir, dhuha, rawatib, tahajud), puasa (Ramadhan, Senin-Kamis, Syawal), zakat (fitrah & mal), wudhu & tayamum, mandi wajib, qurban, haji, riba, sedekah, musik, niat, ilmu, lisan, orang tua, istikharah, dzikir, 12 doa harian, 10 ayat hikmah, dan fitur aplikasi. Otak AI menyusul insyaAllah.',
 err:'Maaf, sambunganku ke otak sedang terputus. Coba lagi sebentar lagi ya.',
 chips:['Berapa rakaat sholat wajib?','Apa yang membatalkan wudhu?','Doa sebelum makan?','Ayat tentang sabar?','Apa saja fitur aplikasi ini?']},
 en:{judul:'Ask - Discussion Companion',ph:'Type your question here...',back:'en.html',
-salam:'Assalamu\'alaikum 🌿 I am the discussion companion of Sahabat Hijrah. I work offline from this home library: ask about daily worship, daily du\'as, verses of wisdom, or app features — I answer with sources. Wallahu a\'lam bish-shawab.',
+salam:'Assalamu\'alaikum 🌿 I am the discussion companion of Sahabat Hijrah. How do you feel today?',
 kosong:'My offline library does not hold that answer yet. I know about: prayer (obligatory, Friday, congregation, witr, duha, rawatib, tahajjud), fasting (Ramadan, Mon-Thu, Shawwal), zakat (fitr & wealth), wudhu & tayammum, ghusl, qurban, hajj, riba, sadaqah, music, intention, knowledge, speech, parents, istikharah, dhikr, 12 daily du\'as, 10 verses of wisdom, and app features. The AI brain will follow, in sha Allah.',
 err:'Sorry, my link to the brain is down. Please try again in a moment.',
 chips:['How many rakahs are obligatory prayers?','What invalidates wudhu?','Du\'a before eating?','Verse about patience?','What features does this app have?']}
@@ -191,6 +191,18 @@ if(h.ok){if(bt){bt.closest('.p').remove();}tulis('bot','🎁 Kado diterima! Sisa
 else{if(bt){bt.disabled=false;bt.textContent='🎁 Tonton iklan • +5 pertanyaan';}tulis('bot',h.alasan||'Kado gagal, coba lagi nanti.');}
 }catch(e){if(bt){bt.disabled=false;bt.textContent='🎁 Tonton iklan • +5 pertanyaan';}tulis('bot','Kado gagal dikirim, coba lagi nanti.');}
 };
+ function rapikan(s){
+if(!s||s.indexOf('Kode ')!==0)return s;
+const c=s.slice(5,8);
+if(bah==='id'){
+if(c==='429')return '⏳ Maaf sahabatku, jatah harianku sedang penuh sekali hari ini. InsyaAllah besok pagi aku sehat kembali, coba lagi ya.';
+if(c==='503')return '⏳ Ruang tunggu sedang ramai sekali sebentar ini. Coba beberapa menit lagi ya, aku tidak ke mana-mana.';
+return '⏳ Aku sedang kurang sehat sebentar. Coba lagi beberapa saat lagi ya, sahabatku.';
+}
+if(c==='429')return '⏳ Sorry my friend, my daily quota is full today. I should be healthy again tomorrow morning, please try again.';
+if(c==='503')return '⏳ The waiting room is very crowded right now. Please try again in a few minutes, I am not going anywhere.';
+return '⏳ I am feeling a little unwell right now. Please try again in a moment, my friend.';
+}
  async function kirim(){
  const inp=document.getElementById('inp');const q=inp.value.trim();if(!q)return;
  inp.value='';tulis('me',q);
@@ -200,7 +212,7 @@ if(URL_OTAK){
 const tp=titik();
 try{
 const r=await fetch(URL_OTAK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q})});
-const d=await r.json();tp.remove();tulis('bot',(d.jawaban||'').replace(/\*/g,''),d.sumber||'');
+const d=await r.json();tp.remove();const jw=(d.jawaban||'').replace(/\*/g,'');tulis('bot',rapikan(jw),d.sumber||'');
 if((d.jawaban||'').indexOf('Jatah')===0&&window.Android)tombolKado();
 }catch(err){tp.remove();tulis('bot',UI[bah].err);}
 return;
