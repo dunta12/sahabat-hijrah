@@ -172,7 +172,24 @@ function cari(q){
  }
  return bs>=2?best:null;
 }
-async function kirim(){
+const URL_KADO=URL_OTAK.replace(/\/tanya$/,'')+'/kado';
+function tombolKado(){
+if(CHAT.querySelector('.kadoBtn'))return;
+const d=document.createElement('div');d.className='p bot';
+const bt=document.createElement('button');bt.className='kadoBtn';
+bt.style.cssText='background:#174d3b;color:#fff;border:0;border-radius:12px;padding:10px 14px;font-size:14px;width:100%;cursor:pointer;';
+bt.textContent='🎁 Tonton iklan • +5 pertanyaan';
+bt.onclick=()=>{bt.disabled=true;bt.textContent='Memuat iklan...';try{Android.mintaRewarded();}catch(e){bt.disabled=false;bt.textContent='🎁 Tonton iklan • +5 pertanyaan';}};
+d.appendChild(bt);CHAT.appendChild(d);CHAT.scrollTop=CHAT.scrollHeight;
+}
+window.onRewardSelesai=async()=>{
+try{
+const r=await fetch(URL_KADO,{method:'POST'});
+const h=await r.json();
+tulis('bot',h.ok?('🎁 Kado diterima! Sisa jatahmu hari ini: '+h.sisa+' pertanyaan.'):(h.alasan||'Kado gagal, coba lagi nanti.'));
+}catch(e){tulis('bot','Kado gagal dikirim, coba lagi nanti.');}
+};
+ async function kirim(){
  const inp=document.getElementById('inp');const q=inp.value.trim();if(!q)return;
  inp.value='';tulis('me',q);
  const e=cari(q);
@@ -182,6 +199,7 @@ const tp=titik();
 try{
 const r=await fetch(URL_OTAK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q})});
 const d=await r.json();tp.remove();tulis('bot',(d.jawaban||'').replace(/\*/g,''),d.sumber||'');
+if((d.jawaban||'').indexOf('Jatah')===0&&window.Android)tombolKado();
 }catch(err){tp.remove();tulis('bot',UI[bah].err);}
 return;
    }
