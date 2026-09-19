@@ -59,21 +59,10 @@ const HADITS=[
     const h=pilih();
     const w=document.createElement('div');
     w.className='card';
-    w.style.cssText='border-left:4px solid #d4a017;margin-top:12px';
-    w.innerHTML='<b style="font-size:13px;color:#1a5c44">'+(en?'🌿 Daily Hadith · Arbain Nawawi #':'🌿 Hadits Harian · Arbain Nawawi ke-')+h.n+' — '+h.th+'</b>'+
-      '<div dir="rtl" style="font-size:20px;line-height:1.9;text-align:right;margin:8px 0">'+h.a+'</div>'+
-      '<div style="font-size:14px;line-height:1.6">'+(en?h.e:h.i)+'</div>'+
-      '<div style="font-size:12px;color:#5b6b63;margin-top:6px">'+h.r+'</div>';
-    const b=document.createElement('button');
-    b.style.cssText='margin-top:10px;background:#2d6a4f;color:#fff;border:none;border-radius:20px;padding:8px 18px;font-size:13px';
-    b.textContent=en?'📤 Share':'📤 Bagikan';
-    b.onclick=function(){
-      const t=(en?h.e:h.i)+'\n'+h.a+'\n'+h.r+' — '+(en?'Daily Hadith, Sahabat Hijrah 🌙':'Hadits Harian, Sahabat Hijrah 🌙');
-      if(navigator.share){navigator.share({text:t}).catch(function(){});}
-      else if(navigator.clipboard){navigator.clipboard.writeText(t).then(function(){alert(en?'Hadith copied.':'Hadits tersalin.');});}
-      else{alert(t);}
-    };
-    w.appendChild(b);
+    w.style.cssText='border-left:4px solid #d4a017;margin-top:10px;padding:10px 12px;text-align:center';
+    w.innerHTML='<div dir="rtl" style="font-size:17px;line-height:1.7;color:#1a5c44;font-weight:600">'+h.a+'</div>'+
+      '<div style="font-size:13px;line-height:1.5;margin-top:4px">'+(en?h.e:h.i)+'</div>'+
+      '<div style="font-size:11px;color:#5b6b63;margin-top:4px">'+h.th+' · '+h.r+'</div>';
     kartu.parentNode.insertBefore(w,kartu.nextSibling);
   }
   pasang();
