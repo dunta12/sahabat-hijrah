@@ -114,6 +114,11 @@ function render(){
 $("#refreshBtn").onclick=()=>coords?fetchOverpass():load();
 $("#radius").onchange=()=>{if(coords)fetchOverpass();};
 applyLang(); setGmaps(); load();
+(function(){
+  if(!/; wv$|Version\/4\.0/.test(navigator.userAgent))return;
+  document.addEventListener("click",e=>{const a=e.target.closest("a[href*='google.com/maps']");if(!a)return;const m=a.href.match(/(-?\d+\.\d+),(-?\d+\.\d+)/);a.href=m?(a.href.includes("dir")?"https://www.openstreetmap.org/directions?to="+m[1]+","+m[2]:"https://www.openstreetmap.org/?mlat="+m[1]+"&mlon="+m[2]+"#map=17/"+m[1]+"/"+m[2]):"https://www.openstreetmap.org/search?query=masjid";},true);
+  navigator.geolocation.getCurrentPosition(()=>{},err=>{if(err.code!==1||coords)return;const q=prompt(lang==="id"?"Izin lokasi tidak tersedia di aplikasi ini. Ketik nama kota (contoh: Bandung):":"Location unavailable in this app. Type a city name (e.g. Bandung):");if(q&&q.trim())fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&q="+encodeURIComponent(q.trim())).then(r=>r.json()).then(j=>{if(j&&j.length){coords={lat:+j[0].lat,lon:+j[0].lon};setGmaps();fetchOverpass();}});},{timeout:8000});
+})();
 </script>
 </body>
 </html>
