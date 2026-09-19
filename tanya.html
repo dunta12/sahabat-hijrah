@@ -173,13 +173,14 @@ function cari(q){
  return bs>=2?best:null;
 }
 const URL_KADO=URL_OTAK.replace(/\/tanya$/,'')+'/kado';
+function setBerlian(n){let c=document.getElementById('chipB');if(!c){c=document.createElement('span');c.id='chipB';c.style.cssText='background:rgba(0,0,0,.25);color:#ffd75e;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700;margin-right:8px';const b=document.getElementById('bID');if(b&&b.parentNode)b.parentNode.insertBefore(c,b);}c.textContent='💎 '+n;}function teksKado(){return bah==='id'?'🎁 Tonton iklan • +50 berlian':'🎁 Watch ad • +50 diamonds';}
 function tombolKado(){
 if(CHAT.querySelector('.kadoBtn'))return;
 const d=document.createElement('div');d.className='p bot';
 const bt=document.createElement('button');bt.className='kadoBtn';
 bt.style.cssText='background:#174d3b;color:#fff;border:0;border-radius:12px;padding:10px 14px;font-size:14px;width:100%;cursor:pointer;';
-bt.textContent='🎁 Tonton iklan • +5 pertanyaan';
-bt.onclick=()=>{bt.disabled=true;bt.textContent='Memuat iklan...';try{Android.mintaRewarded();}catch(e){bt.disabled=false;bt.textContent='🎁 Tonton iklan • +5 pertanyaan';}};
+bt.textContent=teksKado();
+bt.onclick=()=>{bt.disabled=true;bt.textContent='Memuat iklan...';try{Android.mintaRewarded();}catch(e){bt.disabled=false;bt.textContent=teksKado();}};
 d.appendChild(bt);CHAT.appendChild(d);CHAT.scrollTop=CHAT.scrollHeight;
 }
 window.onRewardSelesai=async()=>{
@@ -187,9 +188,9 @@ const bt=CHAT.querySelector('.kadoBtn');
 try{
 const r=await fetch(URL_KADO,{method:'POST'});
 const h=await r.json();
-if(h.ok){if(bt){bt.closest('.p').remove();}tulis('bot','🎁 Kado diterima! Sisa jatahmu hari ini: '+h.sisa+' pertanyaan.');}
-else{if(bt){bt.disabled=false;bt.textContent='🎁 Tonton iklan • +5 pertanyaan';}tulis('bot',h.alasan||'Kado gagal, coba lagi nanti.');}
-}catch(e){if(bt){bt.disabled=false;bt.textContent='🎁 Tonton iklan • +5 pertanyaan';}tulis('bot','Kado gagal dikirim, coba lagi nanti.');}
+if(h.ok){if(bt){bt.closest('p').remove();}if(typeof h.berlian==='number')setBerlian(h.berlian);tulis('bot','🎁 Kado diterima! Sisa jatahmu hari ini: '+h.sisa+' pertanyaan.');}
+else{if(bt){bt.disabled=false;bt.textContent=teksKado();}tulis('bot',h.alasan||'Kado gagal, coba lagi nanti.');}
+}catch(e){if(bt){bt.disabled=false;bt.textContent=teksKado();}tulis('bot','Kado gagal dikirim, coba lagi nanti.');}
 };
  function rapikan(s){
 if(!s||s.indexOf('Kode ')!==0)return s;
@@ -212,7 +213,7 @@ if(URL_OTAK){
 const tp=titik();
 try{
 const r=await fetch(URL_OTAK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q})});
-const d=await r.json();tp.remove();const jw=(d.jawaban||'').replace(/\*/g,'');tulis('bot',rapikan(jw),d.sumber||'');
+const d=await r.json();tp.remove();if(typeof d.berlian==='number')setBerlian(d.berlian);const jw=(d.jawaban||'').replace(/\*/g,'');tulis('bot',rapikan(jw),d.sumber||'');
 if((d.jawaban||'').indexOf('Jatah')===0&&window.Android)tombolKado();
 }catch(err){tp.remove();tulis('bot',UI[bah].err);}
 return;
@@ -234,7 +235,7 @@ function setBah(b){
  tulis('bot',u.salam);
 }
 document.getElementById('frm').addEventListener('submit',ev=>{ev.preventDefault();kirim();});
-setBah(bah);
+setBah(bah);setBerlian(100);
 </script>
 </body>
 </html>
