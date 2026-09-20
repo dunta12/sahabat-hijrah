@@ -99,6 +99,7 @@ async function fetchOverpass(){
     items=(j.elements||[]).map(e=>({lat:e.lat??e.center?.lat,lon:e.lon??e.center?.lon,tags:e.tags||{}})).filter(i=>i.lat!=null);
     items.forEach(i=>i.d=dist(coords.lon,coords.lat,i.lon,i.lat));
     items=items.filter(i=>isFinite(i.d)&&i.d<=r+1000);
+    if(!items.length&&r<20000){const nx=$("#radius");const next=Array.from(nx.options).map(o=>+o.value).find(v=>v>r);nx.value=String(next||20000);return fetchOverpass();}
     items.sort((a,b)=>a.d-b.d);
     render();
   }catch(err){status("neterr");}
