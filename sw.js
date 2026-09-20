@@ -1,4 +1,4 @@
-const CACHE='sh-v47';
+const CACHE='sh-v48';
 const ASSETS=['./','./index.html','./en.html','./dlg.js','./iqro.html','./tanya.html','./hadits.js','./manifest.json','./adhan.mp3','./icon-192.png','./icon-512.png','./ScheherazadeNew-Regular.ttf'];
 
 self.addEventListener('install',e=>{
