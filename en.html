@@ -165,6 +165,12 @@ nav button{display:flex;flex-direction:column;justify-content:center;align-items
 .qbar button{padding:12px 16px}
 .qbar{background:var(--bg);border-top:none}
 .ayat .a,.surah .arab,.q-head .ar,.doa-ar{font-family:'Amiri Quran','Scheherazade New',serif}
+/* ===== denah baru: jam di atas sebesar kartu, tanggal ramping di bawah ===== */
+.countdown{padding:16px;margin-bottom:12px}
+.countdown .time{font-size:28px}
+.tanggal{padding:10px 12px;border-radius:12px}
+.tanggal .hijri{font-size:15px;font-weight:700}
+.tanggal .masehi{font-size:12px;margin-top:2px}
 </style>
 <script src="dlg.js"></script>
 </head>
@@ -183,14 +189,14 @@ nav button{display:flex;flex-direction:column;justify-content:center;align-items
 </header>
 
 <div id="hal-jadwal" class="screen">
-  <div class="card tanggal">
-    <div class="hijri" id="tglHijri">...</div>
-    <div class="masehi" id="tglMasehi">...</div>
-  </div>
-  <div class="hikmah" id="hikmahCard"></div>
   <div class="countdown">
     <div class="label" id="cdLabel">Counting down...</div>
     <div class="time" id="cdTime">--:--:--</div>
+  </div>
+  <div class="hikmah" id="hikmahCard"></div>
+  <div class="card tanggal">
+    <div class="hijri" id="tglHijri">...</div>
+    <div class="masehi" id="tglMasehi">...</div>
   </div>
   <a href="masjid.html" class="card" style="display:block;text-decoration:none;color:var(--text)">
   🕌 <b style="color:var(--green)">Find Mosque</b><br>
@@ -214,7 +220,7 @@ nav button{display:flex;flex-direction:column;justify-content:center;align-items
 </a>
 <a href="tanya.html" class="card" style="display:block;text-decoration:none;color:var(--text)">
   💬 <b style="color:var(--green)">Ask - Discussion Companion</b><br>
-  <small style="color:var(--soft)">Friendly worship Q&A: sourced answers, works offline and online</small>
+  <small style="color:var(--soft)">Friendly worship Q&A: sourced answers</small>
 </a>
 
   <div class="card">
