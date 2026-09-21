@@ -145,24 +145,13 @@
 </div>
 
 <script type="module">
-/* ===== 3. KUNCI RUMAH (salinan dari notes-mu) ===== */
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-import { getAuth, signInAnonymously, onAuthStateChanged }
+/* ===== 3. KUNCI RUMAH: kini tinggal di satu lemari ===== */
+import { auth, db } from "./js/konfigurasi.js";
+import { signInAnonymously, onAuthStateChanged }
   from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
-import { getFirestore, collection, query, orderBy, onSnapshot,
+import { collection, query, orderBy, onSnapshot,
          addDoc, deleteDoc, doc, getDoc, setDoc, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
-
-const app = initializeApp({
-  apiKey:            "AIzaSyAssjKSLJcpW-qzjmJKCOioXerB6yAF1ZY",
-  authDomain:        "sahabat-hijrah-f3faa.firebaseapp.com",
-  projectId:         "sahabat-hijrah-f3faa",
-  storageBucket:     "sahabat-hijrah-f3faa.firebasestorage.app",
-  messagingSenderId: "942786617779",
-  appId:             "1:942786617779:web:eac409c4eb48f58768abc6"
-});
-const auth = getAuth(app);
-const db   = getFirestore(app);
 
 /* ===== 4. ALAT BANTU LAYAR ===== */
 const daftar   = document.getElementById("daftarPesan");
