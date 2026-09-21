@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b6e4f">
+<title>Greetings — Sahabat Hijrah</title>
+<style>
+  /* ===== 1. VARIABEL WARNA (terang & gelap otomatis) ===== */
+  :root{
+    --bg:#f6f4ef; --kartu:#ffffff; --teks:#22261f; --lembut:#6b7065;
+    --aksen:#0b6e4f; --aksen-teks:#ffffff; --saya:#dcf0e4; --garis:#e3e0d8;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#15181a; --kartu:#20262a; --teks:#e8e6e1; --lembut:#9aa0a6;
+      --aksen:#39a077; --aksen-teks:#08130d; --saya:#24413a; --garis:#2c3236;
+    }
+  }
+
+  /* ===== 2. KERANGKA TIGA LAPIS: kepala - daftar - kolom ketik ===== */
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; display:flex; flex-direction:column;
+    height:100vh; height:100dvh;
+    background:var(--bg); color:var(--teks);
+    font:16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+
+  /* Kepala: tidak ikut scroll */
+  header{
+    flex:none; display:flex; align-items:center; gap:10px;
+    padding:calc(env(safe-area-inset-top) + 10px) 12px 10px;
+    background:var(--aksen); color:var(--aksen-teks);
+  }
+  header a{color:inherit; text-decoration:none; font-size:20px; padding:6px}
+  header h1{font-size:17px; margin:0; flex:1; font-weight:600}
+  #chipNama{
+    border:1px solid currentColor; background:transparent; color:inherit;
+    border-radius:999px; padding:6px 12px; font:inherit; font-size:13px;
+    max-width:40vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+
+  /* Daftar pesan: satu-satunya lapisan yang boleh scroll */
+  main{
+    flex:1; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch;
+    width:100%; max-width:720px; margin:0 auto; padding:14px 12px;
+  }
+  .kosong{color:var(--lembut); text-align:center; margin-top:15vh; font-size:14px}
+
+  .pesan{
+    background:var(--kartu); border:1px solid var(--garis);
+    border-radius:14px; padding:8px 12px; margin:0 0 10px;
+    max-width:85%; overflow-wrap:anywhere;
+  }
+  .pesan.saya{margin-left:auto; background:var(--saya)}
+  .pesan .meta{display:flex; gap:8px; align-items:baseline; font-size:12px; color:var(--lembut)}
+  .pesan .nama{font-weight:600; color:var(--teks)}
+  .pesan .teks{margin:4px 0; white-space:pre-wrap}
+  .pesan .hapus{
+    border:0; background:transparent; color:var(--lembut);
+    font-size:14px; padding:4px 6px; margin-left:auto; cursor:pointer;
+  }
+
+  /* Kolom ketik: statis di bawah, tidak pernah ikut scroll */
+  footer{
+    flex:none; border-top:1px solid var(--garis); background:var(--kartu);
+    padding:8px 12px calc(env(safe-area-inset-bottom) + 8px);
+  }
+  .komposer{
+    display:flex; align-items:flex-end; gap:8px;
+    width:100%; max-width:720px; margin:0 auto;
+  }
+  #kolomKetik{
+    flex:1; resize:none; border:1px solid var(--garis); border-radius:20px;
+    background:var(--bg); color:var(--teks); font:inherit;
+    padding:10px 14px; max-height:38vh; outline:none;
+  }
+  #kolomKetik:focus{border-color:var(--aksen)}
+  #tombolKirim{
+    flex:none; width:46px; height:46px; border:0; border-radius:50%;
+    background:var(--aksen); color:var(--aksen-teks); font-size:19px; cursor:pointer;
+  }
+  #tombolKirim:disabled{opacity:.45; cursor:default}
+  /* Dialog ganti nama buatan sendiri: tanpa alamat peramban */
+  #layarNama{
+    position:fixed; inset:0; z-index:50;
+    background:rgba(0,0,0,.45);
+    display:none; align-items:center; justify-content:center;
+    padding:20px;
+  }
+  #layarNama.terbuka{display:flex}
+  .kotakNama{
+    width:100%; max-width:340px;
+    background:var(--kartu); color:var(--teks);
+    border-radius:16px; padding:18px;
+    box-shadow:0 10px 40px rgba(0,0,0,.25);
+  }
+  .kotakNama h2{margin:0 0 12px; font-size:16px}
+  #isianNama{
+    width:100%; border:1px solid var(--garis); border-radius:10px;
+    background:var(--bg); color:var(--teks); font:inherit;
+    padding:10px 12px; outline:none;
+  }
+  #isianNama:focus{border-color:var(--aksen)}
+  .barisTombol{display:flex; justify-content:flex-end; gap:8px; margin-top:14px}
+  .barisTombol button{
+    border:0; border-radius:10px; padding:10px 16px;
+    font:inherit; font-size:14px; cursor:pointer;
+  }
+  #batalNama{background:transparent; color:var(--lembut)}
+  #simpanNama{background:var(--aksen); color:var(--aksen-teks)}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="en.html" aria-label="Back to home">←</a>
+  <h1>💬 Greetings</h1>
+  <button id="chipNama" title="Change display name">Guest</button>
+</header>
+
+<main id="daftarPesan" aria-label="List of greetings">
+  <p class="kosong" id="keteranganKosong">Preparing the room…</p>
+</main>
+
+<footer>
+  <div class="komposer">
+    <textarea id="kolomKetik" rows="1" maxlength="1000"
+      placeholder="Write a greeting for your brothers & sisters…"></textarea>
+    <button id="tombolKirim" aria-label="Send greeting">➤</button>
+  </div>
+</footer>
+
+<div id="layarNama" role="dialog" aria-modal="true" aria-label="Change display name">
+  <div class="kotakNama">
+    <h2>Your display name</h2>
+    <input id="isianNama" maxlength="40" placeholder="Max 40 characters">
+    <div class="barisTombol">
+      <button id="batalNama">Cancel</button>
+      <button id="simpanNama">Save</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+/* ===== 3. KUNCI RUMAH (salinan dari notes-mu) ===== */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+import { getAuth, signInAnonymously, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+import { getFirestore, collection, query, orderBy, onSnapshot,
+        addDoc, deleteDoc, doc, getDoc, setDoc, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey:            "AIzaSyAssjKSLJcpW-qzjmJKCOioXerB6yAF1ZY",
+  authDomain:        "sahabat-hijrah-f3faa.firebaseapp.com",
+  projectId:         "sahabat-hijrah-f3faa",
+  storageBucket:     "sahabat-hijrah-f3faa.firebasestorage.app",
+  messagingSenderId: "942786617779",
+  appId:             "1:942786617779:web:eac409c4eb48f58768abc6"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+/* ===== 4. ALAT BANTU LAYAR ===== */
+const daftar  = document.getElementById("daftarPesan");
+const kosong  = document.getElementById("keteranganKosong");
+const kolom   = document.getElementById("kolomKetik");
+const kirim   = document.getElementById("tombolKirim");
+const chipNama = document.getElementById("chipNama");
+const layarNama = document.getElementById("layarNama");
+const isianNama = document.getElementById("isianNama");
+const batalNama = document.getElementById("batalNama");
+const simpanNama = document.getElementById("simpanNama");
+
+let uid  = null;    // identitas tamu anonim
+let nama = "Guest"; // nama panggilan yang tampil
+
+function waktu(ts){
+  if(!ts || !ts.toDate) return "";
+  return ts.toDate().toLocaleString("en-US",
+    {day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"});
+}
+
+/* Satu pesan = satu kartu; isi ditulis lewat textContent agar aman */
+function kartuPesan(p, id){
+  const bungkus = document.createElement("div");
+  bungkus.className = "pesan" + (p.authorId === uid ? " saya" : "");
+
+  const meta = document.createElement("div"); meta.className = "meta";
+  const n = document.createElement("span"); n.className = "nama";
+  n.textContent = p.name || "Guest";
+  const t = document.createElement("span"); t.textContent = waktu(p.createdAt);
+  meta.append(n, t);
+
+  if(p.authorId === uid){
+    const h = document.createElement("button");
+    h.className = "hapus"; h.textContent = "🗑"; h.title = "Remove this greeting";
+    h.onclick = () => deleteDoc(doc(db, "messages", id));
+    meta.append(h);
+  }
+
+  const teks = document.createElement("p"); teks.className = "teks";
+  teks.textContent = p.text;
+
+  bungkus.append(meta, teks);
+  return bungkus;
+}
+
+/* ===== 5. MATA YANG MENGAWASI DINDING (onSnapshot) ===== */
+function awasiDinding(){
+  const q = query(collection(db, "messages"), orderBy("createdAt", "asc"));
+  onSnapshot(q, snap => {
+    daftar.innerHTML = "";
+    if(snap.empty){
+      kosong.textContent = "No greetings yet. Be the first to say hello. 🌙";
+      daftar.append(kosong);
+      return;
+    }
+    snap.forEach(d => daftar.append(kartuPesan(d.data(), d.id)));
+    daftar.scrollTop = daftar.scrollHeight;  // pandang selalu yang terbaru
+  }, err => {
+    kosong.textContent = "Failed to read wall: " + err.message;
+  });
+}
+
+/* ===== 6. NAMA PANGGILAN (ruang /users) ===== */
+async function muatNama(){
+  const ref = doc(db, "users", uid);
+  const s   = await getDoc(ref);
+  if(s.exists() && typeof s.data().displayName === "string"){
+    nama = s.data().displayName;
+  }else{
+    await setDoc(ref, { displayName: nama });
+  }
+  chipNama.textContent = nama;
+}
+/* Dialog nama terbuka di dalam halaman; alamat peramban tak lagi muncul */
+function bukaDialogNama(){
+  isianNama.value = (nama === "Guest") ? "" : nama;
+  layarNama.classList.add("terbuka");
+  isianNama.focus();
+}
+function tutupDialogNama(){
+  layarNama.classList.remove("terbuka");
+}
+chipNama.onclick  = bukaDialogNama;
+batalNama.onclick = tutupDialogNama;
+layarNama.onclick = e => { if(e.target === layarNama) tutupDialogNama(); };
+simpanNama.onclick = async () => {
+  const rapi = isianNama.value.trim().slice(0, 40);
+  if(!rapi){ tutupDialogNama(); return; }
+  nama = rapi; chipNama.textContent = nama;
+  tutupDialogNama();
+  await setDoc(doc(db, "users", uid), { displayName: nama }, { merge:true });
+};
+
+/* ===== 7. MENGIRIM SAPAAN ===== */
+kirim.onclick = async () => {
+  const teks = kolom.value.trim();
+  if(!teks || !uid) return;
+  kirim.disabled = true;
+  try{
+    await addDoc(collection(db, "messages"), {
+      text: teks, authorId: uid, name: nama, createdAt: serverTimestamp()
+    });
+    kolom.value = ""; aturTinggi();
+  }catch(e){
+    alert("Greeting failed to send: " + e.message);
+  }finally{
+    kirim.disabled = false;
+  }
+};
+
+/* Kolom tumbuh sendiri saat mengetik, berhenti di batas 38vh */
+function aturTinggi(){
+  kolom.style.height = "auto";
+  kolom.style.height = kolom.scrollHeight + "px";
+}
+kolom.addEventListener("input", aturTinggi);
+
+/* ===== 8. PINTU GERBANG: masuk anonim dulu, baru semua dibuka ===== */
+onAuthStateChanged(auth, user => {
+  if(user){ uid = user.uid; muatNama(); awasiDinding(); }
+});
+signInAnonymously(auth).catch(e => {
+  kosong.textContent = "Failed to enter: " + e.message;
+});
+</script>
+</body>
+</html>
