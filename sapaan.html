@@ -83,6 +83,34 @@
     background:var(--aksen); color:var(--aksen-teks); font-size:19px; cursor:pointer;
   }
   #tombolKirim:disabled{opacity:.45; cursor:default}
+  /* Dialog ganti nama buatan sendiri: tanpa alamat peramban */
+  #layarNama{
+    position:fixed; inset:0; z-index:50;
+    background:rgba(0,0,0,.45);
+    display:none; align-items:center; justify-content:center;
+    padding:20px;
+  }
+  #layarNama.terbuka{display:flex}
+  .kotakNama{
+    width:100%; max-width:340px;
+    background:var(--kartu); color:var(--teks);
+    border-radius:16px; padding:18px;
+    box-shadow:0 10px 40px rgba(0,0,0,.25);
+  }
+  .kotakNama h2{margin:0 0 12px; font-size:16px}
+  #isianNama{
+    width:100%; border:1px solid var(--garis); border-radius:10px;
+    background:var(--bg); color:var(--teks); font:inherit;
+    padding:10px 12px; outline:none;
+  }
+  #isianNama:focus{border-color:var(--aksen)}
+  .barisTombol{display:flex; justify-content:flex-end; gap:8px; margin-top:14px}
+  .barisTombol button{
+    border:0; border-radius:10px; padding:10px 16px;
+    font:inherit; font-size:14px; cursor:pointer;
+  }
+  #batalNama{background:transparent; color:var(--lembut)}
+  #simpanNama{background:var(--aksen); color:var(--aksen-teks)}
 </style>
 </head>
 <body>
@@ -104,6 +132,17 @@
     <button id="tombolKirim" aria-label="Kirim sapaan">➤</button>
   </div>
 </footer>
+
+  <div id="layarNama" role="dialog" aria-modal="true" aria-label="Ganti nama panggilan">
+  <div class="kotakNama">
+    <h2>Nama panggilanmu</h2>
+    <input id="isianNama" maxlength="40" placeholder="Maksimal 40 karakter">
+    <div class="barisTombol">
+      <button id="batalNama">Batal</button>
+      <button id="simpanNama">Simpan</button>
+    </div>
+  </div>
+</div>
 
 <script type="module">
 /* ===== 3. KUNCI RUMAH (salinan dari notes-mu) ===== */
@@ -131,6 +170,10 @@ const kosong   = document.getElementById("keteranganKosong");
 const kolom    = document.getElementById("kolomKetik");
 const kirim    = document.getElementById("tombolKirim");
 const chipNama = document.getElementById("chipNama");
+const layarNama = document.getElementById("layarNama");
+const isianNama = document.getElementById("isianNama");
+const batalNama = document.getElementById("batalNama");
+const simpanNama = document.getElementById("simpanNama");
 
 let uid  = null;    // identitas tamu anonim
 let nama = "Tamu";  // nama panggilan yang tampil
@@ -194,12 +237,23 @@ async function muatNama(){
   }
   chipNama.textContent = nama;
 }
-chipNama.onclick = async () => {
-  const baru = prompt("Nama panggilanmu (maksimal 40 karakter):", nama);
-  if(baru === null) return;
-  const rapi = baru.trim().slice(0, 40);
-  if(!rapi) return;
+/* Dialog nama terbuka di dalam halaman; alamat peramban tak lagi muncul */
+function bukaDialogNama(){
+  isianNama.value = (nama === "Tamu") ? "" : nama;
+  layarNama.classList.add("terbuka");
+  isianNama.focus();
+}
+function tutupDialogNama(){
+  layarNama.classList.remove("terbuka");
+}
+chipNama.onclick  = bukaDialogNama;
+batalNama.onclick = tutupDialogNama;
+layarNama.onclick = e => { if(e.target === layarNama) tutupDialogNama(); };
+simpanNama.onclick = async () => {
+  const rapi = isianNama.value.trim().slice(0, 40);
+  if(!rapi){ tutupDialogNama(); return; }
   nama = rapi; chipNama.textContent = nama;
+  tutupDialogNama();
   await setDoc(doc(db, "users", uid), { displayName: nama }, { merge:true });
 };
 
