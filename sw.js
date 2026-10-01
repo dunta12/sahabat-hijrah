@@ -33,7 +33,7 @@ self.addEventListener('fetch',e=>{
   if(e.request.mode==='navigate'){
     e.respondWith(
       fetchT(e.request,8000)
-        .then(res=>save(e.request,res))
+        .then(res=>{ if(!res.ok) throw new Error('bad-status'); return save(e.request,res); })
         .catch(()=>caches.match(e.request).then(r=>r||caches.match('./index.html')))
     );
     return;
