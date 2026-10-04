@@ -163,18 +163,29 @@ function titik(){const d=document.createElement('div');d.className='p bot typing
  const norm=s=>s.toLowerCase().replace(/[^a-z0-9\s]/g,' ').trim();
 function cari(q){
  q=norm(q);if(!q)return null;
- const toks=q.split(/\s+/);let best=null,bs=0;
+ const toks=q.split(/\s+/);
+ const umum=new Set(['apa','apakah','bagaimana','bolehkah','hukum','hukumnya','boleh','tidak','bukan','adakah','mengapa','kenapa','siapa','dimana','kapan','berapa','sudah','belum','sangat','sekali','itu','ini','dan','atau','yang','dengan','dari','pada','untuk','ke','di','ya','kan','lah','pun','aku','kamu','dia','mereka','ada','juga','saja','lagi','mau','akan','what','whats','how','why','when','which','does','do','did','is','are','the','a','an','and','or','but','if','in','on','at','to','for','of','with','without','between','about','there','here','please','tell','me','my','your','our','their','his','her','them','they','ruling','rule']);
+ const berarti=toks.filter(t=>t.length>3 && !umum.has(t));
+ if(berarti.length===0)return null;
+ let best=null,bs=0;
  for(const e of P){
+  const allKw=e.k.concat(e.ke).map(norm);
   let sc=0;
-  for(const kw of e.k.concat(e.ke)){
-   if(q.includes(kw)||kw.includes(q))sc+=3;
-   else if(toks.some(t=>t.length>3&&kw.includes(t)))sc+=2;
+  for(const kw of allKw){
+   if(q===kw)sc+=10;
+   else if(q.includes(kw))sc+=5;
+   else if(kw.includes(q)&&q.length>3)sc+=5;
   }
-  const hay=norm(teks(e));
-  for(const t of toks)if(t.length>3&&hay.includes(t))sc+=1;
+  for(const t of berarti){
+   for(const kw of allKw){
+    if(kw===t)sc+=4;
+    else if(kw.includes(t))sc+=2;
+    else if(t.includes(kw)&&kw.length>3)sc+=2;
+   }
+  }
   if(sc>bs){bs=sc;best=e;}
  }
- return bs>=2?best:null;
+ return bs>=5?best:null;
 }
 const URL_KADO=URL_OTAK.replace(/\/tanya$/,'')+'/kado';
 function setBerlian(n){let c=document.getElementById('chipB');if(!c){c=document.createElement('span');c.id='chipB';c.style.cssText='background:rgba(0,0,0,.25);color:#ffd75e;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700;margin-right:8px';const b=document.getElementById('bID');if(b&&b.parentNode)b.parentNode.insertBefore(c,b);}c.textContent='💎 '+n;}function teksKado(){return bah==='id'?'🎁 Tonton iklan • +50 berlian':'🎁 Watch ad • +50 diamonds';}
