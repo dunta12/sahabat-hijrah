@@ -1,5 +1,10 @@
-const CACHE='sh-v61';
-const ASSETS=['./','./index.html','./sapaan.html','./sapaan-en.html','./en.html','./dlg.js','./iqro.html','./tanya.html','./hadits.js','./manifest.json','./adhan.mp3','./icon-192.png','./icon-512.png','./ScheherazadeNew-Regular.ttf'];
+const CACHE='sh-v62';
+const ASSETS=['./','./index.html','./en.html','./sapaan.html','./sapaan-en.html',
+'./kuis.html','./hijri.html','./kalkulator.html','./masjid.html','./iqro.html',
+'./tanya.html','./donasi.html','./privacy.html','./privacy-en.html',
+'./dlg.js','./hadits.js','./manifest.json','./manifest-en.json',
+'./adhan.mp3','./icon-192.png','./icon-512.png',
+'./AmiriQuran-Regular.ttf','./ScheherazadeNew-Regular.ttf','./sw.js'];
 
 self.addEventListener('install',e=>{
   e.waitUntil(caches.open(CACHE).then(c=>Promise.all(ASSETS.map(u=>c.add(u).catch(()=>{})))));
