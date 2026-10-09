@@ -1237,7 +1237,7 @@ async function qBuka(n,ayat){
   document.getElementById('qLast').classList.add('hidden');
   document.getElementById('qDetail').classList.remove('hidden');
   document.getElementById('qBar').classList.remove('hidden');
-  document.getElementById('qUnduhBtn').style.display='none';
+  document.getElementById('qProg').parentElement.style.display='none';
   const s=await qLoad(n);
   if(!s){document.getElementById('qDetail').innerHTML='<div class="loading">Failed to load. Check your internet.<br><button class="btn small" onclick="qBuka('+n+')">🔄 Retry</button> <button class="btn small" onclick="qKembali()">← List</button></div>';return;}
   qNow=s;qPages=qBuildPages(s);qCur=0;
@@ -1292,7 +1292,7 @@ function qKembali(){
   document.getElementById('qBar').classList.add('hidden');
   document.getElementById('qDetail').classList.add('hidden');
   document.getElementById('qList').classList.remove('hidden');
-  document.getElementById('qUnduhBtn').style.display='block';
+  document.getElementById('qProg').parentElement.style.display='flex';
   document.getElementById('qCari').classList.remove('hidden');
   renderQLast();
   qInit();
