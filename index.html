@@ -350,7 +350,7 @@ nav button{display:flex;flex-direction:column;justify-content:center;align-items
 <div class="qbar hidden" id="qBar">
   <button onclick="qKembali()">←</button>
   <div class="t" id="qBarT">–</div>
-  <button id="qModeBtn" onclick="setModeMushaf(!modeMushaf())">🕌 Mode mushaf</button>
+  <button id="qModeBtn" onclick="setModeMushaf(!modeMushaf())">mushaf</button>
   <button id="qPrev" onclick="qPage(-1)">‹</button>
   <button id="qNext" onclick="qPage(1)">›</button>
 </div>
@@ -1287,7 +1287,7 @@ h+='<div class="mushaf"><div class="m-head">'+s.nomor+'. '+nm.n+' : '+rentang+' 
   if(!M)h+=barAud();
   document.getElementById('qDetail').innerHTML=h;
   document.getElementById('qBarT').textContent=nm.n+' • Hal '+(qCur+1)+'/'+qPages.length;
-  document.getElementById('qModeBtn').textContent=modeMushaf()?'📄 Mode biasa':'🕌 Mode mushaf';
+  document.getElementById('qModeBtn').textContent=modeMushaf()?'biasa':'mushaf';
   document.getElementById('qPrev').disabled=(qCur===0&&s.nomor===1);
   document.getElementById('qNext').disabled=(qCur===qPages.length-1&&s.nomor===114);
   localStorage.setItem('sh_q_last',JSON.stringify({nomor:s.nomor,namaLatin:s.namaLatin,ayat:pg[0].nomorAyat,hal:qCur+1,total:qPages.length}));
