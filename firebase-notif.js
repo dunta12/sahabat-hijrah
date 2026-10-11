@@ -66,3 +66,13 @@ export function showForegroundNotif(payload) {
 window.initPushNotif = initPushNotif;
 window.onForegroundMessage = onForegroundMessage;
 window.showForegroundNotif = showForegroundNotif;
+// Register Firebase Messaging Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/firebase-messaging-sw.js')
+    .then(function(registration) {
+      console.log('Firebase messaging SW registered:', registration.scope);
+    })
+    .catch(function(error) {
+      console.error('Firebase messaging SW registration failed:', error);
+    });
+}
