@@ -1,4 +1,4 @@
-const CACHE='sh-v62';
+const CACHE='sh-v63';
 const ASSETS=['./','./index.html','./en.html','./sapaan.html','./sapaan-en.html',
 './kuis.html','./hijri.html','./kalkulator.html','./masjid.html','./iqro.html',
 './tanya.html','./donasi.html','./privacy.html','./privacy-en.html',
