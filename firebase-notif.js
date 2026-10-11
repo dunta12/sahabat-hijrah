@@ -1,12 +1,10 @@
 // ===== FIREBASE PUSH NOTIFICATION - SAHABAT HIJRAH =====
-// Versi: 0.1 (v7)
-// File ini handle notifikasi saat aplikasi TERBUKA (foreground)
-// Untuk background: lihat firebase-messaging-sw.js
+// Versi: 0.2 (v7) - Firebase compat (stabil)
+// Dipanggil dari HTML setelah firebase-app-compat.js & firebase-messaging-compat.js dimuat
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-messaging.js";
+var SH_vapidKey = "BOPG9yoBLt_1_UkKX4JWt2EN0xnerR6whYdKtWGBWKL1nC19clYOIU3BBGvLN66r-0or8psyhXUo5f-aNG-psHA";
 
-const firebaseConfig = {
+var SH_firebaseConfig = {
   apiKey: "AIzaSyAssjKSLJcpW-qzjmJKCOioXerB6yAF1ZY",
   authDomain: "sahabat-hijrah-f3faa.firebaseapp.com",
   projectId: "sahabat-hijrah-f3faa",
@@ -15,43 +13,61 @@ const firebaseConfig = {
   appId: "1:942786617779:web:eac409c4eb48f58768abc6"
 };
 
-const app = initializeApp(firebaseConfig);
-const messaging = getMessaging(app);
-
-// VAPID key dari Firebase Console
-const vapidKey = "BOPG9yoBLt_1_UkKX4JWt2EN0xnerR6whYdKtWGBWKL1nC19clYOIU3BBGvLN66r-0or8psyhXUo5f-aNG-psHA";
-
-// Request permission & dapat token
-export async function initPushNotif() {
-  try {
-    const permission = await Notification.requestPermission();
-    if (permission === 'granted') {
-      const token = await getToken(messaging, { vapidKey });
-      console.log('FCM Token:', token);
-      localStorage.setItem('fcm_token', token);
-      return token;
-    } else {
-      console.log('Permission ditolak:', permission);
-      return null;
-    }
-  } catch (error) {
-    console.error('FCM init error:', error);
-    return null;
+// Register Firebase Messaging Service Worker
+function registerFirebaseSW() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/firebase-messaging-sw.js')
+      .then(function(reg) { console.log('Firebase SW registered:', reg.scope); })
+      .catch(function(err) { console.error('Firebase SW error:', err); });
   }
 }
 
-// Handle notifikasi saat aplikasi TERBUKA
-export function onForegroundMessage(callback) {
-  onMessage(messaging, (payload) => {
+// Initialize Firebase & minta permission
+function initPushNotif() {
+  if (typeof firebase === 'undefined') {
+    console.error('Firebase SDK belum dimuat');
+    alert('Firebase belum siap. Coba refresh halaman.');
+    return;
+  }
+  
+  try {
+    firebase.initializeApp(SH_firebaseConfig);
+  } catch(e) {
+    console.log('Firebase sudah diinit:', e.message);
+  }
+  
+  var messaging = firebase.messaging();
+  registerFirebaseSW();
+  
+  Notification.requestPermission().then(function(permission) {
+    if (permission === 'granted') {
+      messaging.getToken({ vapidKey: SH_vapidKey }).then(function(token) {
+        console.log('FCM Token:', token);
+        localStorage.setItem('fcm_token', token);
+        alert('Notifikasi aktif! Token: ' + token.substring(0, 20) + '...');
+      }).catch(function(err) {
+        console.error('Token error:', err);
+      });
+    } else {
+      console.log('Permission ditolak:', permission);
+    }
+  });
+}
+
+// Handle notifikasi foreground
+function onForegroundMessage(callback) {
+  if (typeof firebase === 'undefined') return;
+  var messaging = firebase.messaging();
+  messaging.onMessage(function(payload) {
     console.log('Pesan foreground:', payload);
     if (callback) callback(payload);
   });
 }
 
 // Tampilkan notifikasi manual (foreground)
-export function showForegroundNotif(payload) {
-  const title = payload.notification?.title || 'Sahabat Hijrah';
-  const body = payload.notification?.body || '';
+function showForegroundNotif(payload) {
+  var title = (payload.notification && payload.notification.title) || 'Sahabat Hijrah';
+  var body = (payload.notification && payload.notification.body) || '';
   
   if ('Notification' in window && Notification.permission === 'granted') {
     new Notification(title, {
@@ -62,17 +78,12 @@ export function showForegroundNotif(payload) {
   }
 }
 
-// Export untuk window (agar bisa dipanggil dari HTML)
+// Export ke global
 window.initPushNotif = initPushNotif;
 window.onForegroundMessage = onForegroundMessage;
 window.showForegroundNotif = showForegroundNotif;
-// Register Firebase Messaging Service Worker
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/firebase-messaging-sw.js')
-    .then(function(registration) {
-      console.log('Firebase messaging SW registered:', registration.scope);
-    })
-    .catch(function(error) {
-      console.error('Firebase messaging SW registration failed:', error);
-    });
+
+// Auto init saat file dimuat (jika Firebase sudah siap)
+if (typeof firebase !== 'undefined') {
+  console.log('firebase-notif.js dimuat, Firebase siap');
 }
