@@ -668,7 +668,7 @@ function isiSelect(){
   sm.value=set.metode;
   document.getElementById('korekLabel').textContent='Koreksi: '+(set.korek>=0?'+':'')+set.korek+' menit';
 }
-function gantiKota(v){set.kota=+v;set.la=null;simpan();lastListKey='';}
+function gantiKota(v){set.kota=v;set.la=null;simpan();lastListKey='';if(window.Android){const k=KOTA.find(x=>x.n===v);if(k)Android.onLocationSelected(k.la,k.lo,k.tz,v);}}
 function gantiMetode(v){set.metode=v;simpan();lastListKey='';}
 function korekMin(d){set.korek+=d;simpan();lastListKey='';document.getElementById('korekLabel').textContent='Koreksi: '+(set.korek>=0?'+':'')+set.korek+' menit';}
 function pakaiGPS(){
