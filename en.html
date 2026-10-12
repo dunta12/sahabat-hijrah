@@ -667,6 +667,7 @@ function pakaiGPS(){
     set.tz=-new Date().getTimezoneOffset()/60;
     set.label='📍 My Location';
     simpan();lastListKey='';
+    if(window.Android)Android.onLocationSelected(set.la,set.lo,-set.tz,set.label);
     kaabaPlaced=false;
     if(!document.getElementById('sub-kiblat').classList.contains('hidden'))initKiblat();
   },function(){alert('Could not get location. Please choose a city manually.');});
