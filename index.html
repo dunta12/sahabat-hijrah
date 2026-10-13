@@ -229,9 +229,8 @@ nav button{display:flex;flex-direction:column;justify-content:center;align-items
   <div class="card">
     <ul class="jadwal-list" id="jadwalList"></ul>
     <div class="row">
-      <audio controls style="width:100%; margin-top:10px;">
-  <source src="adhan.mp3" type="audio/mpeg">
-</audio>
+      <button class="btn gold" id="adhanBtn" onclick="toggleAdhan()">🔊 Dengarkan Adzan</button>
+<audio id="adhanAudio" src="adhan.mp3" preload="auto"></audio>
       <button class="btn" id="wakeBtn" onclick="toggleWake()">🔆 Layar: OFF</button>
     </div>
   </div>
@@ -1425,6 +1424,18 @@ isiSelect();isiTanggal();isiHikmah();isiDoa();renderTb();renderAuto();renderNote
     }
   },300);
 })();
+function toggleAdhan(){
+  var audio = document.getElementById('adhanAudio');
+  var btn = document.getElementById('adhanBtn');
+  if(audio.paused){
+    audio.play();
+    btn.innerHTML = '⏹️ Stop Adzan';
+    audio.onended = function(){ btn.innerHTML = '🔊 Dengarkan Adzan'; };
+  } else {
+    audio.pause();
+    btn.innerHTML = '🔊 Dengarkan Adzan';
+  }
+}
 </script>
 <script src="hadits.js"></script>
 </body>
