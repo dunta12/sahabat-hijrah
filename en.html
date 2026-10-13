@@ -186,7 +186,6 @@ nav button{display:flex;flex-direction:column;justify-content:center;align-items
   </div>
   <div class="h-btns">
     <button class="bell" onclick="location.href='index.html'" title="Bahasa Indonesia">🌐</button>
-    <button class="bell" id="muteBtn" onclick="toggleMute()">🔊</button>
     <button class="bell" id="autoBtn" onclick="toggleAuto();initPushNotif()">🔔</button>
   </div>
 </header>
@@ -229,7 +228,9 @@ nav button{display:flex;flex-direction:column;justify-content:center;align-items
   <div class="card">
     <ul class="jadwal-list" id="jadwalList"></ul>
     <div class="row">
-      <button class="btn gold" onclick="tesAdzan()">🔊 Test Adhan</button>
+      <audio controls style="width:100%; margin-top:10px;">
+  <source src="adhan.mp3" type="audio/mpeg">
+</audio>
       <button class="btn" id="wakeBtn" onclick="toggleWake()">🔆 Screen: OFF</button>
     </div>
   </div>
@@ -358,7 +359,7 @@ nav button{display:flex;flex-direction:column;justify-content:center;align-items
   <h2>🌙 Assalamu'alaikum</h2>
   <p class="soft">Welcome to Sahabat Hijrah. Three important things:</p>
   <ul>
-    <li>🔔 Tap the bell above so the <b>adhan sounds automatically</b> at prayer time (while the app is open) + a reminder 10 minutes before.</li>
+    <li>🔔 Every day, you'll receive <b>gentle reminders</b> — like morning dhikr, Quran reading, and evening reflection — to accompany your hijrah journey.</li>
     <li>📖 The Qur'an needs internet <b>once</b>: after download, it works offline forever. The full download starts automatically after this welcome.</li>
     <li>🔒 All notes & tracker data stay <b>on your phone only</b>, no account needed.</li>
   </ul>
@@ -537,7 +538,7 @@ function notifyAdzan(nama){
   if(navigator.vibrate)navigator.vibrate([500,300,500]);
 }
 async function toggleAuto(){
-  alert('Prayer notifications are now handled by Android system.\n\nPlease ensure:\n• Notification permission is enabled\n• Battery optimization = Unrestricted\n\nNotifications will appear even when the app is closed.');
+  alert('Hello, Sahabat Hijrah!\n\nThis app sends gentle daily reminders to accompany your hijrah journey — like morning dhikr, Quran reading, and evening reflection.\n\nPlease keep notifications enabled, so we can remind each other toward goodness.\n\nMay today be better than yesterday.');
 }
 function unlockSuara(){
   initAudio();boostAdhan();
