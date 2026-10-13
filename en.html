@@ -530,7 +530,7 @@ function playAdzan(nama){
 function stopAdzan(){adzanSedang=false;adhanAudio.pause();document.getElementById('adzanBanner').classList.add('hidden');}
 async function toggleAuto(){
   alert('Prayer notifications are now handled by Android system...
-/* AUTO ADZAN - DISABLED (handled by native Android)
+/* AUTO ADZAN - DISABLED (handled by native Android) */
 let autoOn=localStorage.getItem('she_auto')!=='0';
 function renderAuto(){const b=document.getElementById('autoBtn');b.classList.toggle('on',autoOn);b.textContent=autoOn?'':'';}
 function notifyAdzan(nama){
@@ -549,7 +549,7 @@ function unlockSuara(){
 }
 document.addEventListener('touchstart',function(){initAudio();if(autoOn)unlockSuara();},{once:true});
 document.addEventListener('click',function(){initAudio();if(autoOn)boostAdhan();},{once:true});
-*/
+
 function julian(y,m,d){if(m<=2){y--;m+=12;}const A=Math.floor(y/100),B=2-A+Math.floor(A/4);return Math.floor(365.25*(y+4716))+Math.floor(30.6001*(m+1))+d+B-1524.5;}
 function sunPos(d){
   const R=Math.PI/180;
