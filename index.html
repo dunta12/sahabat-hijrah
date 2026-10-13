@@ -186,7 +186,6 @@ nav button{display:flex;flex-direction:column;justify-content:center;align-items
   </div>
     <div class="h-btns">
     <button class="bell" onclick="location.href='en.html'" title="English">🌐</button>
-    <button class="bell" id="muteBtn" onclick="toggleMute()">🔊</button>
     <button class="bell" id="autoBtn" onclick="toggleAuto();initPushNotif()">🔔</button>
   </div>
 </header>
@@ -230,7 +229,9 @@ nav button{display:flex;flex-direction:column;justify-content:center;align-items
   <div class="card">
     <ul class="jadwal-list" id="jadwalList"></ul>
     <div class="row">
-      <button class="btn gold" onclick="tesAdzan()">🔊 Tes Adzan</button>
+      <audio controls style="width:100%; margin-top:10px;">
+  <source src="adhan.mp3" type="audio/mpeg">
+</audio>
       <button class="btn" id="wakeBtn" onclick="toggleWake()">🔆 Layar: OFF</button>
     </div>
   </div>
@@ -362,7 +363,7 @@ nav button{display:flex;flex-direction:column;justify-content:center;align-items
   <h2>🌙 Assalamu'alaikum</h2>
   <p class="soft">Selamat datang di Sahabat Hijrah. Tiga hal penting:</p>
   <ul>
-    <li>🔔 Ketuk lonceng di atas agar <b>adzan berbunyi otomatis</b> saat masuk waktu (selama app terbuka) + pengingat 10 menit sebelumnya.</li>
+    <li>🔔 Setiap hari, kamu akan menerima <b>pengingat lembut</b> — seperti dzikir pagi, bacaan Quran, dan muhasabah malam — untuk menemani perjalanan hijrahmu.</li>
     <li>📖 Al-Qur'an butuh internet <b>sekali</b>: setelah diunduh, offline selamanya. Unduhan semua surah dimulai otomatis setelah sambutan ini.</li>
     <li>🔒 Semua catatan & tracker tersimpan <b>di HP-mu saja</b>, tanpa akun.</li>
   </ul>
@@ -545,7 +546,7 @@ function notifyAdzan(nama){
   if(navigator.vibrate)navigator.vibrate([500,300,500]);
   }
   async function toggleAuto(){
-  alert('Notifikasi waktu sholat sekarang ditangani oleh sistem Android.\n\nPastikan:\n• Izin notifikasi diaktifkan\n• Battery optimization = Unrestricted\n\nNotifikasi akan muncul bahkan saat aplikasi ditutup.');
+  alert('Halo, Sahabat Hijrah!\n\nAplikasi ini akan mengirimkan pengingat harian yang lembut untuk menemani perjalanan hijrahmu, seperti dzikir pagi, bacaan Quran, dan muhasabah malam.\n\nPastikan izin notifikasi aktif ya, agar kita bisa saling mengingatkan menuju kebaikan.\n\nSemoga hari ini lebih baik dari kemarin.');
 }
 function unlockSuara(){
   initAudio();boostAdhan();
