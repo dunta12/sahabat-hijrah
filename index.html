@@ -537,22 +537,15 @@ function playAdzan(nama){
 }
 function stopAdzan(){adzanSedang=false;adhanAudio.pause();document.getElementById('adzanBanner').classList.add('hidden');}
 
-/* AUTO ADZAN + pengingat 10 menit */
+/* AUTO ADZAN + pengingat 10 menit - DISABLED (handled by native Android)
 let autoOn=localStorage.getItem('sh_auto')!=='0';
 function renderAuto(){const b=document.getElementById('autoBtn');b.classList.toggle('on',autoOn);b.textContent=autoOn?'🔔':'';}
 function notifyAdzan(nama){
   try{if('Notification' in window&&Notification.permission==='granted')new Notification('Sahabat Hijrah',{body:'🕌 Waktu '+nama+' telah masuk'});}catch(e){}
   if(navigator.vibrate)navigator.vibrate([500,300,500]);
-}
-async function toggleAuto(){
-  autoOn=!autoOn;
-  localStorage.setItem('sh_auto',autoOn?'1':'0');
-  if(autoOn){
-    unlockSuara();
-    try{if('Notification' in window&&Notification.permission==='default')await Notification.requestPermission();}catch(e){}
-    alert('Auto Adzan AKTIF ✅\n• Pengingat lembut 10 menit sebelum waktu\n• Adzan berbunyi saat masuk waktu\n(selama aplikasi terbuka)\n\nTips: pasang di layar utama & matikan penghemat baterai.');
   }
-  renderAuto();
+  async function toggleAuto(){
+  alert('Notifikasi waktu sholat sekarang ditangani oleh sistem Android.\n\nPastikan:\n• Izin notifikasi diaktifkan\n• Battery optimization = Unrestricted\n\nNotifikasi akan muncul bahkan saat aplikasi ditutup.');
 }
 function unlockSuara(){
   initAudio();boostAdhan();
@@ -563,7 +556,7 @@ function unlockSuara(){
 }
 document.addEventListener('touchstart',function(){initAudio();if(autoOn)unlockSuara();},{once:true});
 document.addEventListener('click',function(){initAudio();if(autoOn)boostAdhan();},{once:true});
-
+*/
 /* ========== perhitungan jadwal sholat ========== */
 function julian(y,m,d){if(m<=2){y--;m+=12;}const A=Math.floor(y/100),B=2-A+Math.floor(A/4);return Math.floor(365.25*(y+4716))+Math.floor(30.6001*(m+1))+d+B-1524.5;}
 function sunPos(d){
