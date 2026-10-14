@@ -50,7 +50,7 @@ const collapseIcon='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" 
 
 function updateHeight(){
     inpEl.style.height='auto';
-    let limit = expanded ? 300 : 120;
+    let limit = expanded ? (window.innerHeight * 0.7) : 120;
     inpEl.style.height = Math.min(inpEl.scrollHeight, limit) + 'px';
 }
 
@@ -72,7 +72,7 @@ inpEl.addEventListener('keydown',function(e){
 expBtn.addEventListener('click',function(){
     expanded=!expanded;
     if(expanded){
-        inpEl.style.maxHeight='300px';
+        inpEl.style.maxHeight=(window.innerHeight * 0.7) + 'px';
         inpEl.style.fontSize='18px';
         expBtn.innerHTML=collapseIcon;
     }else{
