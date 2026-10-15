@@ -34,15 +34,19 @@ header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255
 .score{text-align:center;font-size:13px;color:var(--muted);margin-top:10px;font-weight:600}
 .note{font-size:11px;color:var(--muted);line-height:1.6;background:#f3efe2;border-radius:10px;padding:10px;margin-top:12px;font-weight:500}
 
-/* === MODE TULIS - FULLSCREEN === */
-#canvasFullscreen{display:none;position:fixed;top:52px;left:0;right:0;bottom:0;background:var(--bg);z-index:50;overflow-y:auto}
+/* === MODE TULIS - CANVAS SCROLLABLE === */
+#canvasFullscreen{display:none;position:fixed;top:52px;left:0;right:0;bottom:0;background:var(--bg);z-index:50;overflow:hidden}
 #canvasFullscreen.show{display:flex;flex-direction:column}
 .canvas-wrap{flex:1;display:flex;flex-direction:column;padding:8px;min-height:0}
 .letter-ref{display:flex;align-items:center;justify-content:center;gap:8px;padding:6px 10px;background:#fff;border-radius:10px;margin-bottom:6px;flex-shrink:0;box-shadow:0 1px 2px rgba(0,0,0,.05);transition:all .3s}
 .letter-ref.hidden{display:none}
 .letter-ref .ar-ref{font-size:36px;font-family:"Amiri","Scheherazade New","Noto Naskh Arabic",serif;color:var(--green);direction:rtl;line-height:1}
 .letter-ref .nama-ref{font-size:12px;color:var(--muted);font-weight:600}
-.canvas-box{flex:1;width:100%;background:#fafafa;border:2px dashed #cfd8d3;border-radius:12px;touch-action:none;cursor:crosshair;display:block;min-height:0}
+
+/* Container canvas yang bisa di-scroll */
+.canvas-scroll{flex:1;overflow:auto;background:#fafafa;border:2px dashed #cfd8d3;border-radius:12px;position:relative;min-height:0;-webkit-overflow-scrolling:touch}
+.canvas-box{display:block;touch-action:none;cursor:crosshair;background:#fafafa}
+
 .canvas-tools{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;flex-shrink:0}
 .canvas-tools button{flex:1;min-width:70px;padding:12px 8px;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
 .btn-clear{background:#fde3e3;color:#c66}
@@ -55,8 +59,9 @@ header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255
 .color-pick{display:flex;gap:6px;justify-content:center;margin-top:8px;flex-wrap:wrap;flex-shrink:0}
 .color-pick span{width:32px;height:32px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:transform .15s}
 .color-pick span.on{border-color:var(--green);transform:scale(1.15)}
-.eraser-size{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px;font-size:11px;color:var(--muted);flex-shrink:0}
-.eraser-size input{width:100px}
+.size-slider{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px;font-size:11px;color:var(--muted);flex-shrink:0;padding:4px 8px;background:#fff;border-radius:8px}
+.size-slider input{width:120px}
+.size-slider .size-label{min-width:35px;text-align:center;font-weight:600}
 .canvas-info{font-size:11px;color:var(--muted);text-align:center;margin-top:6px;flex-shrink:0}
 
 /* === TOAST NOTIFICATION === */
@@ -83,24 +88,39 @@ header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255
 <div class="note" id="dis"></div>
 </div></div>
 
-<!-- CANVAS FULLSCREEN -->
+<!-- CANVAS FULLSCREEN DENGAN SCROLL -->
 <div id="canvasFullscreen">
     <div class="canvas-wrap">
         <div class="letter-ref" id="letterRef">
             <div class="ar-ref" id="refArab"></div>
             <div class="nama-ref" id="refNama"></div>
         </div>
-        <canvas id="cvTulis" class="canvas-box"></canvas>
-        <div class="color-pick" id="colPick"></div>
-        <div class="eraser-size" id="eraserSizeCtrl" style="display:none">
-            <span>Ukuran:</span>
-            <input type="range" id="eraserRange" min="10" max="50" value="20">
-            <span id="eraserVal">20px</span>
+        
+        <!-- Container scrollable -->
+        <div class="canvas-scroll" id="canvasScroll">
+            <canvas id="cvTulis" class="canvas-box"></canvas>
         </div>
+        
+        <div class="color-pick" id="colPick"></div>
+        
+        <!-- Slider ukuran brush (selalu terlihat) -->
+        <div class="size-slider">
+            <span>🖌️ Ukuran:</span>
+            <input type="range" id="brushRange" min="4" max="60" value="16">
+            <span class="size-label" id="brushVal">16px</span>
+        </div>
+        
+        <!-- Slider ukuran penghapus (muncul saat mode eraser) -->
+        <div class="size-slider" id="eraserSizeCtrl" style="display:none">
+            <span>🧹 Penghapus:</span>
+            <input type="range" id="eraserRange" min="10" max="80" value="20">
+            <span class="size-label" id="eraserVal">20px</span>
+        </div>
+        
         <div class="canvas-tools">
             <button class="btn-free" id="btnFree" onclick="toggleFreeMode()">✨ Bebas</button>
-            <button class="btn-eraser" id="btnEraser" onclick="toggleEraser()"> Hapus</button>
-            <button class="btn-clear" onclick="clearCv()">️ Semua</button>
+            <button class="btn-eraser" id="btnEraser" onclick="toggleEraser()">🧹 Hapus</button>
+            <button class="btn-clear" onclick="clearCv()">🗑️ Semua</button>
             <button class="btn-save" onclick="saveCv()">💾 Simpan</button>
             <button class="btn-next" onclick="nextTulis()">➡️</button>
         </div>
@@ -111,8 +131,8 @@ header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255
 <!-- Toast Notification -->
 <div id="toastNotif" class="toast">
     <div class="t-title">📥 Tersimpan!</div>
-    <div class="t-loc" id="toastLoc"> Folder Downloads</div>
-    <button class="t-btn" onclick="shareTulis()"> Bagikan / Lihat</button>
+    <div class="t-loc" id="toastLoc">📁 Folder Downloads</div>
+    <button class="t-btn" onclick="shareTulis()">📤 Bagikan / Lihat</button>
 </div>
 
 <script>
@@ -127,23 +147,23 @@ const L={
 id:{
 t:'Iqro - Belajar Baca',
 lv:['Hijaiyah','Harakat','Tanwin','Kata','Mad'],
-md:[' Belajar','🎯 Kuis','🎨 Tulis'],
+md:['📖 Belajar','🎯 Kuis',' Tulis'],
 tap:'Ketuk kartu untuk melihat nama & bacaan',
 q:'Mana bacaan yang benar?',
 score:'Skor',
 write:'Tiru huruf di atas, atau buat kaligrafi bebas!',
-free:'Mode Kaligrafi Bebas',
+free:'Mode Kaligrafi Bebas - Scroll untuk menulis lebih luas!',
 dis:'⚠️ Materi di halaman ini adalah latihan huruf Arab ASLI bergaya metode Iqro\', BUKAN salinan atau scan buku Iqro\'. Buku Iqro\' (K.H. As\'ad Humam) dilindungi hak cipta. Dukung penulis dengan membeli buku aslinya.'
 },
 en:{
 t:'Iqro - Learn to Read',
 lv:['Hijaiyah','Harakat','Tanwin','Words','Madd'],
-md:[' Learn','🎯 Quiz','🎨 Write'],
+md:['📖 Learn','🎯 Quiz','🎨 Write'],
 tap:'Tap the card to see name & reading',
 q:'Which is the correct reading?',
 score:'Score',
 write:'Copy the letter above, or create free calligraphy!',
-free:'Free Calligraphy Mode',
+free:'Free Calligraphy Mode - Scroll to write more!',
 dis:'⚠️ The material here is ORIGINAL Arabic-letter practice in the style of the Iqro\' method, NOT a copy or scan of the Iqro\' book. The Iqro\' book (K.H. As\'ad Humam) is copyrighted. Support the author by buying the original.'
 }
 };
@@ -303,7 +323,7 @@ $('area').innerHTML=
 '</div>'+
 '<div class="row">'+
 '<button id="pv" class="alt">←</button>'+
-'<button id="sp"></button>'+
+'<button id="sp">🔊</button>'+
 '<button id="nx">→</button>'+
 '</div>'+
 '<div class="score">'+(i+1)+' / '+list.length+'</div>';
@@ -342,12 +362,17 @@ setTimeout(()=>{qItem=null;quiz();},900);
 });
 }
 
-/* ===== FITUR BELAJAR MENULIS ===== */
+/* ===== FITUR BELAJAR MENULIS - CANVAS SCROLLABLE ===== */
 let cv,cx,isDraw=false,lx=0,ly=0,drawn=false;
 const COLORS=['#1e5b46','#000000','#c0392b','#2980b9','#8e44ad','#d4a017'];
 let curColor=COLORS[0];
 let isEraser=false;
+let brushSize=16;
 let eraserSize=20;
+
+// Ukuran canvas besar untuk scroll
+const CANVAS_WIDTH=1500;
+const CANVAS_HEIGHT=1500;
 
 function tulisMode(){
     const T=L[lang];
@@ -359,7 +384,6 @@ function tulisMode(){
     $('btnMenuBack').classList.add('show');
     $('canvasFullscreen').classList.add('show');
     
-    // Reset free mode saat ganti huruf
     freeMode=false;
     $('btnFree').classList.remove('active');
     $('letterRef').classList.remove('hidden');
@@ -379,51 +403,24 @@ function tulisMode(){
         };
     });
     
+    $('brushRange').value=brushSize;
+    $('brushVal').textContent=brushSize+'px';
     $('eraserRange').value=eraserSize;
     $('eraserVal').textContent=eraserSize+'px';
     
     setTimeout(()=>setupCv(),50);
 }
 
-function toggleFreeMode(){
-    freeMode=!freeMode;
-    const btn=$('btnFree');
-    const ref=$('letterRef');
-    const T=L[lang];
-    
-    if(freeMode){
-        btn.classList.add('active');
-        btn.textContent=' Tiru Huruf';
-        ref.classList.add('hidden');
-        $('canvasInfo').textContent=T.free;
-    }else{
-        btn.classList.remove('active');
-        btn.textContent='✨ Bebas';
-        ref.classList.remove('hidden');
-        const list=items();
-        const it=list[i];
-        $('refArab').textContent=it.ar;
-        $('refNama').textContent=it.lab;
-        $('canvasInfo').textContent=T.write;
-    }
-    
-    // Resize canvas setelah toggle
-    setTimeout(()=>setupCv(),100);
-}
-
 function setupCv(){
     cv=$('cvTulis');
-    const wrap=cv.parentElement;
-    const otherElements=wrap.querySelectorAll('.letter-ref:not(.hidden),.color-pick,.eraser-size,.canvas-tools,.canvas-info');
-    let otherHeight=0;
-    otherElements.forEach(el=>{otherHeight+=el.offsetHeight+8;});
-    const availableHeight=wrap.clientHeight-otherHeight;
+    const scroll=$('canvasScroll');
     
-    cv.width=wrap.clientWidth-16;
-    cv.height=Math.max(availableHeight,300);
+    // Canvas ukuran besar tetap (1500x1500)
+    cv.width=CANVAS_WIDTH;
+    cv.height=CANVAS_HEIGHT;
     
     cx=cv.getContext('2d');
-    cx.lineWidth=window.innerWidth<400?12:16;
+    cx.lineWidth=brushSize;
     cx.lineCap='round';
     cx.lineJoin='round';
     cx.strokeStyle=curColor;
@@ -459,6 +456,7 @@ function drawStart(e){
     }else{
         cx.globalCompositeOperation='source-over';
         cx.strokeStyle=curColor;
+        cx.lineWidth=brushSize;
     }
 }
 
@@ -484,14 +482,37 @@ function toggleEraser(){
     const sizeCtrl=$('eraserSizeCtrl');
     if(isEraser){
         btn.classList.add('active');
-        btn.textContent='️ Tulis';
+        btn.textContent='✏️ Tulis';
         sizeCtrl.style.display='flex';
         cv.style.cursor='cell';
     }else{
         btn.classList.remove('active');
-        btn.textContent='🧹 Hapus';
+        btn.textContent=' Hapus';
         sizeCtrl.style.display='none';
         cv.style.cursor='crosshair';
+    }
+}
+
+function toggleFreeMode(){
+    freeMode=!freeMode;
+    const btn=$('btnFree');
+    const ref=$('letterRef');
+    const T=L[lang];
+    
+    if(freeMode){
+        btn.classList.add('active');
+        btn.textContent='📝 Tiru Huruf';
+        ref.classList.add('hidden');
+        $('canvasInfo').textContent=T.free;
+    }else{
+        btn.classList.remove('active');
+        btn.textContent='✨ Bebas';
+        ref.classList.remove('hidden');
+        const list=items();
+        const it=list[i];
+        $('refArab').textContent=it.ar;
+        $('refNama').textContent=it.lab;
+        $('canvasInfo').textContent=T.write;
     }
 }
 
@@ -565,28 +586,19 @@ function nextTulis(){
     tulisMode();
 }
 
-let resizeTimer;
-window.addEventListener('resize',()=>{
-    clearTimeout(resizeTimer);
-    resizeTimer=setTimeout(()=>{
-        if(md===2 && cv && $('canvasFullscreen').classList.contains('show')){
-            const tempData=drawn?cv.toDataURL():null;
-            setupCv();
-            if(tempData){const img=new Image();img.onload=()=>{cx.drawImage(img,0,0,cv.width,cv.height);};img.src=tempData;}
-        }
-    },200);
+// Slider brush size
+$('brushRange').addEventListener('input',function(){
+    brushSize=+this.value;
+    $('brushVal').textContent=brushSize+'px';
+    if(cx&&!isEraser)cx.lineWidth=brushSize;
 });
-if(screen.orientation){
-    screen.orientation.addEventListener('change',()=>{
-        setTimeout(()=>{
-            if(md===2 && cv && $('canvasFullscreen').classList.contains('show')){
-                const tempData=drawn?cv.toDataURL():null;
-                setupCv();
-                if(tempData){const img=new Image();img.onload=()=>{cx.drawImage(img,0,0,cv.width,cv.height);};img.src=tempData;}
-            }
-        },300);
-    });
-}
+
+// Slider eraser size
+$('eraserRange').addEventListener('input',function(){
+    eraserSize=+this.value;
+    $('eraserVal').textContent=eraserSize+'px';
+    if(cx&&isEraser)cx.lineWidth=eraserSize;
+});
 
 function render(){
 const T=L[lang];
