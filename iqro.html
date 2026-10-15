@@ -15,8 +15,8 @@ header h1{font-size:18px;flex:1}
 header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:50%;width:38px;height:38px;font-size:17px}
 .wrap{padding:14px 16px 0}
 .card{background:var(--card);border-radius:18px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-.seg{display:flex;gap:6px;margin:8px 0}
-.seg button{flex:1;padding:10px 4px;border-radius:12px;border:1px solid #cfd8d3;background:#fff;font-size:11px;color:var(--text);cursor:pointer;font-weight:600}
+.seg{display:flex;gap:6px;margin:8px 0;flex-wrap:wrap}
+.seg button{flex:1;padding:10px 4px;border-radius:12px;border:1px solid #cfd8d3;background:#fff;font-size:11px;color:var(--text);cursor:pointer;font-weight:600;min-width:80px}
 .seg button.on{background:var(--green);color:#fff;border-color:var(--green)}
 .ar{font-size:64px;text-align:center;padding:26px 10px;background:#fff;border-radius:16px;direction:rtl;font-family:"Amiri","Scheherazade New","Noto Naskh Arabic",serif;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.06);line-height:1.6}
 .info{margin-top:10px;background:#e2efe8;border-radius:12px;padding:12px;text-align:center;font-weight:700;color:var(--green);min-height:22px;font-size:15px}
@@ -30,6 +30,40 @@ header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255
 .opts button.no{background:#fde3e3;border-color:#c66}
 .score{text-align:center;font-size:13px;color:var(--muted);margin-top:10px;font-weight:600}
 .note{font-size:11px;color:var(--muted);line-height:1.6;background:#f3efe2;border-radius:10px;padding:10px;margin-top:12px;font-weight:500}
+
+/* === MODE TULIS / KALIGRAFI === */
+.canvas-wrap{background:#fff;border-radius:16px;padding:12px;margin-top:12px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.canvas-header{text-align:center;padding:8px 0 12px}
+.canvas-header .huruf-besar{font-size:80px;font-family:"Amiri","Scheherazade New","Noto Naskh Arabic",serif;color:var(--green);direction:rtl;line-height:1.2}
+.canvas-header .nama{font-size:15px;color:var(--muted);margin-top:4px;font-weight:600}
+.canvas-box{width:100%;background:#fafafa;border:2px dashed #cfd8d3;border-radius:12px;touch-action:none;cursor:crosshair;display:block}
+.canvas-tools{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.canvas-tools button{flex:1;min-width:80px;padding:12px 8px;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-clear{background:#fde3e3;color:#c66}
+.btn-eraser{background:#fff3e0;color:#e67e22;border:2px solid #e67e22}
+.btn-eraser.active{background:#e67e22;color:#fff}
+.btn-save{background:#d9f2e3;color:var(--green)}
+.btn-next{background:var(--green);color:#fff}
+.color-pick{display:flex;gap:6px;justify-content:center;margin-top:10px}
+.color-pick span{width:32px;height:32px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:transform .15s}
+.color-pick span.on{border-color:var(--green);transform:scale(1.15)}
+.eraser-size{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;font-size:12px;color:var(--muted)}
+.eraser-size input{width:100px}
+
+/* === TOAST NOTIFICATION === */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--green);color:#fff;padding:14px 18px;border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.25);font-size:13px;z-index:9999;opacity:0;transition:all .35s cubic-bezier(.4,0,.2,1);max-width:88%;text-align:center;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
+.toast .t-title{font-weight:700;margin-bottom:3px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:14px}
+.toast .t-loc{font-size:11px;color:#d9f2e3;margin-bottom:8px}
+.toast .t-btn{background:#fff;color:var(--green);border:none;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;margin-top:2px}
+
+/* === RESPONSIVE LANDSCAPE === */
+@media (orientation:landscape) and (max-height:500px){
+    .canvas-header .huruf-besar{font-size:56px}
+    .canvas-box{height:calc(100vh - 220px)!important}
+    .wrap{padding:8px 12px 0}
+    .card{padding:10px}
+}
 </style>
 </head>
 <body>
@@ -47,6 +81,13 @@ header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255
 <div class="note" id="dis"></div>
 </div></div>
 
+<!-- Toast Notification -->
+<div id="toastNotif" class="toast">
+    <div class="t-title">📥 Tersimpan!</div>
+    <div class="t-loc" id="toastLoc">📁 Folder Downloads</div>
+    <button class="t-btn" onclick="shareTulis()">📤 Bagikan / Lihat</button>
+</div>
+
 <script>
 const $=id=>document.getElementById(id);
 
@@ -58,24 +99,25 @@ const L={
 id:{
 t:'Iqro - Belajar Baca',
 lv:['Hijaiyah','Harakat','Tanwin','Kata','Mad'],
-md:['📖 Belajar','🎯 Kuis'],
+md:['📖 Belajar','🎯 Kuis','🎨 Tulis'],
 tap:'Ketuk kartu untuk melihat nama & bacaan',
 q:'Mana bacaan yang benar?',
 score:'Skor',
+write:'Tiru huruf di atas, lalu simpan karyamu!',
 dis:'⚠️ Materi di halaman ini adalah latihan huruf Arab ASLI bergaya metode Iqro\', BUKAN salinan atau scan buku Iqro\'. Buku Iqro\' (K.H. As\'ad Humam) dilindungi hak cipta. Dukung penulis dengan membeli buku aslinya.'
 },
 en:{
 t:'Iqro - Learn to Read',
 lv:['Hijaiyah','Harakat','Tanwin','Words','Madd'],
-md:['📖 Learn',' Quiz'],
+md:[' Learn','🎯 Quiz',' Write'],
 tap:'Tap the card to see name & reading',
 q:'Which is the correct reading?',
 score:'Score',
+write:'Copy the letter above, then save your work!',
 dis:'⚠️ The material here is ORIGINAL Arabic-letter practice in the style of the Iqro\' method, NOT a copy or scan of the Iqro\' book. The Iqro\' book (K.H. As\'ad Humam) is copyrighted. Support the author by buying the original.'
 }
 };
 
-/* [arab, nama, bacaan, bunyi konsonan] */
 const HIJ=[
 ['ا','Alif','a',''],
 ['ب','Ba','ba','b'],
@@ -171,7 +213,6 @@ s.add(pick(list).read);
 return [...s].sort(()=>Math.random()-0.5);
 }
 
-/* suara: deteksi dukungan + pilih suara Arab + aman dari bug Chrome */
 let VOICES=[];
 function loadVoices(){try{VOICES=speechSynthesis.getVoices();}catch(e){}}
 if('speechSynthesis' in window){
@@ -184,7 +225,7 @@ function arVoice(){
 }
 let LASTU=null;
 let INFO0='';
-const PAKAI_MP3=true; /* ganti true setelah folder suara-iqro/ terisi mp3 */
+const PAKAI_MP3=true;
 function senyap(){if($('inf')&&$('inf').dataset.warn==='1'){$('inf').innerHTML=INFO0;delete $('inf').dataset.warn;}}
 setInterval(()=>{if(VOICES.length&&$('inf')&&$('inf').dataset.warn==='1')senyap();},3000);
 function bunyi(it,idx){
@@ -199,7 +240,7 @@ function bunyi(it,idx){
 function speak(t){
   const pesan=(lang==='id')
     ?'🔇 Tidak ada suara Arab di perangkat/browser ini. Naikkan volume media & pasang bahasa Arab di pengaturan Text-to-speech.'
-    :'🔇 No Arabic voice on this device/browser. Raise media volume & install Arabic in Text-to-speech settings.';
+    :' No Arabic voice on this device/browser. Raise media volume & install Arabic in Text-to-speech settings.';
   const v=arVoice();
   if(!('speechSynthesis' in window)||!v){
     if($('inf')){$('inf').innerHTML=pesan+' <small>('+((('speechSynthesis' in window)&&VOICES.length)?('suara terdeteksi: '+VOICES.length+', tiada kode "ar"'):'daftar suara masih kosong')+')</small>';$('inf').dataset.warn='1';}
@@ -218,11 +259,9 @@ function speak(t){
 }
 
 function learn(){
-
 const T=L[lang];
 const list=items();
 const it=list[i];
-
 $('area').innerHTML=
 '<div class="ar" id="card">'+it.ar+'</div>'+
 '<div class="info" id="inf">'+
@@ -234,107 +273,271 @@ $('area').innerHTML=
 '<button id="nx">→</button>'+
 '</div>'+
 '<div class="score">'+(i+1)+' / '+list.length+'</div>';
-
 if($('inf')){INFO0=$('inf').innerHTML;delete $('inf').dataset.warn;}
 $('card').onclick=()=>{rev=!rev;learn();};
 $('sp').onclick=()=>bunyi(it,i);
-$('pv').onclick=()=>{
-i=(i-1+list.length)%list.length;
-rev=false;learn();
-};
-$('nx').onclick=()=>{
-i=(i+1)%list.length;
-rev=false;learn();
-};
+$('pv').onclick=()=>{i=(i-1+list.length)%list.length;rev=false;learn();};
+$('nx').onclick=()=>{i=(i+1)%list.length;rev=false;learn();};
 }
 
 function quiz(){
-
 const T=L[lang];
 const list=items();
-
-if(!qItem){
-qItem=pick(list);
-qOpts=opts(list,qItem);
-}
-
+if(!qItem){qItem=pick(list);qOpts=opts(list,qItem);}
 $('area').innerHTML=
 '<div class="ar">'+qItem.ar+'</div>'+
 '<div class="info">'+T.q+'</div>'+
 '<div class="opts" id="op">'+
-qOpts.map((o,x)=>
-'<button data-x="'+x+'">'+o+'</button>'
-).join('')+
+qOpts.map((o,x)=>'<button data-x="'+x+'">'+o+'</button>').join('')+
 '</div>'+
-'<div class="score" id="sc">'+
-T.score+': '+score+' / '+total+
-'</div>';
-
+'<div class="score" id="sc">'+T.score+': '+score+' / '+total+'</div>';
 $('op').querySelectorAll('button').forEach(b=>{
 b.onclick=()=>{
-
 const ok=b.textContent===qItem.read;
 total++;
 if(ok){score++;b.classList.add('ok');}
-else{
-b.classList.add('no');
-$('op').querySelectorAll('button').forEach(x=>{
-if(x.textContent===qItem.read)x.classList.add('ok');
-});
-}
-
+else{b.classList.add('no');$('op').querySelectorAll('button').forEach(x=>{if(x.textContent===qItem.read)x.classList.add('ok');});}
 $('op').querySelectorAll('button').forEach(x=>x.disabled=true);
 $('sc').textContent=T.score+': '+score+' / '+total;
-
 setTimeout(()=>{qItem=null;quiz();},900);
 };
 });
 }
 
-function render(){
+/* ===== FITUR BELAJAR MENULIS DENGAN PENGHAPUS ===== */
+let cv,cx,isDraw=false,lx=0,ly=0,drawn=false;
+const COLORS=['#1e5b46','#000000','#c0392b','#2980b9','#8e44ad','#d4a017'];
+let curColor=COLORS[0];
+let isEraser=false;
+let eraserSize=20;
 
-const T=L[lang];
-
-$('t').textContent=T.t;
-$('dis').textContent=T.dis;
-
-$('lv').innerHTML=T.lv.map((n,x)=>
-'<button data-l="'+x+'" class="'+(x===lv?'on':'')+'">'+n+'</button>'
-).join('');
-
-$('md').innerHTML=T.md.map((n,x)=>
-'<button data-m="'+x+'" class="'+(x===md?'on':'')+'">'+n+'</button>'
-).join('');
-
-$('lv').querySelectorAll('button').forEach(b=>{
-b.onclick=()=>{
-lv=+b.dataset.l;
-i=0;rev=false;
-score=0;total=0;qItem=null;
-render();
-};
-});
-
-$('md').querySelectorAll('button').forEach(b=>{
-b.onclick=()=>{
-md=+b.dataset.m;
-i=0;rev=false;
-score=0;total=0;qItem=null;
-render();
-};
-});
-
-if(md===0)learn();else quiz();
+function tulisMode(){
+    const T=L[lang];
+    const list=items();
+    const it=list[i];
+    $('area').innerHTML=`
+        <div class="canvas-wrap">
+            <div class="canvas-header">
+                <div class="huruf-besar">${it.ar}</div>
+                <div class="nama">${it.lab}</div>
+            </div>
+            <canvas id="cvTulis" class="canvas-box"></canvas>
+            <div class="color-pick" id="colPick">
+                ${COLORS.map((c,x)=>`<span data-c="${c}" class="${c===curColor?'on':''}" style="background:${c}"></span>`).join('')}
+            </div>
+            <div class="eraser-size" id="eraserSizeCtrl" style="display:none">
+                <span>Ukuran penghapus:</span>
+                <input type="range" id="eraserRange" min="10" max="50" value="${eraserSize}">
+                <span id="eraserVal">${eraserSize}px</span>
+            </div>
+            <div class="canvas-tools">
+                <button class="btn-eraser ${isEraser?'active':''}" id="btnEraser" onclick="toggleEraser()">🧹 Penghapus</button>
+                <button class="btn-clear" onclick="clearCv()">🗑️ Hapus Semua</button>
+                <button class="btn-save" onclick="saveCv()">💾 Simpan</button>
+                <button class="btn-next" onclick="nextTulis()">➡️ Lanjut</button>
+            </div>
+            <div class="info" style="margin-top:10px;font-size:13px;font-weight:500">${T.write}</div>
+        </div>
+    `;
+    setupCv();
+    
+    $('colPick').querySelectorAll('span').forEach(s=>{
+        s.onclick=()=>{
+            curColor=s.dataset.c;
+            $('colPick').querySelectorAll('span').forEach(x=>x.classList.remove('on'));
+            s.classList.add('on');
+            if(cx&&!isEraser)cx.strokeStyle=curColor;
+            if(isEraser)toggleEraser();
+        };
+    });
+    
+    const eraserRange=$('eraserRange');
+    if(eraserRange){
+        eraserRange.oninput=()=>{
+            eraserSize=+eraserRange.value;
+            $('eraserVal').textContent=eraserSize+'px';
+            if(isEraser&&cx)cx.lineWidth=eraserSize;
+        };
+    }
 }
 
-$('lang').onclick=()=>{
-lang=(lang==='id')?'en':'id';
-localStorage.setItem('sh_lang',lang);
-render();
-};
+function setupCv(){
+    cv=document.getElementById('cvTulis');
+    const wrap=cv.parentElement;
+    const maxH=window.innerHeight*0.45;
+    cv.width=wrap.clientWidth-24;
+    cv.height=Math.min(maxH,320);
+    cx=cv.getContext('2d');
+    cx.lineWidth=window.innerWidth<400?10:14;
+    cx.lineCap='round';
+    cx.lineJoin='round';
+    cx.strokeStyle=curColor;
+    cx.fillStyle='#fafafa';
+    cx.fillRect(0,0,cv.width,cv.height);
+    drawn=false;
+    cv.addEventListener('touchstart',drawStart,{passive:false});
+    cv.addEventListener('touchmove',drawMove,{passive:false});
+    cv.addEventListener('touchend',drawEnd);
+    cv.addEventListener('touchcancel',drawEnd);
+    cv.addEventListener('mousedown',drawStart);
+    cv.addEventListener('mousemove',drawMove);
+    cv.addEventListener('mouseup',drawEnd);
+    cv.addEventListener('mouseout',drawEnd);
+}
 
+function getPos(e){
+    const r=cv.getBoundingClientRect();
+    const cx2=e.touches?e.touches[0].clientX:e.clientX;
+    const cy2=e.touches?e.touches[0].clientY:e.clientY;
+    return{x:cx2-r.left,y:cy2-r.top};
+}
+
+function drawStart(e){
+    isDraw=true;
+    const p=getPos(e);
+    lx=p.x;ly=p.y;
+    drawn=true;
+    if(isEraser){
+        cx.globalCompositeOperation='destination-out';
+        cx.lineWidth=eraserSize;
+    }else{
+        cx.globalCompositeOperation='source-over';
+        cx.strokeStyle=curColor;
+    }
+}
+
+function drawMove(e){
+    if(!isDraw)return;
+    e.preventDefault();
+    const p=getPos(e);
+    cx.beginPath();
+    cx.moveTo(lx,ly);
+    cx.lineTo(p.x,p.y);
+    cx.stroke();
+    lx=p.x;ly=p.y;
+}
+
+function drawEnd(){
+    isDraw=false;
+    cx.globalCompositeOperation='source-over';
+}
+
+function toggleEraser(){
+    isEraser=!isEraser;
+    const btn=$('btnEraser');
+    const sizeCtrl=$('eraserSizeCtrl');
+    if(isEraser){
+        btn.classList.add('active');
+        btn.textContent='✏️ Mode Tulis';
+        sizeCtrl.style.display='flex';
+        cv.style.cursor='cell';
+    }else{
+        btn.classList.remove('active');
+        btn.textContent='🧹 Penghapus';
+        sizeCtrl.style.display='none';
+        cv.style.cursor='crosshair';
+    }
+}
+
+function clearCv(){
+    if(!cx)return;
+    cx.globalCompositeOperation='source-over';
+    cx.fillStyle='#fafafa';
+    cx.fillRect(0,0,cv.width,cv.height);
+    drawn=false;
+    if(isEraser)toggleEraser();
+}
+
+function saveCv(){
+    if(!cv)return;
+    showToast(' Menyimpan...','Mohon tunggu sebentar',true);
+    setTimeout(()=>{
+        const ts=new Date().getTime();
+        const nama=`kaligrafi-sh-${ts}.png`;
+        try{
+            const data=cv.toDataURL('image/png');
+            const a=document.createElement('a');
+            a.download=nama;
+            a.href=data;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window._lastSaved={nama,data};
+            showToast('📥 Tersimpan!',` ${nama} (Folder Downloads)`,false);
+        }catch(err){showToast('❌ Gagal','Coba lagi ya',false);}
+    },400);
+}
+
+function showToast(title,loc,isLoading){
+    const t=$('toastNotif');
+    const locEl=$('toastLoc');
+    t.querySelector('.t-title').textContent=title;
+    locEl.textContent=loc;
+    const btn=t.querySelector('.t-btn');
+    btn.style.display=isLoading?'none':'block';
+    t.classList.add('show');
+    if(!isLoading)setTimeout(()=>t.classList.remove('show'),4500);
+}
+
+function shareTulis(){
+    const t=$('toastNotif');
+    t.classList.remove('show');
+    if(window._lastSaved && navigator.share){
+        try{
+            fetch(window._lastSaved.data).then(r=>r.blob()).then(blob=>{
+                const file=new File([blob],window._lastSaved.nama,{type:'image/png'});
+                if(navigator.canShare && navigator.canShare({files:[file]})){
+                    navigator.share({files:[file],title:'Kaligrafi Sahabat Hijrah',text:'Lihat kaligrafi yang saya buat!'}).catch(()=>{});
+                }else{alert('Buka folder Downloads di File Manager untuk melihat file.');}
+            });
+        }catch(e){alert('Buka folder Downloads di File Manager untuk melihat file.');}
+    }else{alert('Buka aplikasi File Manager → folder Downloads untuk melihat file.');}
+}
+
+function nextTulis(){const list=items();i=(i+1)%list.length;tulisMode();}
+
+let resizeTimer;
+window.addEventListener('resize',()=>{
+    clearTimeout(resizeTimer);
+    resizeTimer=setTimeout(()=>{
+        if(md===2 && cv){
+            const tempData=drawn?cv.toDataURL():null;
+            setupCv();
+            if(tempData){const img=new Image();img.onload=()=>{cx.drawImage(img,0,0,cv.width,cv.height);};img.src=tempData;}
+        }
+    },200);
+});
+if(screen.orientation){
+    screen.orientation.addEventListener('change',()=>{
+        setTimeout(()=>{
+            if(md===2 && cv){
+                const tempData=drawn?cv.toDataURL():null;
+                setupCv();
+                if(tempData){const img=new Image();img.onload=()=>{cx.drawImage(img,0,0,cv.width,cv.height);};img.src=tempData;}
+            }
+        },300);
+    });
+}
+
+function render(){
+const T=L[lang];
+$('t').textContent=T.t;
+$('dis').textContent=T.dis;
+$('lv').innerHTML=T.lv.map((n,x)=>'<button data-l="'+x+'" class="'+(x===lv?'on':'')+'">'+n+'</button>').join('');
+$('md').innerHTML=T.md.map((n,x)=>'<button data-m="'+x+'" class="'+(x===md?'on':'')+'">'+n+'</button>').join('');
+$('lv').querySelectorAll('button').forEach(b=>{
+b.onclick=()=>{lv=+b.dataset.l;i=0;rev=false;score=0;total=0;qItem=null;render();};
+});
+$('md').querySelectorAll('button').forEach(b=>{
+b.onclick=()=>{md=+b.dataset.m;i=0;rev=false;score=0;total=0;qItem=null;render();};
+});
+if(md===0)learn();
+else if(md===1)quiz();
+else if(md===2)tulisMode();
+}
+
+$('lang').onclick=()=>{lang=(lang==='id')?'en':'id';localStorage.setItem('sh_lang',lang);render();};
 render();
 </script>
-
 </body>
 </html>
