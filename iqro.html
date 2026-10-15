@@ -8,18 +8,16 @@
 <style>
 :root{--green:#1e5b46;--yellow:#ffd200;--bg:#efece4;--card:#f8f8f6;--text:#21302b;--muted:#7d8a83}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);padding-bottom:24px}
-header{position:sticky;top:0;z-index:5;background:var(--green);color:#fff;display:flex;align-items:center;gap:6px;padding:12px 10px;flex-wrap:nowrap}
-header a{color:#fff;text-decoration:none;font-size:22px;line-height:1;flex-shrink:0}
-header h1{font-size:16px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
-header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:50%;width:36px;height:36px;font-size:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-#btnMenuBack{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.5);color:#fff;border-radius:18px;width:auto;padding:5px 10px;font-size:12px;font-weight:600;display:none;gap:4px}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);padding-bottom:24px;min-height:100vh}
+header{position:sticky;top:0;z-index:5;background:var(--green);color:#fff;display:flex;align-items:center;gap:4px;padding:10px 8px}
+header a{color:#fff;text-decoration:none;font-size:20px;line-height:1;flex-shrink:0}
+header h1{font-size:14px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:50%;width:32px;height:32px;font-size:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:0}
+#btnMenuBack{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.5);color:#fff;border-radius:16px;width:auto;padding:4px 8px;font-size:11px;font-weight:600;display:none;gap:3px}
 #btnMenuBack.show{display:flex}
-.wrap{padding:10px 12px 0;transition:padding .3s}
-.wrap.fullscreen{padding:6px 6px 0}
-.card{background:var(--card);border-radius:18px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.08);transition:padding .3s}
-.card.fullscreen{padding:6px;border-radius:12px}
-.seg{display:flex;gap:6px;margin:8px 0;flex-wrap:wrap;transition:opacity .3s}
+.wrap{padding:10px 12px 0}
+.card{background:var(--card);border-radius:18px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.seg{display:flex;gap:6px;margin:8px 0;flex-wrap:wrap}
 .seg.hidden{display:none!important}
 .seg button{flex:1;padding:10px 4px;border-radius:12px;border:1px solid #cfd8d3;background:#fff;font-size:11px;color:var(--text);cursor:pointer;font-weight:600;min-width:80px}
 .seg button.on{background:var(--green);color:#fff;border-color:var(--green)}
@@ -36,25 +34,27 @@ header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255
 .score{text-align:center;font-size:13px;color:var(--muted);margin-top:10px;font-weight:600}
 .note{font-size:11px;color:var(--muted);line-height:1.6;background:#f3efe2;border-radius:10px;padding:10px;margin-top:12px;font-weight:500}
 
-/* === MODE TULIS / KALIGRAFI === */
-.canvas-wrap{background:#fff;border-radius:10px;padding:6px;display:flex;flex-direction:column}
-.letter-ref{display:flex;align-items:center;justify-content:center;gap:8px;padding:4px 8px;background:#f0f7f4;border-radius:8px;margin-bottom:4px;flex-shrink:0}
-.letter-ref .ar-ref{font-size:32px;font-family:"Amiri","Scheherazade New","Noto Naskh Arabic",serif;color:var(--green);direction:rtl;line-height:1}
+/* === MODE TULIS - FULLSCREEN DI LUAR CARD === */
+#canvasFullscreen{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);z-index:10;padding-top:52px}
+#canvasFullscreen.show{display:flex;flex-direction:column}
+.canvas-wrap{flex:1;display:flex;flex-direction:column;padding:8px;min-height:0}
+.letter-ref{display:flex;align-items:center;justify-content:center;gap:8px;padding:6px 10px;background:#fff;border-radius:10px;margin-bottom:6px;flex-shrink:0;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.letter-ref .ar-ref{font-size:36px;font-family:"Amiri","Scheherazade New","Noto Naskh Arabic",serif;color:var(--green);direction:rtl;line-height:1}
 .letter-ref .nama-ref{font-size:12px;color:var(--muted);font-weight:600}
-.canvas-box{width:100%;background:#fafafa;border:2px dashed #cfd8d3;border-radius:10px;touch-action:none;cursor:crosshair;display:block;flex:1}
-.canvas-tools{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}
-.canvas-tools button{flex:1;min-width:60px;padding:9px 5px;border:none;border-radius:9px;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s}
+.canvas-box{flex:1;width:100%;background:#fafafa;border:2px dashed #cfd8d3;border-radius:12px;touch-action:none;cursor:crosshair;display:block;min-height:0}
+.canvas-tools{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;flex-shrink:0}
+.canvas-tools button{flex:1;min-width:70px;padding:12px 8px;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
 .btn-clear{background:#fde3e3;color:#c66}
 .btn-eraser{background:#fff3e0;color:#e67e22;border:2px solid #e67e22}
 .btn-eraser.active{background:#e67e22;color:#fff}
 .btn-save{background:#d9f2e3;color:var(--green)}
 .btn-next{background:var(--green);color:#fff}
-.color-pick{display:flex;gap:4px;justify-content:center;margin-top:6px;flex-wrap:wrap}
-.color-pick span{width:26px;height:26px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:transform .15s}
+.color-pick{display:flex;gap:6px;justify-content:center;margin-top:8px;flex-wrap:wrap;flex-shrink:0}
+.color-pick span{width:32px;height:32px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:transform .15s}
 .color-pick span.on{border-color:var(--green);transform:scale(1.15)}
-.eraser-size{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px;font-size:11px;color:var(--muted)}
+.eraser-size{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px;font-size:11px;color:var(--muted);flex-shrink:0}
 .eraser-size input{width:100px}
-.canvas-info{font-size:10px;color:var(--muted);text-align:center;margin-top:4px}
+.canvas-info{font-size:11px;color:var(--muted);text-align:center;margin-top:6px;flex-shrink:0}
 
 /* === TOAST NOTIFICATION === */
 .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--green);color:#fff;padding:14px 18px;border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.25);font-size:13px;z-index:9999;opacity:0;transition:all .35s cubic-bezier(.4,0,.2,1);max-width:88%;text-align:center;pointer-events:none}
@@ -62,18 +62,6 @@ header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255
 .toast .t-title{font-weight:700;margin-bottom:3px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:14px}
 .toast .t-loc{font-size:11px;color:#d9f2e3;margin-bottom:8px}
 .toast .t-btn{background:#fff;color:var(--green);border:none;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;margin-top:2px}
-
-/* === RESPONSIVE === */
-@media (orientation:landscape) and (max-height:500px){
-    .letter-ref .ar-ref{font-size:24px}
-    .canvas-box{height:calc(100vh - 130px)!important}
-}
-@media (min-height:700px){
-    .canvas-box{height:72vh!important}
-}
-@media (max-height:700px){
-    .canvas-box{height:62vh!important}
-}
 </style>
 </head>
 <body>
@@ -85,12 +73,36 @@ header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255
 <button id="lang">🌐</button>
 </header>
 
-<div class="wrap" id="wrapEl"><div class="card" id="cardEl">
+<div class="wrap"><div class="card">
 <div class="seg" id="lv"></div>
 <div class="seg" id="md"></div>
 <div id="area"></div>
 <div class="note" id="dis"></div>
 </div></div>
+
+<!-- CANVAS FULLSCREEN (di luar card, langsung di bawah header) -->
+<div id="canvasFullscreen">
+    <div class="canvas-wrap">
+        <div class="letter-ref">
+            <div class="ar-ref" id="refArab"></div>
+            <div class="nama-ref" id="refNama"></div>
+        </div>
+        <canvas id="cvTulis" class="canvas-box"></canvas>
+        <div class="color-pick" id="colPick"></div>
+        <div class="eraser-size" id="eraserSizeCtrl" style="display:none">
+            <span>Ukuran:</span>
+            <input type="range" id="eraserRange" min="10" max="50" value="20">
+            <span id="eraserVal">20px</span>
+        </div>
+        <div class="canvas-tools">
+            <button class="btn-eraser" id="btnEraser" onclick="toggleEraser()">🧹 Hapus</button>
+            <button class="btn-clear" onclick="clearCv()">🗑️ Semua</button>
+            <button class="btn-save" onclick="saveCv()">💾 Simpan</button>
+            <button class="btn-next" onclick="nextTulis()">➡️</button>
+        </div>
+        <div class="canvas-info" id="canvasInfo"></div>
+    </div>
+</div>
 
 <!-- Toast Notification -->
 <div id="toastNotif" class="toast">
@@ -110,12 +122,12 @@ const L={
 id:{
 t:'Iqro - Belajar Baca',
 lv:['Hijaiyah','Harakat','Tanwin','Kata','Mad'],
-md:['📖 Belajar',' Kuis','🎨 Tulis'],
+md:['📖 Belajar','🎯 Kuis','🎨 Tulis'],
 tap:'Ketuk kartu untuk melihat nama & bacaan',
 q:'Mana bacaan yang benar?',
 score:'Skor',
 write:'Tiru huruf di atas, lalu simpan karyamu!',
-dis:'⚠️ Materi di halaman ini adalah latihan huruf Arab ASLI bergaya metode Iqro\', BUKAN salinan atau scan buku Iqro\'. Buku Iqro\' (K.H. As\'ad Humam) dilindungi hak cipta. Dukung penulis dengan membeli buku aslinya.'
+dis:'️ Materi di halaman ini adalah latihan huruf Arab ASLI bergaya metode Iqro\', BUKAN salinan atau scan buku Iqro\'. Buku Iqro\' (K.H. As\'ad Humam) dilindungi hak cipta. Dukung penulis dengan membeli buku aslinya.'
 },
 en:{
 t:'Iqro - Learn to Read',
@@ -273,8 +285,7 @@ function learn(){
 $('btnMenuBack').classList.remove('show');
 $('lv').classList.remove('hidden');
 $('md').classList.remove('hidden');
-$('wrapEl').classList.remove('fullscreen');
-$('cardEl').classList.remove('fullscreen');
+$('canvasFullscreen').classList.remove('show');
 const T=L[lang];
 const list=items();
 const it=list[i];
@@ -300,8 +311,7 @@ function quiz(){
 $('btnMenuBack').classList.remove('show');
 $('lv').classList.remove('hidden');
 $('md').classList.remove('hidden');
-$('wrapEl').classList.remove('fullscreen');
-$('cardEl').classList.remove('fullscreen');
+$('canvasFullscreen').classList.remove('show');
 const T=L[lang];
 const list=items();
 if(!qItem){qItem=pick(list);qOpts=opts(list,qItem);}
@@ -325,7 +335,7 @@ setTimeout(()=>{qItem=null;quiz();},900);
 });
 }
 
-/* ===== FITUR BELAJAR MENULIS ===== */
+/* ===== FITUR BELAJAR MENULIS - FULLSCREEN ===== */
 let cv,cx,isDraw=false,lx=0,ly=0,drawn=false;
 const COLORS=['#1e5b46','#000000','#c0392b','#2980b9','#8e44ad','#d4a017'];
 let curColor=COLORS[0];
@@ -337,41 +347,21 @@ function tulisMode(){
     const list=items();
     const it=list[i];
     
-    // HIDE semua tombol level & mode
+    // HIDE tombol level & mode
     $('lv').classList.add('hidden');
     $('md').classList.add('hidden');
-    // Tampilkan tombol Menu di header
+    // Tampilkan tombol Menu
     $('btnMenuBack').classList.add('show');
-    // Fullscreen mode
-    $('wrapEl').classList.add('fullscreen');
-    $('cardEl').classList.add('fullscreen');
+    // TAMPILKAN CANVAS FULLSCREEN
+    $('canvasFullscreen').classList.add('show');
     
-    $('area').innerHTML=`
-        <div class="canvas-wrap">
-            <div class="letter-ref">
-                <div class="ar-ref">${it.ar}</div>
-                <div class="nama-ref">${it.lab}</div>
-            </div>
-            <canvas id="cvTulis" class="canvas-box"></canvas>
-            <div class="color-pick" id="colPick">
-                ${COLORS.map((c,x)=>`<span data-c="${c}" class="${c===curColor?'on':''}" style="background:${c}"></span>`).join('')}
-            </div>
-            <div class="eraser-size" id="eraserSizeCtrl" style="display:none">
-                <span>Ukuran:</span>
-                <input type="range" id="eraserRange" min="10" max="50" value="${eraserSize}">
-                <span id="eraserVal">${eraserSize}px</span>
-            </div>
-            <div class="canvas-tools">
-                <button class="btn-eraser ${isEraser?'active':''}" id="btnEraser" onclick="toggleEraser()">🧹 Hapus</button>
-                <button class="btn-clear" onclick="clearCv()">🗑️ Semua</button>
-                <button class="btn-save" onclick="saveCv()">💾 Simpan</button>
-                <button class="btn-next" onclick="nextTulis()">️</button>
-            </div>
-            <div class="canvas-info">${T.write}</div>
-        </div>
-    `;
-    setupCv();
+    // Update referensi huruf
+    $('refArab').textContent=it.ar;
+    $('refNama').textContent=it.lab;
+    $('canvasInfo').textContent=T.write;
     
+    // Color picker
+    $('colPick').innerHTML=COLORS.map((c,x)=>`<span data-c="${c}" class="${c===curColor?'on':''}" style="background:${c}"></span>`).join('');
     $('colPick').querySelectorAll('span').forEach(s=>{
         s.onclick=()=>{
             curColor=s.dataset.c;
@@ -382,22 +372,26 @@ function tulisMode(){
         };
     });
     
-    const eraserRange=$('eraserRange');
-    if(eraserRange){
-        eraserRange.oninput=()=>{
-            eraserSize=+eraserRange.value;
-            $('eraserVal').textContent=eraserSize+'px';
-            if(isEraser&&cx)cx.lineWidth=eraserSize;
-        };
-    }
+    // Eraser slider
+    $('eraserRange').value=eraserSize;
+    $('eraserVal').textContent=eraserSize+'px';
+    
+    // Setup canvas setelah DOM update
+    setTimeout(()=>setupCv(),50);
 }
 
 function setupCv(){
-    cv=document.getElementById('cvTulis');
+    cv=$('cvTulis');
     const wrap=cv.parentElement;
-    cv.width=wrap.clientWidth-12;
-    const computedHeight=getComputedStyle(cv).height;
-    cv.height=parseInt(computedHeight)||400;
+    // Hitung tinggi canvas: tinggi wrap - tinggi elemen lain
+    const otherElements=wrap.querySelectorAll('.letter-ref,.color-pick,.eraser-size,.canvas-tools,.canvas-info');
+    let otherHeight=0;
+    otherElements.forEach(el=>{otherHeight+=el.offsetHeight+8;});
+    const availableHeight=wrap.clientHeight-otherHeight;
+    
+    cv.width=wrap.clientWidth-16;
+    cv.height=Math.max(availableHeight,300);
+    
     cx=cv.getContext('2d');
     cx.lineWidth=window.innerWidth<400?12:16;
     cx.lineCap='round';
@@ -406,6 +400,7 @@ function setupCv(){
     cx.fillStyle='#fafafa';
     cx.fillRect(0,0,cv.width,cv.height);
     drawn=false;
+    
     cv.addEventListener('touchstart',drawStart,{passive:false});
     cv.addEventListener('touchmove',drawMove,{passive:false});
     cv.addEventListener('touchend',drawEnd);
@@ -459,7 +454,7 @@ function toggleEraser(){
     const sizeCtrl=$('eraserSizeCtrl');
     if(isEraser){
         btn.classList.add('active');
-        btn.textContent='✏️ Tulis';
+        btn.textContent='️ Tulis';
         sizeCtrl.style.display='flex';
         cv.style.cursor='cell';
     }else{
@@ -483,8 +478,7 @@ function backToMenu(){
     $('btnMenuBack').classList.remove('show');
     $('lv').classList.remove('hidden');
     $('md').classList.remove('hidden');
-    $('wrapEl').classList.remove('fullscreen');
-    $('cardEl').classList.remove('fullscreen');
+    $('canvasFullscreen').classList.remove('show');
     md=0;
     render();
 }
@@ -541,7 +535,7 @@ let resizeTimer;
 window.addEventListener('resize',()=>{
     clearTimeout(resizeTimer);
     resizeTimer=setTimeout(()=>{
-        if(md===2 && cv){
+        if(md===2 && cv && $('canvasFullscreen').classList.contains('show')){
             const tempData=drawn?cv.toDataURL():null;
             setupCv();
             if(tempData){const img=new Image();img.onload=()=>{cx.drawImage(img,0,0,cv.width,cv.height);};img.src=tempData;}
@@ -551,7 +545,7 @@ window.addEventListener('resize',()=>{
 if(screen.orientation){
     screen.orientation.addEventListener('change',()=>{
         setTimeout(()=>{
-            if(md===2 && cv){
+            if(md===2 && cv && $('canvasFullscreen').classList.contains('show')){
                 const tempData=drawn?cv.toDataURL():null;
                 setupCv();
                 if(tempData){const img=new Image();img.onload=()=>{cx.drawImage(img,0,0,cv.width,cv.height);};img.src=tempData;}
