@@ -183,36 +183,65 @@ function backToMenu(){$('btnMenuBack').classList.remove('show');$('lv').classLis
 
 function saveCv(){
     if(!cv)return;
-    showToast('⏳ Menyimpan...','Mohon tunggu sebentar',true);
-    setTimeout(()=>{
-        const ts=new Date().getTime();
-        const nama=`Sahabat-Hijrah-Kaligrafi-${ts}.png`;
+    showToast('Menyimpan...','Mohon tunggu sebentar',true);
+    setTimeout(function(){
         try{
-            // Buat canvas sementara untuk tambah watermark
-            const tempCanvas=document.createElement('canvas');
+            var ts=new Date().getTime();
+            var nama='Sahabat-Hijrah-Kaligrafi-'+ts+'.png';
+            var tempCanvas=document.createElement('canvas');
             tempCanvas.width=cv.width;
             tempCanvas.height=cv.height;
-            const tempCtx=tempCanvas.getContext('2d');
-            
-            // Copy gambar asli
+            var tempCtx=tempCanvas.getContext('2d');
             tempCtx.drawImage(cv,0,0);
-            
-            // Tambah watermark "Sahabat Hijrah" di pojok kanan bawah
             tempCtx.font='bold 40px system-ui, sans-serif';
             tempCtx.fillStyle='rgba(30,91,70,0.3)';
             tempCtx.textAlign='right';
-            tempCtx.fillText('Sahabat Hijrah ',tempCanvas.width-30,tempCanvas.height-30);
+            tempCtx.fillText('Sahabat Hijrah',tempCanvas.width-30,tempCanvas.height-30);
             
-            const data=tempCanvas.toDataURL('image/png');
-            const a=document.createElement('a');
-            a.download=nama;
-            a.href=data;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window._lastSaved={nama,data};
-            showToast('📥 Tersimpan!',`📁 ${nama} (Folder Downloads)`,false);
-        }catch(err){showToast('❌ Gagal','Coba lagi ya',false);}
+            tempCanvas.toBlob(function(blob){
+                if(!blob){
+                    var data=tempCanvas.toDataURL('image/png');
+                    var a=document.createElement('a');
+                    a.download=nama;
+                    a.href=data;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    showToast('Tersimpan!',nama+' (Folder Downloads)',false);
+                    return;
+                }
+                var file=new File([blob],nama,{type:'image/png'});
+                if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+                    navigator.share({
+                        files:[file],
+                        title:'Kaligrafi Sahabat Hijrah',
+                        text:'Lihat kaligrafi yang saya buat!'
+                    }).then(function(){
+                        showToast('Berhasil dibagikan!','');
+                    }).catch(function(){
+                        var data=tempCanvas.toDataURL('image/png');
+                        var a=document.createElement('a');
+                        a.download=nama;
+                        a.href=data;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        showToast('Tersimpan!',nama+' (Folder Downloads)',false);
+                    });
+                }else{
+                    var data=tempCanvas.toDataURL('image/png');
+                    var a=document.createElement('a');
+                    a.download=nama;
+                    a.href=data;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    showToast('Tersimpan!',nama+' (Folder Downloads)',false);
+                }
+            },'image/png');
+        }catch(err){
+            showToast('Gagal','Coba screenshot layar',false);
+        }
     },400);
 }
 
