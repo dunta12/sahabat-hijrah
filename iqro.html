@@ -9,7 +9,7 @@
 :root{--green:#1e5b46;--yellow:#ffd200;--bg:#efece4;--card:#f8f8f6;--text:#21302b;--muted:#7d8a83}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);padding-bottom:24px;min-height:100vh}
-header{position:sticky;top:0;z-index:5;background:var(--green);color:#fff;display:flex;align-items:center;gap:4px;padding:10px 8px}
+header{position:sticky;top:0;z-index:100;background:var(--green);color:#fff;display:flex;align-items:center;gap:4px;padding:10px 8px}
 header a{color:#fff;text-decoration:none;font-size:20px;line-height:1;flex-shrink:0}
 header h1{font-size:14px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:50%;width:32px;height:32px;font-size:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:0}
@@ -34,8 +34,8 @@ header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255
 .score{text-align:center;font-size:13px;color:var(--muted);margin-top:10px;font-weight:600}
 .note{font-size:11px;color:var(--muted);line-height:1.6;background:#f3efe2;border-radius:10px;padding:10px;margin-top:12px;font-weight:500}
 
-/* === MODE TULIS - FULLSCREEN DI LUAR CARD === */
-#canvasFullscreen{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);z-index:10;padding-top:52px}
+/* === MODE TULIS - FULLSCREEN DI BAWAH HEADER === */
+#canvasFullscreen{display:none;position:fixed;top:52px;left:0;right:0;bottom:0;background:var(--bg);z-index:50;overflow-y:auto}
 #canvasFullscreen.show{display:flex;flex-direction:column}
 .canvas-wrap{flex:1;display:flex;flex-direction:column;padding:8px;min-height:0}
 .letter-ref{display:flex;align-items:center;justify-content:center;gap:8px;padding:6px 10px;background:#fff;border-radius:10px;margin-bottom:6px;flex-shrink:0;box-shadow:0 1px 2px rgba(0,0,0,.05)}
@@ -80,7 +80,7 @@ header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255
 <div class="note" id="dis"></div>
 </div></div>
 
-<!-- CANVAS FULLSCREEN (di luar card, langsung di bawah header) -->
+<!-- CANVAS FULLSCREEN (di bawah header) -->
 <div id="canvasFullscreen">
     <div class="canvas-wrap">
         <div class="letter-ref">
@@ -95,7 +95,7 @@ header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255
             <span id="eraserVal">20px</span>
         </div>
         <div class="canvas-tools">
-            <button class="btn-eraser" id="btnEraser" onclick="toggleEraser()">🧹 Hapus</button>
+            <button class="btn-eraser" id="btnEraser" onclick="toggleEraser()"> Hapus</button>
             <button class="btn-clear" onclick="clearCv()">🗑️ Semua</button>
             <button class="btn-save" onclick="saveCv()">💾 Simpan</button>
             <button class="btn-next" onclick="nextTulis()">➡️</button>
@@ -127,7 +127,7 @@ tap:'Ketuk kartu untuk melihat nama & bacaan',
 q:'Mana bacaan yang benar?',
 score:'Skor',
 write:'Tiru huruf di atas, lalu simpan karyamu!',
-dis:'️ Materi di halaman ini adalah latihan huruf Arab ASLI bergaya metode Iqro\', BUKAN salinan atau scan buku Iqro\'. Buku Iqro\' (K.H. As\'ad Humam) dilindungi hak cipta. Dukung penulis dengan membeli buku aslinya.'
+dis:'⚠️ Materi di halaman ini adalah latihan huruf Arab ASLI bergaya metode Iqro\', BUKAN salinan atau scan buku Iqro\'. Buku Iqro\' (K.H. As\'ad Humam) dilindungi hak cipta. Dukung penulis dengan membeli buku aslinya.'
 },
 en:{
 t:'Iqro - Learn to Read',
@@ -296,7 +296,7 @@ $('area').innerHTML=
 '</div>'+
 '<div class="row">'+
 '<button id="pv" class="alt">←</button>'+
-'<button id="sp">🔊</button>'+
+'<button id="sp"></button>'+
 '<button id="nx">→</button>'+
 '</div>'+
 '<div class="score">'+(i+1)+' / '+list.length+'</div>';
@@ -454,12 +454,12 @@ function toggleEraser(){
     const sizeCtrl=$('eraserSizeCtrl');
     if(isEraser){
         btn.classList.add('active');
-        btn.textContent='️ Tulis';
+        btn.textContent='✏️ Tulis';
         sizeCtrl.style.display='flex';
         cv.style.cursor='cell';
     }else{
         btn.classList.remove('active');
-        btn.textContent='🧹 Hapus';
+        btn.textContent=' Hapus';
         sizeCtrl.style.display='none';
         cv.style.cursor='crosshair';
     }
