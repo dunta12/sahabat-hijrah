@@ -34,18 +34,27 @@ header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255
 .score{text-align:center;font-size:13px;color:var(--muted);margin-top:10px;font-weight:600}
 .note{font-size:11px;color:var(--muted);line-height:1.6;background:#f3efe2;border-radius:10px;padding:10px;margin-top:12px;font-weight:500}
 
-/* === MODE TULIS - CANVAS SCROLLABLE === */
+/* === MODE TULIS - CANVAS NAVIGASI === */
 #canvasFullscreen{display:none;position:fixed;top:52px;left:0;right:0;bottom:0;background:var(--bg);z-index:50;overflow:hidden}
 #canvasFullscreen.show{display:flex;flex-direction:column}
 .canvas-wrap{flex:1;display:flex;flex-direction:column;padding:8px;min-height:0}
-.letter-ref{display:flex;align-items:center;justify-content:center;gap:8px;padding:6px 10px;background:#fff;border-radius:10px;margin-bottom:6px;flex-shrink:0;box-shadow:0 1px 2px rgba(0,0,0,.05);transition:all .3s}
+.letter-ref{display:flex;align-items:center;justify-content:center;gap:8px;padding:6px 10px;background:#fff;border-radius:10px;margin-bottom:6px;flex-shrink:0;box-shadow:0 1px 2px rgba(0,0,0,.05)}
 .letter-ref.hidden{display:none}
 .letter-ref .ar-ref{font-size:36px;font-family:"Amiri","Scheherazade New","Noto Naskh Arabic",serif;color:var(--green);direction:rtl;line-height:1}
 .letter-ref .nama-ref{font-size:12px;color:var(--muted);font-weight:600}
 
-/* Container canvas yang bisa di-scroll */
-.canvas-scroll{flex:1;overflow:auto;background:#fafafa;border:2px dashed #cfd8d3;border-radius:12px;position:relative;min-height:0;-webkit-overflow-scrolling:touch}
-.canvas-box{display:block;touch-action:none;cursor:crosshair;background:#fafafa}
+/* Container canvas dengan overflow hidden */
+.canvas-viewport{flex:1;overflow:hidden;background:#fafafa;border:2px dashed #cfd8d3;border-radius:12px;position:relative;min-height:0;touch-action:none}
+.canvas-box{position:absolute;top:0;left:0;touch-action:none;cursor:crosshair;background:#fafafa}
+
+/* Tombol navigasi */
+.nav-controls{position:absolute;bottom:10px;right:10px;display:grid;grid-template-columns:repeat(3,36px);grid-template-rows:repeat(3,36px);gap:4px;z-index:10}
+.nav-btn{width:36px;height:36px;border:none;border-radius:8px;background:rgba(30,91,70,.9);color:#fff;font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 4px rgba(0,0,0,.2)}
+.nav-btn:active{background:var(--green);transform:scale(.95)}
+.nav-btn.center{background:rgba(255,255,255,.9);color:var(--green);font-size:12px}
+
+/* Indikator posisi */
+.pos-indicator{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.6);color:#fff;padding:4px 8px;border-radius:6px;font-size:10px;z-index:10}
 
 .canvas-tools{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;flex-shrink:0}
 .canvas-tools button{flex:1;min-width:70px;padding:12px 8px;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
@@ -88,7 +97,7 @@ header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255
 <div class="note" id="dis"></div>
 </div></div>
 
-<!-- CANVAS FULLSCREEN DENGAN SCROLL -->
+<!-- CANVAS FULLSCREEN DENGAN NAVIGASI -->
 <div id="canvasFullscreen">
     <div class="canvas-wrap">
         <div class="letter-ref" id="letterRef">
@@ -96,21 +105,35 @@ header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255
             <div class="nama-ref" id="refNama"></div>
         </div>
         
-        <!-- Container scrollable -->
-        <div class="canvas-scroll" id="canvasScroll">
+        <!-- Viewport dengan tombol navigasi -->
+        <div class="canvas-viewport" id="canvasViewport">
             <canvas id="cvTulis" class="canvas-box"></canvas>
+            
+            <!-- Indikator posisi -->
+            <div class="pos-indicator" id="posIndicator">0, 0</div>
+            
+            <!-- Tombol navigasi -->
+            <div class="nav-controls">
+                <div></div>
+                <button class="nav-btn" onclick="navCanvas(0,-200)">↑</button>
+                <div></div>
+                <button class="nav-btn" onclick="navCanvas(-200,0)">←</button>
+                <button class="nav-btn center" onclick="resetView()">⌂</button>
+                <button class="nav-btn" onclick="navCanvas(200,0)">→</button>
+                <div></div>
+                <button class="nav-btn" onclick="navCanvas(0,200)">↓</button>
+                <div></div>
+            </div>
         </div>
         
         <div class="color-pick" id="colPick"></div>
         
-        <!-- Slider ukuran brush (selalu terlihat) -->
         <div class="size-slider">
             <span>🖌️ Ukuran:</span>
             <input type="range" id="brushRange" min="4" max="60" value="16">
             <span class="size-label" id="brushVal">16px</span>
         </div>
         
-        <!-- Slider ukuran penghapus (muncul saat mode eraser) -->
         <div class="size-slider" id="eraserSizeCtrl" style="display:none">
             <span>🧹 Penghapus:</span>
             <input type="range" id="eraserRange" min="10" max="80" value="20">
@@ -132,7 +155,7 @@ header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255
 <div id="toastNotif" class="toast">
     <div class="t-title">📥 Tersimpan!</div>
     <div class="t-loc" id="toastLoc">📁 Folder Downloads</div>
-    <button class="t-btn" onclick="shareTulis()">📤 Bagikan / Lihat</button>
+    <button class="t-btn" onclick="shareTulis()"> Bagikan / Lihat</button>
 </div>
 
 <script>
@@ -147,12 +170,12 @@ const L={
 id:{
 t:'Iqro - Belajar Baca',
 lv:['Hijaiyah','Harakat','Tanwin','Kata','Mad'],
-md:['📖 Belajar','🎯 Kuis',' Tulis'],
+md:['📖 Belajar','🎯 Kuis','🎨 Tulis'],
 tap:'Ketuk kartu untuk melihat nama & bacaan',
 q:'Mana bacaan yang benar?',
 score:'Skor',
 write:'Tiru huruf di atas, atau buat kaligrafi bebas!',
-free:'Mode Kaligrafi Bebas - Scroll untuk menulis lebih luas!',
+free:'Mode Kaligrafi Bebas - Gunakan tombol panah untuk navigasi!',
 dis:'⚠️ Materi di halaman ini adalah latihan huruf Arab ASLI bergaya metode Iqro\', BUKAN salinan atau scan buku Iqro\'. Buku Iqro\' (K.H. As\'ad Humam) dilindungi hak cipta. Dukung penulis dengan membeli buku aslinya.'
 },
 en:{
@@ -163,7 +186,7 @@ tap:'Tap the card to see name & reading',
 q:'Which is the correct reading?',
 score:'Score',
 write:'Copy the letter above, or create free calligraphy!',
-free:'Free Calligraphy Mode - Scroll to write more!',
+free:'Free Calligraphy Mode - Use arrow buttons to navigate!',
 dis:'⚠️ The material here is ORIGINAL Arabic-letter practice in the style of the Iqro\' method, NOT a copy or scan of the Iqro\' book. The Iqro\' book (K.H. As\'ad Humam) is copyrighted. Support the author by buying the original.'
 }
 };
@@ -290,7 +313,7 @@ function bunyi(it,idx){
 function speak(t){
   const pesan=(lang==='id')
     ?'🔇 Tidak ada suara Arab di perangkat/browser ini. Naikkan volume media & pasang bahasa Arab di pengaturan Text-to-speech.'
-    :'🔇 No Arabic voice on this device/browser. Raise media volume & install Arabic in Text-to-speech settings.';
+    :' No Arabic voice on this device/browser. Raise media volume & install Arabic in Text-to-speech settings.';
   const v=arVoice();
   if(!('speechSynthesis' in window)||!v){
     if($('inf')){$('inf').innerHTML=pesan+' <small>('+((('speechSynthesis' in window)&&VOICES.length)?('suara terdeteksi: '+VOICES.length+', tiada kode "ar"'):'daftar suara masih kosong')+')</small>';$('inf').dataset.warn='1';}
@@ -362,7 +385,7 @@ setTimeout(()=>{qItem=null;quiz();},900);
 });
 }
 
-/* ===== FITUR BELAJAR MENULIS - CANVAS SCROLLABLE ===== */
+/* ===== FITUR BELAJAR MENULIS - CANVAS NAVIGASI ===== */
 let cv,cx,isDraw=false,lx=0,ly=0,drawn=false;
 const COLORS=['#1e5b46','#000000','#c0392b','#2980b9','#8e44ad','#d4a017'];
 let curColor=COLORS[0];
@@ -370,9 +393,13 @@ let isEraser=false;
 let brushSize=16;
 let eraserSize=20;
 
-// Ukuran canvas besar untuk scroll
-const CANVAS_WIDTH=1500;
-const CANVAS_HEIGHT=1500;
+// Canvas super besar: 3000x3000 pixel
+const CANVAS_WIDTH=3000;
+const CANVAS_HEIGHT=3000;
+
+// Posisi viewport
+let viewX=0;
+let viewY=0;
 
 function tulisMode(){
     const T=L[lang];
@@ -413,11 +440,18 @@ function tulisMode(){
 
 function setupCv(){
     cv=$('cvTulis');
-    const scroll=$('canvasScroll');
+    const viewport=$('canvasViewport');
     
-    // Canvas ukuran besar tetap (1500x1500)
+    // Canvas super besar
     cv.width=CANVAS_WIDTH;
     cv.height=CANVAS_HEIGHT;
+    
+    // Reset posisi viewport ke tengah canvas
+    const vpWidth=viewport.clientWidth;
+    const vpHeight=viewport.clientHeight;
+    viewX=Math.max(0,(CANVAS_WIDTH-vpWidth)/2);
+    viewY=Math.max(0,(CANVAS_HEIGHT-vpHeight)/2);
+    updateCanvasPosition();
     
     cx=cv.getContext('2d');
     cx.lineWidth=brushSize;
@@ -436,6 +470,30 @@ function setupCv(){
     cv.addEventListener('mousemove',drawMove);
     cv.addEventListener('mouseup',drawEnd);
     cv.addEventListener('mouseout',drawEnd);
+}
+
+function updateCanvasPosition(){
+    cv.style.transform=`translate(${-viewX}px,${-viewY}px)`;
+    $('posIndicator').textContent=`${Math.round(viewX)}, ${Math.round(viewY)}`;
+}
+
+function navCanvas(dx,dy){
+    const viewport=$('canvasViewport');
+    const vpWidth=viewport.clientWidth;
+    const vpHeight=viewport.clientHeight;
+    
+    viewX=Math.max(0,Math.min(CANVAS_WIDTH-vpWidth,viewX+dx));
+    viewY=Math.max(0,Math.min(CANVAS_HEIGHT-vpHeight,viewY+dy));
+    updateCanvasPosition();
+}
+
+function resetView(){
+    const viewport=$('canvasViewport');
+    const vpWidth=viewport.clientWidth;
+    const vpHeight=viewport.clientHeight;
+    viewX=Math.max(0,(CANVAS_WIDTH-vpWidth)/2);
+    viewY=Math.max(0,(CANVAS_HEIGHT-vpHeight)/2);
+    updateCanvasPosition();
 }
 
 function getPos(e){
@@ -487,7 +545,7 @@ function toggleEraser(){
         cv.style.cursor='cell';
     }else{
         btn.classList.remove('active');
-        btn.textContent=' Hapus';
+        btn.textContent='🧹 Hapus';
         sizeCtrl.style.display='none';
         cv.style.cursor='crosshair';
     }
@@ -550,7 +608,7 @@ function saveCv(){
             document.body.removeChild(a);
             window._lastSaved={nama,data};
             showToast('📥 Tersimpan!',`📁 ${nama} (Folder Downloads)`,false);
-        }catch(err){showToast('❌ Gagal','Coba lagi ya',false);}
+        }catch(err){showToast(' Gagal','Coba lagi ya',false);}
     },400);
 }
 
@@ -586,14 +644,12 @@ function nextTulis(){
     tulisMode();
 }
 
-// Slider brush size
 $('brushRange').addEventListener('input',function(){
     brushSize=+this.value;
     $('brushVal').textContent=brushSize+'px';
     if(cx&&!isEraser)cx.lineWidth=brushSize;
 });
 
-// Slider eraser size
 $('eraserRange').addEventListener('input',function(){
     eraserSize=+this.value;
     $('eraserVal').textContent=eraserSize+'px';
