@@ -2,13 +2,13 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#1e5b46">
 <title>Iqro — Sahabat Hijrah</title>
 <style>
 :root{--green:#1e5b46;--yellow:#ffd200;--bg:#efece4;--card:#f8f8f6;--text:#21302b;--muted:#7d8a83}
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);padding-bottom:24px;min-height:100vh;touch-action:manipulation}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);padding-bottom:24px;min-height:100vh}
 header{position:sticky;top:0;z-index:100;background:var(--green);color:#fff;display:flex;align-items:center;gap:4px;padding:10px 8px}
 header a{color:#fff;text-decoration:none;font-size:20px;line-height:1;flex-shrink:0}
 header h1{font-size:14px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
@@ -34,6 +34,7 @@ header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255
 .score{text-align:center;font-size:13px;color:var(--muted);margin-top:10px;font-weight:600}
 .note{font-size:11px;color:var(--muted);line-height:1.6;background:#f3efe2;border-radius:10px;padding:10px;margin-top:12px;font-weight:500}
 
+/* === MODE TULIS - CLEAN & ELEGANT === */
 #canvasFullscreen{display:none;position:fixed;top:52px;left:0;right:0;bottom:0;background:var(--bg);z-index:50;overflow:hidden}
 #canvasFullscreen.show{display:flex;flex-direction:column}
 .canvas-wrap{flex:1;display:flex;flex-direction:column;padding:8px;min-height:0}
@@ -42,8 +43,9 @@ header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255
 .letter-ref .ar-ref{font-size:36px;font-family:"Amiri","Scheherazade New","Noto Naskh Arabic",serif;color:var(--green);direction:rtl;line-height:1}
 .letter-ref .nama-ref{font-size:12px;color:var(--muted);font-weight:600}
 
-.canvas-viewport{flex:1;overflow:hidden;background:#fafafa;border:2px dashed #cfd8d3;border-radius:12px;position:relative;min-height:0;display:flex;align-items:center;justify-content:center}
-.canvas-box{display:block;max-width:100%;max-height:100%;touch-action:none;cursor:crosshair;background:#fafafa}
+/* Canvas fit di viewport */
+.canvas-viewport{flex:1;overflow:hidden;background:#fafafa;border:2px dashed #cfd8d3;border-radius:12px;position:relative;min-height:0;touch-action:none}
+.canvas-box{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair;background:#fafafa}
 
 .canvas-tools{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;flex-shrink:0}
 .canvas-tools button{flex:1;min-width:70px;padding:12px 8px;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
@@ -91,9 +93,11 @@ header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255
             <div class="ar-ref" id="refArab"></div>
             <div class="nama-ref" id="refNama"></div>
         </div>
+        
         <div class="canvas-viewport" id="canvasViewport">
             <canvas id="cvTulis" class="canvas-box"></canvas>
         </div>
+        
         <div class="color-pick" id="colPick"></div>
         <div class="size-slider">
             <span>🖌️ Ukuran:</span>
@@ -101,13 +105,13 @@ header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255
             <span class="size-label" id="brushVal">16px</span>
         </div>
         <div class="size-slider" id="eraserSizeCtrl" style="display:none">
-            <span>🧹 Penghapus:</span>
+            <span> Penghapus:</span>
             <input type="range" id="eraserRange" min="10" max="80" value="20">
             <span class="size-label" id="eraserVal">20px</span>
         </div>
         <div class="canvas-tools">
             <button class="btn-free" id="btnFree" onclick="toggleFreeMode()">✨ Bebas</button>
-            <button class="btn-eraser" id="btnEraser" onclick="toggleEraser()">🧹 Hapus</button>
+            <button class="btn-eraser" id="btnEraser" onclick="toggleEraser()"> Hapus</button>
             <button class="btn-clear" onclick="clearCv()">🗑️ Semua</button>
             <button class="btn-save" onclick="saveCv()">💾 Simpan</button>
             <button class="btn-next" onclick="nextTulis()">➡️</button>
@@ -131,7 +135,7 @@ let freeMode=false;
 
 const L={
 id:{t:'Iqro - Belajar Baca',lv:['Hijaiyah','Harakat','Tanwin','Kata','Mad'],md:['📖 Belajar','🎯 Kuis','🎨 Tulis'],tap:'Ketuk kartu untuk melihat nama & bacaan',q:'Mana bacaan yang benar?',score:'Skor',write:'Tiru huruf di atas, atau buat kaligrafi bebas!',free:'Mode Kaligrafi Bebas - Canvas luas untuk berkreasi!',dis:'⚠️ Materi di halaman ini adalah latihan huruf Arab ASLI bergaya metode Iqro\', BUKAN salinan atau scan buku Iqro\'. Buku Iqro\' (K.H. As\'ad Humam) dilindungi hak cipta. Dukung penulis dengan membeli buku aslinya.'},
-en:{t:'Iqro - Learn to Read',lv:['Hijaiyah','Harakat','Tanwin','Words','Madd'],md:['📖 Learn','🎯 Quiz','🎨 Write'],tap:'Tap the card to see name & reading',q:'Which is the correct reading?',score:'Score',write:'Copy the letter above, or create free calligraphy!',free:'Free Calligraphy Mode - Large canvas for creativity!',dis:'⚠️ The material here is ORIGINAL Arabic-letter practice in the style of the Iqro\' method, NOT a copy or scan of the Iqro\' book. The Iqro\' book (K.H. As\'ad Humam) is copyrighted. Support the author by buying the original.'}
+en:{t:'Iqro - Learn to Read',lv:['Hijaiyah','Harakat','Tanwin','Words','Madd'],md:['📖 Learn',' Quiz','🎨 Write'],tap:'Tap the card to see name & reading',q:'Which is the correct reading?',score:'Score',write:'Copy the letter above, or create free calligraphy!',free:'Free Calligraphy Mode - Large canvas for creativity!',dis:'️ The material here is ORIGINAL Arabic-letter practice in the style of the Iqro\' method, NOT a copy or scan of the Iqro\' book. The Iqro\' book (K.H. As\'ad Humam) is copyrighted. Support the author by buying the original.'}
 };
 
 const HIJ=[['ا','Alif','a',''],['ب','Ba','ba','b'],['ت','Ta','ta','t'],['ث','Tsa','tsa','ts'],['ج','Jim','jim','j'],['ح','Ha','ha','h'],['خ','Kho','kho','kh'],['د','Dal','dal','d'],['ذ','Dzal','dzal','dz'],['ر','Ro','ro','r'],['ز','Zai','zai','z'],['س','Sin','sin','s'],['ش','Syin','syin','sy'],['ص','Shod','shod','sh'],['ض','Dhod','dhod','dh'],['ط','Tho','tho','th'],['ظ','Zho','zho','zh'],['ع','Ain','ain',''],['غ','Ghain','ghain','gh'],['ف','Fa','fa','f'],['ق','Qof','qof','q'],['ك','Kaf','kaf','k'],['ل','Lam','lam','l'],['م','Mim','mim','m'],['ن','Nun','nun','n'],['و','Wau','wau','w'],['هـ','Ha','ha','h'],['ء','Hamzah','hamzah',''],['ي','Ya','ya','y'],['لا','Lam-Alif','la','la']];
@@ -158,93 +162,24 @@ function learn(){$('btnMenuBack').classList.remove('show');$('lv').classList.rem
 
 function quiz(){$('btnMenuBack').classList.remove('show');$('lv').classList.remove('hidden');$('md').classList.remove('hidden');$('canvasFullscreen').classList.remove('show');const T=L[lang],list=items();if(!qItem){qItem=pick(list);qOpts=opts(list,qItem);}$('area').innerHTML='<div class="ar">'+qItem.ar+'</div><div class="info">'+T.q+'</div><div class="opts" id="op">'+qOpts.map((o,x)=>'<button data-x="'+x+'">'+o+'</button>').join('')+'</div><div class="score" id="sc">'+T.score+': '+score+' / '+total+'</div>';$('op').querySelectorAll('button').forEach(b=>{b.onclick=()=>{const ok=b.textContent===qItem.read;total++;if(ok){score++;b.classList.add('ok');}else{b.classList.add('no');$('op').querySelectorAll('button').forEach(x=>{if(x.textContent===qItem.read)x.classList.add('ok');});}$('op').querySelectorAll('button').forEach(x=>x.disabled=true);$('sc').textContent=T.score+': '+score+' / '+total;setTimeout(()=>{qItem=null;quiz();},900);};});}
 
-let cv,cx,isDraw=false,lx=0,ly=0,drawn=false,cvInitialized=false;
+let cv,cx,isDraw=false,lx=0,ly=0,drawn=false;
 const COLORS=['#1e5b46','#000000','#c0392b','#2980b9','#8e44ad','#d4a017'];
 let curColor=COLORS[0],isEraser=false,brushSize=16,eraserSize=20;
 const CANVAS_SIZE=1500;
 
-function tulisMode(){
-    const T=L[lang],list=items(),it=list[i];
-    $('lv').classList.add('hidden');$('md').classList.add('hidden');
-    $('btnMenuBack').classList.add('show');$('canvasFullscreen').classList.add('show');
-    freeMode=false;$('btnFree').classList.remove('active');$('letterRef').classList.remove('hidden');
-    $('refArab').textContent=it.ar;$('refNama').textContent=it.lab;$('canvasInfo').textContent=T.write;
-    $('colPick').innerHTML=COLORS.map((c,x)=>`<span data-c="${c}" class="${c===curColor?'on':''}" style="background:${c}"></span>`).join('');
-    $('colPick').querySelectorAll('span').forEach(s=>{
-        s.onclick=()=>{
-            curColor=s.dataset.c;
-            $('colPick').querySelectorAll('span').forEach(x=>x.classList.remove('on'));
-            s.classList.add('on');
-            if(cx&&!isEraser)cx.strokeStyle=curColor;
-            if(isEraser)toggleEraser();
-        };
-    });
-    $('brushRange').value=brushSize;$('brushVal').textContent=brushSize+'px';
-    $('eraserRange').value=eraserSize;$('eraserVal').textContent=eraserSize+'px';
-    cvInitialized=false; // Reset agar event listener tidak menumpuk
-    setTimeout(()=>setupCv(),50);
-}
+function tulisMode(){const T=L[lang],list=items(),it=list[i];$('lv').classList.add('hidden');$('md').classList.add('hidden');$('btnMenuBack').classList.add('show');$('canvasFullscreen').classList.add('show');freeMode=false;$('btnFree').classList.remove('active');$('letterRef').classList.remove('hidden');$('refArab').textContent=it.ar;$('refNama').textContent=it.lab;$('canvasInfo').textContent=T.write;$('colPick').innerHTML=COLORS.map((c,x)=>`<span data-c="${c}" class="${c===curColor?'on':''}" style="background:${c}"></span>`).join('');$('colPick').querySelectorAll('span').forEach(s=>{s.onclick=()=>{curColor=s.dataset.c;$('colPick').querySelectorAll('span').forEach(x=>x.classList.remove('on'));s.classList.add('on');if(cx&&!isEraser)cx.strokeStyle=curColor;if(isEraser)toggleEraser();};});$('brushRange').value=brushSize;$('brushVal').textContent=brushSize+'px';$('eraserRange').value=eraserSize;$('eraserVal').textContent=eraserSize+'px';setTimeout(()=>setupCv(),50);}
 
-function setupCv(){
-    cv=$('cvTulis');
-    cv.width=CANVAS_SIZE;
-    cv.height=CANVAS_SIZE;
-    cx=cv.getContext('2d');
-    cx.lineWidth=brushSize;cx.lineCap='round';cx.lineJoin='round';
-    cx.strokeStyle=curColor;cx.fillStyle='#fafafa';
-    cx.fillRect(0,0,cv.width,cv.height);
-    drawn=false;
-    
-    if(!cvInitialized){
-        cv.addEventListener('touchstart',drawStart,{passive:false});
-        cv.addEventListener('touchmove',drawMove,{passive:false});
-        cv.addEventListener('touchend',drawEnd);
-        cv.addEventListener('touchcancel',drawEnd);
-        cv.addEventListener('mousedown',drawStart);
-        cv.addEventListener('mousemove',drawMove);
-        cv.addEventListener('mouseup',drawEnd);
-        cv.addEventListener('mouseout',drawEnd);
-        cvInitialized=true;
-    }
-}
+function setupCv(){cv=$('cvTulis');const viewport=$('canvasViewport');cv.width=CANVAS_SIZE;cv.height=CANVAS_SIZE;cx=cv.getContext('2d');cx.lineWidth=brushSize;cx.lineCap='round';cx.lineJoin='round';cx.strokeStyle=curColor;cx.fillStyle='#fafafa';cx.fillRect(0,0,cv.width,cv.height);drawn=false;cv.addEventListener('touchstart',drawStart,{passive:false});cv.addEventListener('touchmove',drawMove,{passive:false});cv.addEventListener('touchend',drawEnd);cv.addEventListener('touchcancel',drawEnd);cv.addEventListener('mousedown',drawStart);cv.addEventListener('mousemove',drawMove);cv.addEventListener('mouseup',drawEnd);cv.addEventListener('mouseout',drawEnd);}
 
-function getPos(e){
-    const r=cv.getBoundingClientRect();
-    const scaleX=cv.width/r.width;
-    const scaleY=cv.height/r.height;
-    const cx2=e.touches?e.touches[0].clientX:e.clientX;
-    const cy2=e.touches?e.touches[0].clientY:e.clientY;
-    return{x:(cx2-r.left)*scaleX,y:(cy2-r.top)*scaleY};
-}
-
-function drawStart(e){
-    isDraw=true;const p=getPos(e);lx=p.x;ly=p.y;drawn=true;
-    if(isEraser){cx.globalCompositeOperation='destination-out';cx.lineWidth=eraserSize;}
-    else{cx.globalCompositeOperation='source-over';cx.strokeStyle=curColor;cx.lineWidth=brushSize;}
-}
-function drawMove(e){
-    if(!isDraw)return;e.preventDefault();const p=getPos(e);
-    cx.beginPath();cx.moveTo(lx,ly);cx.lineTo(p.x,p.y);cx.stroke();lx=p.x;ly=p.y;
-}
+function getPos(e){const r=cv.getBoundingClientRect();const scaleX=cv.width/r.width;const scaleY=cv.height/r.height;const cx2=e.touches?e.touches[0].clientX:e.clientX;const cy2=e.touches?e.touches[0].clientY:e.clientY;return{x:(cx2-r.left)*scaleX,y:(cy2-r.top)*scaleY};}
+function drawStart(e){isDraw=true;const p=getPos(e);lx=p.x;ly=p.y;drawn=true;if(isEraser){cx.globalCompositeOperation='destination-out';cx.lineWidth=eraserSize;}else{cx.globalCompositeOperation='source-over';cx.strokeStyle=curColor;cx.lineWidth=brushSize;}}
+function drawMove(e){if(!isDraw)return;e.preventDefault();const p=getPos(e);cx.beginPath();cx.moveTo(lx,ly);cx.lineTo(p.x,p.y);cx.stroke();lx=p.x;ly=p.y;}
 function drawEnd(){isDraw=false;cx.globalCompositeOperation='source-over';}
 
-function toggleEraser(){
-    isEraser=!isEraser;const btn=$('btnEraser'),sizeCtrl=$('eraserSizeCtrl');
-    if(isEraser){btn.classList.add('active');btn.textContent='✏️ Tulis';sizeCtrl.style.display='flex';cv.style.cursor='cell';}
-    else{btn.classList.remove('active');btn.textContent='🧹 Hapus';sizeCtrl.style.display='none';cv.style.cursor='crosshair';}
-}
-function toggleFreeMode(){
-    freeMode=!freeMode;const btn=$('btnFree'),ref=$('letterRef'),T=L[lang];
-    if(freeMode){btn.classList.add('active');btn.textContent='📝 Tiru Huruf';ref.classList.add('hidden');$('canvasInfo').textContent=T.free;}
-    else{btn.classList.remove('active');btn.textContent='✨ Bebas';ref.classList.remove('hidden');const list=items(),it=list[i];$('refArab').textContent=it.ar;$('refNama').textContent=it.lab;$('canvasInfo').textContent=T.write;}
-}
-function clearCv(){
-    if(!cx)return;cx.globalCompositeOperation='source-over';cx.fillStyle='#fafafa';cx.fillRect(0,0,cv.width,cv.height);drawn=false;if(isEraser)toggleEraser();
-}
-function backToMenu(){
-    $('btnMenuBack').classList.remove('show');$('lv').classList.remove('hidden');$('md').classList.remove('hidden');
-    $('canvasFullscreen').classList.remove('show');cvInitialized=false;md=0;render();
-}
+function toggleEraser(){isEraser=!isEraser;const btn=$('btnEraser'),sizeCtrl=$('eraserSizeCtrl');if(isEraser){btn.classList.add('active');btn.textContent='✏️ Tulis';sizeCtrl.style.display='flex';cv.style.cursor='cell';}else{btn.classList.remove('active');btn.textContent='🧹 Hapus';sizeCtrl.style.display='none';cv.style.cursor='crosshair';}}
+function toggleFreeMode(){freeMode=!freeMode;const btn=$('btnFree'),ref=$('letterRef'),T=L[lang];if(freeMode){btn.classList.add('active');btn.textContent='📝 Tiru Huruf';ref.classList.add('hidden');$('canvasInfo').textContent=T.free;}else{btn.classList.remove('active');btn.textContent='✨ Bebas';ref.classList.remove('hidden');const list=items(),it=list[i];$('refArab').textContent=it.ar;$('refNama').textContent=it.lab;$('canvasInfo').textContent=T.write;}}
+function clearCv(){if(!cx)return;cx.globalCompositeOperation='source-over';cx.fillStyle='#fafafa';cx.fillRect(0,0,cv.width,cv.height);drawn=false;if(isEraser)toggleEraser();}
+function backToMenu(){$('btnMenuBack').classList.remove('show');$('lv').classList.remove('hidden');$('md').classList.remove('hidden');$('canvasFullscreen').classList.remove('show');md=0;render();}
 
 function saveCv(){
     if(!cv)return;
@@ -253,55 +188,42 @@ function saveCv(){
         const ts=new Date().getTime();
         const nama=`Sahabat-Hijrah-Kaligrafi-${ts}.png`;
         try{
+            // Buat canvas sementara untuk tambah watermark
             const tempCanvas=document.createElement('canvas');
-            tempCanvas.width=cv.width;tempCanvas.height=cv.height;
+            tempCanvas.width=cv.width;
+            tempCanvas.height=cv.height;
             const tempCtx=tempCanvas.getContext('2d');
+            
+            // Copy gambar asli
             tempCtx.drawImage(cv,0,0);
+            
+            // Tambah watermark "Sahabat Hijrah" di pojok kanan bawah
             tempCtx.font='bold 40px system-ui, sans-serif';
             tempCtx.fillStyle='rgba(30,91,70,0.3)';
             tempCtx.textAlign='right';
-            tempCtx.fillText('Sahabat Hijrah 🌿',tempCanvas.width-30,tempCanvas.height-30);
+            tempCtx.fillText('Sahabat Hijrah ',tempCanvas.width-30,tempCanvas.height-30);
+            
             const data=tempCanvas.toDataURL('image/png');
-            const a=document.createElement('a');a.download=nama;a.href=data;
-            document.body.appendChild(a);a.click();document.body.removeChild(a);
+            const a=document.createElement('a');
+            a.download=nama;
+            a.href=data;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
             window._lastSaved={nama,data};
             showToast('📥 Tersimpan!',`📁 ${nama} (Folder Downloads)`,false);
         }catch(err){showToast('❌ Gagal','Coba lagi ya',false);}
     },400);
 }
 
-function showToast(title,loc,isLoading){
-    const t=$('toastNotif'),locEl=$('toastLoc');
-    t.querySelector('.t-title').textContent=title;locEl.textContent=loc;
-    const btn=t.querySelector('.t-btn');btn.style.display=isLoading?'none':'block';
-    t.classList.add('show');if(!isLoading)setTimeout(()=>t.classList.remove('show'),4500);
-}
-function shareTulis(){
-    const t=$('toastNotif');t.classList.remove('show');
-    if(window._lastSaved && navigator.share){
-        try{
-            fetch(window._lastSaved.data).then(r=>r.blob()).then(blob=>{
-                const file=new File([blob],window._lastSaved.nama,{type:'image/png'});
-                if(navigator.canShare && navigator.canShare({files:[file]})){
-                    navigator.share({files:[file],title:'Kaligrafi Sahabat Hijrah',text:'Lihat kaligrafi yang saya buat!'}).catch(()=>{});
-                }else{alert('Buka folder Downloads di File Manager.');}
-            });
-        }catch(e){alert('Buka folder Downloads di File Manager.');}
-    }else{alert('Buka aplikasi File Manager → folder Downloads.');}
-}
+function showToast(title,loc,isLoading){const t=$('toastNotif'),locEl=$('toastLoc');t.querySelector('.t-title').textContent=title;locEl.textContent=loc;const btn=t.querySelector('.t-btn');btn.style.display=isLoading?'none':'block';t.classList.add('show');if(!isLoading)setTimeout(()=>t.classList.remove('show'),4500);}
+function shareTulis(){const t=$('toastNotif');t.classList.remove('show');if(window._lastSaved && navigator.share){try{fetch(window._lastSaved.data).then(r=>r.blob()).then(blob=>{const file=new File([blob],window._lastSaved.nama,{type:'image/png'});if(navigator.canShare && navigator.canShare({files:[file]})){navigator.share({files:[file],title:'Kaligrafi Sahabat Hijrah',text:'Lihat kaligrafi yang saya buat!'}).catch(()=>{});}else{alert('Buka folder Downloads di File Manager untuk melihat file.');}});}catch(e){alert('Buka folder Downloads di File Manager untuk melihat file.');}}else{alert('Buka aplikasi File Manager → folder Downloads untuk melihat file.');}}
 function nextTulis(){const list=items();i=(i+1)%list.length;tulisMode();}
 
 $('brushRange').addEventListener('input',function(){brushSize=+this.value;$('brushVal').textContent=brushSize+'px';if(cx&&!isEraser)cx.lineWidth=brushSize;});
 $('eraserRange').addEventListener('input',function(){eraserSize=+this.value;$('eraserVal').textContent=eraserSize+'px';if(cx&&isEraser)cx.lineWidth=eraserSize;});
 
-function render(){
-    const T=L[lang];$('t').textContent=T.t;$('dis').textContent=T.dis;
-    $('lv').innerHTML=T.lv.map((n,x)=>'<button data-l="'+x+'" class="'+(x===lv?'on':'')+'">'+n+'</button>').join('');
-    $('md').innerHTML=T.md.map((n,x)=>'<button data-m="'+x+'" class="'+(x===md?'on':'')+'">'+n+'</button>').join('');
-    $('lv').querySelectorAll('button').forEach(b=>{b.onclick=()=>{lv=+b.dataset.l;i=0;rev=false;score=0;total=0;qItem=null;render();};});
-    $('md').querySelectorAll('button').forEach(b=>{b.onclick=()=>{md=+b.dataset.m;i=0;rev=false;score=0;total=0;qItem=null;render();};});
-    if(md===0)learn();else if(md===1)quiz();else if(md===2)tulisMode();
-}
+function render(){const T=L[lang];$('t').textContent=T.t;$('dis').textContent=T.dis;$('lv').innerHTML=T.lv.map((n,x)=>'<button data-l="'+x+'" class="'+(x===lv?'on':'')+'">'+n+'</button>').join('');$('md').innerHTML=T.md.map((n,x)=>'<button data-m="'+x+'" class="'+(x===md?'on':'')+'">'+n+'</button>').join('');$('lv').querySelectorAll('button').forEach(b=>{b.onclick=()=>{lv=+b.dataset.l;i=0;rev=false;score=0;total=0;qItem=null;render();};});$('md').querySelectorAll('button').forEach(b=>{b.onclick=()=>{md=+b.dataset.m;i=0;rev=false;score=0;total=0;qItem=null;render();};});if(md===0)learn();else if(md===1)quiz();else if(md===2)tulisMode();}
 $('lang').onclick=()=>{lang=(lang==='id')?'en':'id';localStorage.setItem('sh_lang',lang);render();};
 render();
 </script>
