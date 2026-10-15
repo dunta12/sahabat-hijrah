@@ -34,11 +34,12 @@ header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255
 .score{text-align:center;font-size:13px;color:var(--muted);margin-top:10px;font-weight:600}
 .note{font-size:11px;color:var(--muted);line-height:1.6;background:#f3efe2;border-radius:10px;padding:10px;margin-top:12px;font-weight:500}
 
-/* === MODE TULIS - FULLSCREEN DI BAWAH HEADER === */
+/* === MODE TULIS - FULLSCREEN === */
 #canvasFullscreen{display:none;position:fixed;top:52px;left:0;right:0;bottom:0;background:var(--bg);z-index:50;overflow-y:auto}
 #canvasFullscreen.show{display:flex;flex-direction:column}
 .canvas-wrap{flex:1;display:flex;flex-direction:column;padding:8px;min-height:0}
-.letter-ref{display:flex;align-items:center;justify-content:center;gap:8px;padding:6px 10px;background:#fff;border-radius:10px;margin-bottom:6px;flex-shrink:0;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.letter-ref{display:flex;align-items:center;justify-content:center;gap:8px;padding:6px 10px;background:#fff;border-radius:10px;margin-bottom:6px;flex-shrink:0;box-shadow:0 1px 2px rgba(0,0,0,.05);transition:all .3s}
+.letter-ref.hidden{display:none}
 .letter-ref .ar-ref{font-size:36px;font-family:"Amiri","Scheherazade New","Noto Naskh Arabic",serif;color:var(--green);direction:rtl;line-height:1}
 .letter-ref .nama-ref{font-size:12px;color:var(--muted);font-weight:600}
 .canvas-box{flex:1;width:100%;background:#fafafa;border:2px dashed #cfd8d3;border-radius:12px;touch-action:none;cursor:crosshair;display:block;min-height:0}
@@ -49,6 +50,8 @@ header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255
 .btn-eraser.active{background:#e67e22;color:#fff}
 .btn-save{background:#d9f2e3;color:var(--green)}
 .btn-next{background:var(--green);color:#fff}
+.btn-free{background:#ffd200;color:#21302b}
+.btn-free.active{background:#21302b;color:#ffd200}
 .color-pick{display:flex;gap:6px;justify-content:center;margin-top:8px;flex-wrap:wrap;flex-shrink:0}
 .color-pick span{width:32px;height:32px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:transform .15s}
 .color-pick span.on{border-color:var(--green);transform:scale(1.15)}
@@ -80,10 +83,10 @@ header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255
 <div class="note" id="dis"></div>
 </div></div>
 
-<!-- CANVAS FULLSCREEN (di bawah header) -->
+<!-- CANVAS FULLSCREEN -->
 <div id="canvasFullscreen">
     <div class="canvas-wrap">
-        <div class="letter-ref">
+        <div class="letter-ref" id="letterRef">
             <div class="ar-ref" id="refArab"></div>
             <div class="nama-ref" id="refNama"></div>
         </div>
@@ -95,8 +98,9 @@ header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255
             <span id="eraserVal">20px</span>
         </div>
         <div class="canvas-tools">
+            <button class="btn-free" id="btnFree" onclick="toggleFreeMode()">✨ Bebas</button>
             <button class="btn-eraser" id="btnEraser" onclick="toggleEraser()"> Hapus</button>
-            <button class="btn-clear" onclick="clearCv()">🗑️ Semua</button>
+            <button class="btn-clear" onclick="clearCv()">️ Semua</button>
             <button class="btn-save" onclick="saveCv()">💾 Simpan</button>
             <button class="btn-next" onclick="nextTulis()">➡️</button>
         </div>
@@ -107,8 +111,8 @@ header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255
 <!-- Toast Notification -->
 <div id="toastNotif" class="toast">
     <div class="t-title">📥 Tersimpan!</div>
-    <div class="t-loc" id="toastLoc">📁 Folder Downloads</div>
-    <button class="t-btn" onclick="shareTulis()">📤 Bagikan / Lihat</button>
+    <div class="t-loc" id="toastLoc"> Folder Downloads</div>
+    <button class="t-btn" onclick="shareTulis()"> Bagikan / Lihat</button>
 </div>
 
 <script>
@@ -117,26 +121,29 @@ const $=id=>document.getElementById(id);
 let lang=localStorage.getItem('sh_lang')||'id';
 let lv=0,md=0,i=0,rev=false;
 let score=0,total=0,qItem=null,qOpts=[];
+let freeMode=false;
 
 const L={
 id:{
 t:'Iqro - Belajar Baca',
 lv:['Hijaiyah','Harakat','Tanwin','Kata','Mad'],
-md:['📖 Belajar','🎯 Kuis','🎨 Tulis'],
+md:[' Belajar','🎯 Kuis','🎨 Tulis'],
 tap:'Ketuk kartu untuk melihat nama & bacaan',
 q:'Mana bacaan yang benar?',
 score:'Skor',
-write:'Tiru huruf di atas, lalu simpan karyamu!',
+write:'Tiru huruf di atas, atau buat kaligrafi bebas!',
+free:'Mode Kaligrafi Bebas',
 dis:'⚠️ Materi di halaman ini adalah latihan huruf Arab ASLI bergaya metode Iqro\', BUKAN salinan atau scan buku Iqro\'. Buku Iqro\' (K.H. As\'ad Humam) dilindungi hak cipta. Dukung penulis dengan membeli buku aslinya.'
 },
 en:{
 t:'Iqro - Learn to Read',
 lv:['Hijaiyah','Harakat','Tanwin','Words','Madd'],
-md:['📖 Learn','🎯 Quiz','🎨 Write'],
+md:[' Learn','🎯 Quiz','🎨 Write'],
 tap:'Tap the card to see name & reading',
 q:'Which is the correct reading?',
 score:'Score',
-write:'Copy the letter above, then save your work!',
+write:'Copy the letter above, or create free calligraphy!',
+free:'Free Calligraphy Mode',
 dis:'⚠️ The material here is ORIGINAL Arabic-letter practice in the style of the Iqro\' method, NOT a copy or scan of the Iqro\' book. The Iqro\' book (K.H. As\'ad Humam) is copyrighted. Support the author by buying the original.'
 }
 };
@@ -335,7 +342,7 @@ setTimeout(()=>{qItem=null;quiz();},900);
 });
 }
 
-/* ===== FITUR BELAJAR MENULIS - FULLSCREEN ===== */
+/* ===== FITUR BELAJAR MENULIS ===== */
 let cv,cx,isDraw=false,lx=0,ly=0,drawn=false;
 const COLORS=['#1e5b46','#000000','#c0392b','#2980b9','#8e44ad','#d4a017'];
 let curColor=COLORS[0];
@@ -347,20 +354,20 @@ function tulisMode(){
     const list=items();
     const it=list[i];
     
-    // HIDE tombol level & mode
     $('lv').classList.add('hidden');
     $('md').classList.add('hidden');
-    // Tampilkan tombol Menu
     $('btnMenuBack').classList.add('show');
-    // TAMPILKAN CANVAS FULLSCREEN
     $('canvasFullscreen').classList.add('show');
     
-    // Update referensi huruf
+    // Reset free mode saat ganti huruf
+    freeMode=false;
+    $('btnFree').classList.remove('active');
+    $('letterRef').classList.remove('hidden');
+    
     $('refArab').textContent=it.ar;
     $('refNama').textContent=it.lab;
     $('canvasInfo').textContent=T.write;
     
-    // Color picker
     $('colPick').innerHTML=COLORS.map((c,x)=>`<span data-c="${c}" class="${c===curColor?'on':''}" style="background:${c}"></span>`).join('');
     $('colPick').querySelectorAll('span').forEach(s=>{
         s.onclick=()=>{
@@ -372,19 +379,42 @@ function tulisMode(){
         };
     });
     
-    // Eraser slider
     $('eraserRange').value=eraserSize;
     $('eraserVal').textContent=eraserSize+'px';
     
-    // Setup canvas setelah DOM update
     setTimeout(()=>setupCv(),50);
+}
+
+function toggleFreeMode(){
+    freeMode=!freeMode;
+    const btn=$('btnFree');
+    const ref=$('letterRef');
+    const T=L[lang];
+    
+    if(freeMode){
+        btn.classList.add('active');
+        btn.textContent=' Tiru Huruf';
+        ref.classList.add('hidden');
+        $('canvasInfo').textContent=T.free;
+    }else{
+        btn.classList.remove('active');
+        btn.textContent='✨ Bebas';
+        ref.classList.remove('hidden');
+        const list=items();
+        const it=list[i];
+        $('refArab').textContent=it.ar;
+        $('refNama').textContent=it.lab;
+        $('canvasInfo').textContent=T.write;
+    }
+    
+    // Resize canvas setelah toggle
+    setTimeout(()=>setupCv(),100);
 }
 
 function setupCv(){
     cv=$('cvTulis');
     const wrap=cv.parentElement;
-    // Hitung tinggi canvas: tinggi wrap - tinggi elemen lain
-    const otherElements=wrap.querySelectorAll('.letter-ref,.color-pick,.eraser-size,.canvas-tools,.canvas-info');
+    const otherElements=wrap.querySelectorAll('.letter-ref:not(.hidden),.color-pick,.eraser-size,.canvas-tools,.canvas-info');
     let otherHeight=0;
     otherElements.forEach(el=>{otherHeight+=el.offsetHeight+8;});
     const availableHeight=wrap.clientHeight-otherHeight;
@@ -454,12 +484,12 @@ function toggleEraser(){
     const sizeCtrl=$('eraserSizeCtrl');
     if(isEraser){
         btn.classList.add('active');
-        btn.textContent='✏️ Tulis';
+        btn.textContent='️ Tulis';
         sizeCtrl.style.display='flex';
         cv.style.cursor='cell';
     }else{
         btn.classList.remove('active');
-        btn.textContent=' Hapus';
+        btn.textContent='🧹 Hapus';
         sizeCtrl.style.display='none';
         cv.style.cursor='crosshair';
     }
@@ -529,7 +559,11 @@ function shareTulis(){
     }else{alert('Buka aplikasi File Manager → folder Downloads untuk melihat file.');}
 }
 
-function nextTulis(){const list=items();i=(i+1)%list.length;tulisMode();}
+function nextTulis(){
+    const list=items();
+    i=(i+1)%list.length;
+    tulisMode();
+}
 
 let resizeTimer;
 window.addEventListener('resize',()=>{
