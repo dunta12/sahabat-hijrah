@@ -9,13 +9,16 @@
 :root{--green:#1e5b46;--yellow:#ffd200;--bg:#efece4;--card:#f8f8f6;--text:#21302b;--muted:#7d8a83}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);padding-bottom:24px}
-header{position:sticky;top:0;z-index:5;background:var(--green);color:#fff;display:flex;align-items:center;gap:10px;padding:14px 16px}
+header{position:sticky;top:0;z-index:5;background:var(--green);color:#fff;display:flex;align-items:center;gap:8px;padding:14px 16px}
 header a{color:#fff;text-decoration:none;font-size:22px;line-height:1}
-header h1{font-size:18px;flex:1}
-header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:50%;width:38px;height:38px;font-size:17px}
+header h1{font-size:18px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:50%;width:38px;height:38px;font-size:17px;flex-shrink:0}
+#btnMenuBack{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.5);color:#fff;border-radius:20px;width:auto;padding:6px 14px;font-size:13px;font-weight:600;display:none}
+#btnMenuBack.show{display:block}
 .wrap{padding:14px 16px 0}
 .card{background:var(--card);border-radius:18px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-.seg{display:flex;gap:6px;margin:8px 0;flex-wrap:wrap}
+.seg{display:flex;gap:6px;margin:8px 0;flex-wrap:wrap;transition:opacity .3s}
+.seg.hidden{display:none}
 .seg button{flex:1;padding:10px 4px;border-radius:12px;border:1px solid #cfd8d3;background:#fff;font-size:11px;color:var(--text);cursor:pointer;font-weight:600;min-width:80px}
 .seg button.on{background:var(--green);color:#fff;border-color:var(--green)}
 .ar{font-size:64px;text-align:center;padding:26px 10px;background:#fff;border-radius:16px;direction:rtl;font-family:"Amiri","Scheherazade New","Noto Naskh Arabic",serif;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.06);line-height:1.6}
@@ -31,13 +34,12 @@ header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255
 .score{text-align:center;font-size:13px;color:var(--muted);margin-top:10px;font-weight:600}
 .note{font-size:11px;color:var(--muted);line-height:1.6;background:#f3efe2;border-radius:10px;padding:10px;margin-top:12px;font-weight:500}
 
-/* === MODE TULIS / KALIGRAFI - FULLSCREEN === */
-.canvas-wrap{background:#fff;border-radius:16px;padding:10px;margin-top:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;flex-direction:column}
-.canvas-header{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#f0f7f4;border-radius:10px;margin-bottom:8px}
-.canvas-header .huruf-besar{font-size:42px;font-family:"Amiri","Scheherazade New","Noto Naskh Arabic",serif;color:var(--green);direction:rtl;line-height:1}
-.canvas-header .nama{font-size:13px;color:var(--muted);font-weight:600}
-.canvas-header .btn-back{background:var(--green);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer}
-.canvas-box{width:100%;background:#fafafa;border:2px dashed #cfd8d3;border-radius:12px;touch-action:none;cursor:crosshair;display:block;flex:1;min-height:0}
+/* === MODE TULIS / KALIGRAFI === */
+.canvas-wrap{background:#fff;border-radius:16px;padding:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;flex-direction:column}
+.letter-ref{display:flex;align-items:center;justify-content:center;gap:10px;padding:6px 10px;background:#f0f7f4;border-radius:10px;margin-bottom:6px}
+.letter-ref .ar-ref{font-size:36px;font-family:"Amiri","Scheherazade New","Noto Naskh Arabic",serif;color:var(--green);direction:rtl;line-height:1}
+.letter-ref .nama-ref{font-size:12px;color:var(--muted);font-weight:600}
+.canvas-box{width:100%;background:#fafafa;border:2px dashed #cfd8d3;border-radius:12px;touch-action:none;cursor:crosshair;display:block;flex:1}
 .canvas-tools{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
 .canvas-tools button{flex:1;min-width:70px;padding:10px 6px;border:none;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
 .btn-clear{background:#fde3e3;color:#c66}
@@ -61,13 +63,16 @@ header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255
 
 /* === RESPONSIVE === */
 @media (orientation:landscape) and (max-height:500px){
-    .canvas-header .huruf-besar{font-size:36px}
-    .canvas-box{height:calc(100vh - 180px)!important}
+    .letter-ref .ar-ref{font-size:28px}
+    .canvas-box{height:calc(100vh - 140px)!important}
     .wrap{padding:6px 10px 0}
     .card{padding:8px}
 }
 @media (min-height:700px){
-    .canvas-box{height:55vh!important}
+    .canvas-box{height:70vh!important}
+}
+@media (max-height:700px){
+    .canvas-box{height:60vh!important}
 }
 </style>
 </head>
@@ -76,7 +81,8 @@ header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255
 <header>
 <a href="index.html">←</a>
 <h1 id="t"></h1>
-<button id="lang">🌐</button>
+<button id="btnMenuBack" onclick="backToMenu()">← Menu</button>
+<button id="lang"></button>
 </header>
 
 <div class="wrap"><div class="card">
@@ -89,8 +95,8 @@ header button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255
 <!-- Toast Notification -->
 <div id="toastNotif" class="toast">
     <div class="t-title">📥 Tersimpan!</div>
-    <div class="t-loc" id="toastLoc">📁 Folder Downloads</div>
-    <button class="t-btn" onclick="shareTulis()">📤 Bagikan / Lihat</button>
+    <div class="t-loc" id="toastLoc"> Folder Downloads</div>
+    <button class="t-btn" onclick="shareTulis()"> Bagikan / Lihat</button>
 </div>
 
 <script>
@@ -114,7 +120,7 @@ dis:'⚠️ Materi di halaman ini adalah latihan huruf Arab ASLI bergaya metode 
 en:{
 t:'Iqro - Learn to Read',
 lv:['Hijaiyah','Harakat','Tanwin','Words','Madd'],
-md:[' Learn','🎯 Quiz',' Write'],
+md:['📖 Learn','🎯 Quiz',' Write'],
 tap:'Tap the card to see name & reading',
 q:'Which is the correct reading?',
 score:'Score',
@@ -245,7 +251,7 @@ function bunyi(it,idx){
 function speak(t){
   const pesan=(lang==='id')
     ?'🔇 Tidak ada suara Arab di perangkat/browser ini. Naikkan volume media & pasang bahasa Arab di pengaturan Text-to-speech.'
-    :' No Arabic voice on this device/browser. Raise media volume & install Arabic in Text-to-speech settings.';
+    :'🔇 No Arabic voice on this device/browser. Raise media volume & install Arabic in Text-to-speech settings.';
   const v=arVoice();
   if(!('speechSynthesis' in window)||!v){
     if($('inf')){$('inf').innerHTML=pesan+' <small>('+((('speechSynthesis' in window)&&VOICES.length)?('suara terdeteksi: '+VOICES.length+', tiada kode "ar"'):'daftar suara masih kosong')+')</small>';$('inf').dataset.warn='1';}
@@ -264,6 +270,9 @@ function speak(t){
 }
 
 function learn(){
+$('btnMenuBack').classList.remove('show');
+$('lv').classList.remove('hidden');
+$('md').classList.remove('hidden');
 const T=L[lang];
 const list=items();
 const it=list[i];
@@ -286,6 +295,9 @@ $('nx').onclick=()=>{i=(i+1)%list.length;rev=false;learn();};
 }
 
 function quiz(){
+$('btnMenuBack').classList.remove('show');
+$('lv').classList.remove('hidden');
+$('md').classList.remove('hidden');
 const T=L[lang];
 const list=items();
 if(!qItem){qItem=pick(list);qOpts=opts(list,qItem);}
@@ -309,7 +321,7 @@ setTimeout(()=>{qItem=null;quiz();},900);
 });
 }
 
-/* ===== FITUR BELAJAR MENULIS - CANVAS FULLSCREEN ===== */
+/* ===== FITUR BELAJAR MENULIS ===== */
 let cv,cx,isDraw=false,lx=0,ly=0,drawn=false;
 const COLORS=['#1e5b46','#000000','#c0392b','#2980b9','#8e44ad','#d4a017'];
 let curColor=COLORS[0];
@@ -320,14 +332,18 @@ function tulisMode(){
     const T=L[lang];
     const list=items();
     const it=list[i];
+    
+    // HIDE semua tombol level & mode
+    $('lv').classList.add('hidden');
+    $('md').classList.add('hidden');
+    // Tampilkan tombol Menu di header
+    $('btnMenuBack').classList.add('show');
+    
     $('area').innerHTML=`
         <div class="canvas-wrap">
-            <div class="canvas-header">
-                <div>
-                    <div class="huruf-besar">${it.ar}</div>
-                    <div class="nama">${it.lab}</div>
-                </div>
-                <button class="btn-back" onclick="backToMenu()">← Menu</button>
+            <div class="letter-ref">
+                <div class="ar-ref">${it.ar}</div>
+                <div class="nama-ref">${it.lab}</div>
             </div>
             <canvas id="cvTulis" class="canvas-box"></canvas>
             <div class="color-pick" id="colPick">
@@ -339,8 +355,8 @@ function tulisMode(){
                 <span id="eraserVal">${eraserSize}px</span>
             </div>
             <div class="canvas-tools">
-                <button class="btn-eraser ${isEraser?'active':''}" id="btnEraser" onclick="toggleEraser()">🧹 Hapus</button>
-                <button class="btn-clear" onclick="clearCv()">🗑️ Semua</button>
+                <button class="btn-eraser ${isEraser?'active':''}" id="btnEraser" onclick="toggleEraser()"> Hapus</button>
+                <button class="btn-clear" onclick="clearCv()">️ Semua</button>
                 <button class="btn-save" onclick="saveCv()">💾 Simpan</button>
                 <button class="btn-next" onclick="nextTulis()">➡️</button>
             </div>
@@ -372,11 +388,9 @@ function tulisMode(){
 function setupCv(){
     cv=document.getElementById('cvTulis');
     const wrap=cv.parentElement;
-    // Canvas fullscreen: tinggi 55vh di HP tinggi, atau 45vh di HP pendek
-    const isTall = window.innerHeight > 700;
-    const targetHeight = isTall ? window.innerHeight * 0.55 : window.innerHeight * 0.45;
-    cv.width = wrap.clientWidth - 20;
-    cv.height = Math.max(targetHeight, 300);
+    cv.width=wrap.clientWidth-16;
+    const computedHeight=getComputedStyle(cv).height;
+    cv.height=parseInt(computedHeight)||400;
     cx=cv.getContext('2d');
     cx.lineWidth=window.innerWidth<400?12:16;
     cx.lineCap='round';
@@ -459,14 +473,16 @@ function clearCv(){
 }
 
 function backToMenu(){
-    // Kembali ke menu mode (Belajar/Kuis/Tulis)
+    $('btnMenuBack').classList.remove('show');
+    $('lv').classList.remove('hidden');
+    $('md').classList.remove('hidden');
     md=0;
     render();
 }
 
 function saveCv(){
     if(!cv)return;
-    showToast('⏳ Menyimpan...','Mohon tunggu sebentar',true);
+    showToast(' Menyimpan...','Mohon tunggu sebentar',true);
     setTimeout(()=>{
         const ts=new Date().getTime();
         const nama=`kaligrafi-sh-${ts}.png`;
@@ -479,7 +495,7 @@ function saveCv(){
             a.click();
             document.body.removeChild(a);
             window._lastSaved={nama,data};
-            showToast('📥 Tersimpan!',`📁 ${nama} (Folder Downloads)`,false);
+            showToast('📥 Tersimpan!',` ${nama} (Folder Downloads)`,false);
         }catch(err){showToast('❌ Gagal','Coba lagi ya',false);}
     },400);
 }
